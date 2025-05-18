@@ -1,4 +1,8 @@
 
+from datetime import datetime
+write_to_gsheet_tab("TEST", "✅ 手動測試訊號", 100, "0%", "0分")
+print(f"[測試] {datetime.now()} 已寫入 Google Sheets 測試訊號")
+
 # === 引入模組 ===
 import numpy as np
 
