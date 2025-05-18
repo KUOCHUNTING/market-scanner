@@ -211,4 +211,4 @@ def check_signal(symbol, tick_val, tick_slope, tick_perc):
 
 def run_daily_report():
     try:
-        scope = ["https://spreadsheets.google.com"
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
