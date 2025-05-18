@@ -1,6 +1,0 @@
-pandas
-yfinance
-requests
-gspread
-oauth2client
-pytz
