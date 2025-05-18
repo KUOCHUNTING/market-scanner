@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "stellar-benefit-460204-h6",
+  "private_key_id": "e17130f1a44c61cf0bd762bb36e9a15a2a8a5f38",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDJPBU+pJaLGWnW\nyjj7uUD/b0BCdd+Ug3NDCe2gsWbpYDj4YIkQ20Fla9P8fExESySNRvizUc1bC8mC\nhwWKN/e7fIVYoCj8fab5bjM68MyKW3vcoAegWRmHRGkgg7nzP9kanyUkv/iZGpQX\nwIE5MeY43CNQWs48IcaKpnyRsuCpSR8w9h+oh33+CUQx9yE3pflUGucY+627U+WD\nJ4VErEGund4BLa/4/9aN7zrDUKFAn8ffsQhDYhAdrBPP2I7obAEmEgzpz3tAuNGe\nJS5AO8XfOPzxC0Tyhxik4vptLiz/iiLXM9MRLBzDnQ10H806Z8GLsgbRwkfrus1p\n21+cXtpFAgMBAAECggEADKWniifVmZ66baLeS50ReNxDlB8MswHt67Ut3ORkB4p3\nb3jAXzGrHauAsloXgE/0AfhcvLGz783BAjXn2GTQaiqXG4JOq8uz2PJJlaHjoQBt\n5j2dLRaHHwlizVsqA8qBTlsufkLzEKBAgBumTh4U44GbqzsBwiVh8Sh/JLhdcUDI\nL46Ldi61/UBcuaZcT6sqPKXkHy7FoTVaDbqZqK89+6GMYw3EvDWMokkuuqgfT2SX\nMEJTI31PZiEVvdNIrHtgGmgT4s0u1ZuUO+8tz08e4DxG6fWK6XA7qb/nQO8MUhPz\nNz8ckxLcUueITNLb7x9QKDz0ifw9rkaPG2ciDlV9cQKBgQDmRFKKGW5J6qIRZ2Jy\nJWymKF3hUl6198SftCFSn7h/GdZOG3GbrnYlB2HR0S2YgHiqFrhC/4GgwaXLMhgU\nAl2j/BHAKXwcrUtqZHI6fiPK5mAQUVJENd6RgSd/85dBkMiDHf8Kb0FPivdUIM9J\n0kQNkrVuFNa4WvgaNJ5uqcijOQKBgQDfuS6pdGc0rc/jGXLCxaRT+uiohS61coM6\nzXCp1kxBnDHP+1Aht7v5nPsBos6fFAumWH5oMQGEmVmw/OhHczlzpWf2zOr2uvkF\nLWiMsrG8ltesBXh+26SoX0AlGLRasKHy5LQjFd5d8Iw/vctX/mP+a0JjX1yY7czB\nZuzb49UzbQKBgAwaqVATGCYQjGZnzdf8OaLeWlj+0HW2SYKvoFTMipE71XUTojwx\nxooZwj2aRlBO6IjgWt1CuxitNT7iKjvbB/sXxAMa6yhCv8Ue9JY4jT8cLw6Mh8uI\nHWP+qwnhzyCmMLQbvo1Y3dEFmAy3EM5rnCIuhRT9SXA1b/dIrs9YY3CZAoGBANTi\nh85jn5l3E2yMWLGSFE59YUqKgOnT75/SwbQ64RFFqfi4sYWEKnDZudfSrj6deoBt\nkMtgZotgyQIrhnQG5tJuwMEOOT9Sp4cPsH7Bw3MrLkrYYdKE+ufky0sBeQ0bKt/Q\nVMFWG+TT8wDsf0RaI5iDRAb/RUOYdNBMOnL7F3L5AoGBAMfUFFI3jyxEyiXf27cJ\n1li22f5lMJgx1s0eCx3GuyHmwQGaf+XdbQ2EtO+Wcw+xilzU6lpGAR0ed4BhuK1A\n2NC62Om7Hk2trn8g4nLdp5ebFITmAvMIhu7eOSBcahxq5oaGIpGPkhSfryzfyYrf\nLhqXg4KNDa3zMugq2ZzQefLg\n-----END PRIVATE KEY-----\n",
+  "client_email": "stock-signal-writer@stellar-benefit-460204-h6.iam.gserviceaccount.com",
+  "client_id": "114194336397097334958",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/stock-signal-writer%40stellar-benefit-460204-h6.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
