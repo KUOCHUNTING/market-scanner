@@ -153,7 +153,7 @@ def write_to_gsheet_tab(stock_code, signal_type, price, win_rate, return_pct, ho
     try:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("gcp_cred.json", scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name("/etc/secrets/gcp_cred.json", scope)
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key("1MkjggPDw1t_sTDLoMYH1E7CFOYrv0CkxTROpj-9NAHw")
 
