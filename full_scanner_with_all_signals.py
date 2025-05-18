@@ -218,7 +218,6 @@ def run_daily_report():
         print("統計報表錯誤：", e)
 
 
-def 
 from datetime import datetime
 import pytz
 eastern = pytz.timezone("US/Eastern")
