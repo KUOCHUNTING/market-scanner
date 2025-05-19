@@ -167,6 +167,7 @@ def detect_15min_short_entry(symbol):
     except Exception as e:
         print(f"❌ [15分鐘條件判斷錯誤] {symbol}：{e}")
         return False
+        
 # === 爆量啟動預警模組（多空共用）===
 def detect_early_explosion(df, symbol):
     try:
