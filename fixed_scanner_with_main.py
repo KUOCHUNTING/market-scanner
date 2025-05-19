@@ -139,7 +139,7 @@ def detect_15min_short_entry(symbol):
         conds = [...]
         return sum(conds) >= 3
 
-    def detect_15min_short_entry(symbol):
+  def detect_15min_short_entry(symbol):
     try:
         df = yf.download(tickers=symbol, interval='15m', period='2d', prepost=True)
         if df is None or df.empty or len(df) < 10:
@@ -167,7 +167,6 @@ def detect_15min_short_entry(symbol):
     except Exception as e:
         print(f"❌ [15分鐘條件判斷錯誤] {symbol}：{e}")
         return False
-
 # === 爆量啟動預警模組（多空共用）===
 def detect_early_explosion(df, symbol):
     try:
