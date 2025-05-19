@@ -503,11 +503,14 @@ def main():
     print(f"共載入 {len(symbols)} 檔股票")
     print("開始掃描中...")
 
-    for symbol in symbols[:20]:  # 測試先掃描前 20 檔，避免太慢
-        try:
-            data = yf.download(symbol, period="5d", interval="5m", progress=False)
-            if len(data) < 20:
-                continue
+   for symbol in symbols[:20]:
+    try:
+        data = yf.download(symbol, period="5d", interval="5m")
+        if len(data) < 20:
+            continue
+        # 其他掃描處理邏輯...
+    except Exception as e:
+        print(f"❌ {symbol} 資料抓取失敗：", e)
                 
 # === 每次掃描結束後等待 30 秒再繼續下一輪 ===
 import time
