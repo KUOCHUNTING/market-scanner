@@ -222,8 +222,9 @@ def write_to_gsheet_tab(stock_code, signal_type, price, win_rate, return_pct, ho
 
 def send_to_discord(message):
     try:
-        requests.post(DISCORD_WEBHOOK, json={"content": message})
-    except:
+    requests.post(DISCORD_WEBHOOK, json={"content": message})
+except Exception as e:
+    print("推播失敗：", e)
         pass
 
 def is_market_open():
