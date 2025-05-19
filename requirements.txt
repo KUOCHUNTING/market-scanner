@@ -4,4 +4,5 @@ requests
 gspread
 oauth2client
 pytz
-pandas_ta
+pandas_ta==0.3.14b
+numpy==1.24.4
