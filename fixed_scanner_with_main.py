@@ -1,4 +1,9 @@
-
+import pandas as pd
+import yfinance as yf
+import pandas_ta as ta  # ← 關鍵這一行
+import requests
+import time
+from datetime import datetime
 # === 讀取股票清單 CSV ===
 def load_symbols():
     df = pd.read_csv('filtered_us_stocks_common_only.csv')
