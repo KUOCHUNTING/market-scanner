@@ -131,18 +131,22 @@ def detect_15min_short_entry(symbol):
         if df is None or df.empty or len(df) < 10:
             return False
         close = df['Close']
-        volume = df['Volume']
-        rsi = ta.rsi(close, length=14)
-        macd_line, macd_signal, _ = ta.macd(close, fast=12, slow=26, signal=9)
-        vwma = ta.vwma(close, volume, length=20)
-        tmo = ta.ema(close.diff(), length=5)
-        conds = [
-            rsi.iloc[-1] < 50,
-            macd_line.iloc[-2] > macd_signal.iloc[-2] and macd_line.iloc[-1] < macd_signal.iloc[-1],
-            close.iloc[-1] < vwma.iloc[-1],
-            tmo.iloc[-1] < 0 and tmo.iloc[-2] >= 0,
-            volume.iloc[-1] > volume.rolling(20).mean().iloc[-1] * 1.2
-        ]
+volume = df['Volume']
+
+rsi = ta.rsi(close, length=14)
+macd_line, macd_signal, _ = ta.macd(close, fast=12, slow=26, signal=9)
+wma = ta.wma(close, length=20)
+tmo = ta.ema(close.diff(), length=5)
+
+df.dropna(inplace=True)
+
+conds = [
+    rsi.iloc[-1] < 50,
+    macd_line.iloc[-2] > macd_signal.iloc[-2] and macd_line.iloc[-1] < macd_signal.iloc[-1],
+    close.iloc[-1] > wma.iloc[-1],
+    tmo.iloc[-1] > 0 and tmo.iloc[-2] > 0,
+    volume.iloc[-1] > volume.rolling(20).mean().iloc[-1] * 1.2
+]
         return sum(conds) >= 3
     except Exception as e:
         print(f"[15分鐘空頭判斷錯誤] {symbol}: {e}")
