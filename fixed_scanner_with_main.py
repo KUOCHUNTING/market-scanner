@@ -127,9 +127,21 @@ def detect_15min_entry(symbol):
 # === 15分鐘空頭共振判斷 ===
 def detect_15min_short_entry(symbol):
     try:
-        df = yf.download(tickers=symbol, interval='15m', period='2d', progress=False, prepost=True)
-        if df is None or df.empty or len(df) < 10:
+        df = yf.download(tickers=symbol, interval='15m', period='2d', prepost=True)
+        if df is None or df.empty or len(df) < 20:
             return False
+        close = df['Close']
+        volume = df['Volume']
+        # ...其他技術指標...
+
+        df.dropna(inplace=True)
+
+        conds = [...]
+        return sum(conds) >= 3
+
+    except Exception as e:
+        print(f"❌ 15分鐘條件判斷錯誤：{symbol} → {e}")
+        return False
         close = df['Close']
 volume = df['Volume']
 
