@@ -469,16 +469,15 @@ def check_exit_conditions(symbol, current_price):
 
 # === 每次掃描結束後等待 30 秒再繼續下一輪 ===
 import time
-time.sleep(30)
 
-
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     while True:
-
         main()
-
         time.sleep(30)
+
+
+
+
 
 
 
