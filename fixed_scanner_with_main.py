@@ -140,7 +140,7 @@ def detect_15min_short_entry(symbol):
         return sum(conds) >= 3
 
   def detect_15min_short_entry(symbol):
-    try:
+      try:
         df = yf.download(tickers=symbol, interval='15m', period='2d', prepost=True)
         if df is None or df.empty or len(df) < 10:
             return False
