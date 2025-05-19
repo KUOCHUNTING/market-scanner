@@ -508,18 +508,8 @@ def main():
             data = yf.download(symbol, period="5d", interval="5m")
             if len(data) < 20:
                 continue
-            # 處理邏輯
-        except Exception as e:
-            print(f"❌ {symbol} 資料抓取失敗：", e)
 
-# 主程式執行入口
-if __name__ == "__main__":
-    while True:
-        main()
-        time.sleep(30)
-            
-
-            # 技術指標計算
+            # === 技術指標計算 ===
             data["returns"] = data["Close"].pct_change()
             data["rsi"] = ta.rsi(data["Close"], length=14)
             data["vol_avg"] = data["Volume"].rolling(window=20).mean()
@@ -530,16 +520,12 @@ if __name__ == "__main__":
             rsi_val = latest["rsi"]
             is_vol_spike = latest["vol_spike"]
 
-            # 判斷訊號（強漲 + RSI + 放量）
+            # === 判斷訊號條件 ===
             if price_change_pct > 3 and rsi_val > 70 and is_vol_spike:
-                print(f"⚠️ {symbol} 出現多頭異動訊號（+{price_change_pct:.2f}%，RSI={rsi_val:.1f}）")
-
-            # 判斷空頭訊號
-            elif price_change_pct < -3 and rsi_val < 30 and is_vol_spike:
-                print(f"⚠️ {symbol} 出現空頭異動訊號（{price_change_pct:.2f}%，RSI={rsi_val:.1f}）")
-
+                print(f"🚀 訊號成立：{symbol} 價格漲幅 + RSI + 放量 共振")
+            
         except Exception as e:
-            print(f"錯誤：{symbol} 處理失敗，原因：{e}")
+            print(f"❌ {symbol} 資料抓取失敗：", e)
 
 
 if __name__ == '__main__':
