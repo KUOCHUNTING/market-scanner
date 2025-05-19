@@ -500,18 +500,19 @@ def write_to_gsheet_tab(stock_code, signal_type, price, win_rate, return_pct, ho
 def main():
     print("▶️ 啟動主流程...")
     symbols = load_symbols()
-    print(f"共載入 {len(symbols)} 檔股票")
+    print(f"✅ 共載入 {len(symbols)} 檔股票")
     print("開始掃描中...")
 
-  for symbol in symbols[:20]:
-    try:
-        data = yf.download(...)
-        if len(data) < 20:
-            continue
-                
-# === 每次掃描結束後等待 30 秒再繼續下一輪 ===
-import time
+    for symbol in symbols[:20]:
+        try:
+            data = yf.download(symbol, period="5d", interval="5m")
+            if len(data) < 20:
+                continue
+            # 處理邏輯
+        except Exception as e:
+            print(f"❌ {symbol} 資料抓取失敗：", e)
 
+# 主程式執行入口
 if __name__ == "__main__":
     while True:
         main()
