@@ -467,14 +467,6 @@ def check_exit_conditions(symbol, current_price):
     return False, 0.0
 
 
-# === 每次掃描結束後等待 30 秒再繼續下一輪 ===
-import time
-
-if __name__ == "__main__":
-    while True:
-        main()
-        time.sleep(30)
-
 
 
 
@@ -516,6 +508,15 @@ def main():
             data = yf.download(symbol, period="5d", interval="5m", progress=False)
             if len(data) < 20:
                 continue
+                
+# === 每次掃描結束後等待 30 秒再繼續下一輪 ===
+import time
+
+if __name__ == "__main__":
+    while True:
+        main()
+        time.sleep(30)
+            
 
             # 技術指標計算
             data["returns"] = data["Close"].pct_change()
