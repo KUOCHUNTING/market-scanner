@@ -528,8 +528,7 @@ def main():
             print(f"❌ {symbol} 資料抓取失敗：", e)
 
 
-if __name__ == '__main__':
-    main()
+
 
 # === 每 30 秒執行一次主程式 ===
 if __name__ == "__main__":
