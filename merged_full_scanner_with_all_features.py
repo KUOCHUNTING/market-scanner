@@ -760,6 +760,7 @@ def detect_15min_entry(symbol):
 # === TICK 共振（模擬） ===
 def check_tick_triple_confluence():
     import random
+import ta
     return random.choice([True, False])
 
 # === 多執行緒掃描單支股票 ===
