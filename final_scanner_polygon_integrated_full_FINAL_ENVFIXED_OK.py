@@ -8,7 +8,7 @@ from ta.momentum import RSIIndicator
 from ta.trend import MACD, EMAIndicator
 
 import requests
-POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
+OLYGON_API_KEY = "y6h2VA5s_prMdJ2VzTtfFV3bRBdsslEV"
 from datetime import datetime, timedelta
 
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
