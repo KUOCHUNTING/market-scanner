@@ -162,9 +162,8 @@ def calculate_daily_performance():
             stat_sheet.append_row(summary, value_input_option="USER_ENTERED")
             print("✅ 已寫入每日統計")
         except Exception as e:
-            print(f"❌ 統計寫入失敗:{e}")
-         print(f'❌ {symbol} 技術指標處理錯誤:{str(e)}')
-         print(f"❌ 統計寫入失敗:{e}")
+        print(f'❌ {symbol} 技術指標處理錯誤:{str(e)}')
+        print(f"❌ 統計寫入失敗:{e}")
 
 
 def retrain_ml_model():
