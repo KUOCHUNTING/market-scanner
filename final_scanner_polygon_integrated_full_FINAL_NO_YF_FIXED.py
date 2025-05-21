@@ -24,10 +24,13 @@ def fetch_data_from_polygon(symbol, timeframe='5'):
         url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/{timeframe}/minute/{start_str}/{end_str}?adjusted=true&sort=asc&limit=10000&apiKey={POLYGON_API_KEY}"
         res = requests.get(url)
 try:
-    data = res.json()  # ✅ 正確：屬於 try 區塊
+    data = res.json()
     if 'results' not in data:
         print(f"❌ {symbol} 無資料")
         return None
+except Exception as e:
+    print(f"⚠️ JSON 解析錯誤：{e}")
+    return None
     
         df = pd.DataFrame(data['results'])
         df['t'] = pd.to_datetime(df['t'], unit='ms')
