@@ -8,3 +8,4 @@ numpy==1.24.4
 ta
 joblib
 scikit-learn
+boto3
