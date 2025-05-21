@@ -103,13 +103,13 @@ while True:
             print(f"❌ Sheets 寫入錯誤：{e}")
     
     # === Discord 推播函數 ===
-    def print(f"📢 推播訊號：{message}")
-    send_discord_alert(message):
-        try:
-            if DISCORD_WEBHOOK:
-                requests.post(DISCORD_WEBHOOK, json={"content": message})
-        except Exception as e:
-            print(f"⚠️ Discord 發送失敗：{e}")
+   def send_discord_alert(message):
+    print(f"📢 推播訊號：{message}")
+    try:
+        if DISCORD_WEBHOOK:
+            requests.post(DISCORD_WEBHOOK, json={"content": message})
+    except Exception as e:
+        print(f"⚠️ Discord 發送失敗：{e}")
     
     # === 出場記錄函數 ===
     def record_exit(symbol, exit_type, exit_price):
