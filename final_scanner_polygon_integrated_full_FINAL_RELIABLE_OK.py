@@ -7,11 +7,12 @@ import ta
 from ta.momentum import RSIIndicator
 from ta.trend import MACD, EMAIndicator
 
+import os
 import requests
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY") or "y6h2VA5s_prMdJ2VzTtfFV3bRBdsslEV"
 from datetime import datetime, timedelta
 
-POLYGON_API_KEY = os.getenv("POLYGON_API_KEY") or "y6h2VA5s_prMdJ2VzTtfFV3bRBdsslEV"
+
 
 def fetch_data_from_polygon(symbol, timeframe='5'):
     try:
