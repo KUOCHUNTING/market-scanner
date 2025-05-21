@@ -15,7 +15,7 @@ import os
 import pickle
 from sklearn.ensemble import RandomForestClassifier
 
-DISCORD_WEBHOOK = 
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
 GOOGLE_SHEET_ID = "YOUR_GOOGLE_SHEET_ID"  # 請補上你的 Google Sheet ID
 
 # === ML 訓練資料寫入函式 ===
