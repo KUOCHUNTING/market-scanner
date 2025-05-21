@@ -153,15 +153,15 @@ def calculate_daily_performance():
         wins = sum(1 for row in data if float(row["報酬率"]) > 0)
         total = len(data)
         avg_return = sum(float(row["報酬率"]) for row in data) / total
-        try:
+    try:
             stat_sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet("每日統計")
-        except:
+    except:
             stat_sheet = client.open_by_key(GOOGLE_SHEET_ID).add_worksheet(title="每日統計", rows="100", cols="10")
             stat_sheet.append_row(["日期", "總筆數", "獲利筆數", "勝率(%)", "平均報酬(%)", "平均持倉時間"], value_input_option="USER_ENTERED")
-        try:
+    try:
             stat_sheet.append_row(summary, value_input_option="USER_ENTERED")
             print("✅ 已寫入每日統計")
-        except Exception as e:
+    except Exception as e:
             print(f'❌ {symbol} 技術指標處理錯誤:{str(e)}')
             print(f"❌ 統計寫入失敗:{e}")
 
