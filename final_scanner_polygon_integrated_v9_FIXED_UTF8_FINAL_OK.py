@@ -963,11 +963,12 @@ def main():
                         print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗：{e}')
                     time.sleep(1)
                 if df is not None and not df.empty:
-                else:
-                    print(f'❌ {symbol} 無資料，已記錄')
-                    with open('missing_data_log.txt', 'a') as f:
-                        f.write(symbol + '\n')
-                    break
+    break
+else:
+    print(f'❌ {symbol} 無資料！已記錄')
+    with open('missing_data_log.txt', 'a') as f:
+        f.write(symbol + '\n')
+    break
             except Exception as e:
                 print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗：{e}')
             time.sleep(1)
