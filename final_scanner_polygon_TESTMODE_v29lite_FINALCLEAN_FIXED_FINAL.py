@@ -1271,12 +1271,9 @@ if __name__ == "__main__":
         start_time = time.time()
         main()
         elapsed = time.time() - start_time
-        print(f"✅ 第 {scan_round} 輪掃描完成,用時 {elapsed:.2f} 秒")
-        scan_round += 1
-    print(f'⏳ 等待下一輪掃描 {SCAN_INTERVAL} 秒...')
+        print(f'✅ 第 {scan_round} 輪掃描完成，用時 {elapsed:.2f} 秒')
         print(f'⏳ 等待下一輪掃描 {SCAN_INTERVAL} 秒...')
         time.sleep(SCAN_INTERVAL)
-        time.sleep(30)
 
 
 
