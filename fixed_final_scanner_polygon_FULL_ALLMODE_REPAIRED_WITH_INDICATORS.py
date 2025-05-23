@@ -234,8 +234,11 @@ def send_discord_alert(message):
     from ta.trend import MACD
     from ta.volatility import BollingerBands
     print("✅ 所有必要模組成功載入")
+try:
+    import pandas as pd
+    import numpy as np
 except Exception as e:
-    print(f"❌ 模組載入失敗:{e}")
+    print(f"模組載入失敗: {e}")
     sys.exit()
 
 csv_path = "filtered_us_stocks_common_only.csv"
