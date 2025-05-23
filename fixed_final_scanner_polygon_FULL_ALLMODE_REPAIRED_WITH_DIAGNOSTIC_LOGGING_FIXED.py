@@ -1257,7 +1257,7 @@ def main():
 for idx, symbol in enumerate(symbols):
     print(f"🔍 掃描中：{symbol}")
     print(f"▶️ [TRACE] 掃描第 {idx+1} 檔：{symbol}")
-        for attempt in range(3):
+    for attempt in range(3):
             try:
                 for attempt in range(3):
                     try:
