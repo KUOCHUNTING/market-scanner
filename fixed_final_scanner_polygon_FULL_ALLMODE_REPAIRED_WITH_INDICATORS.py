@@ -199,7 +199,7 @@ try:
 except Exception as e:
     print(f"⚠️ 模組載入失敗：{e}")
 
-DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
 
 def analyze_indicators_and_alert(df, symbol):
     try:
