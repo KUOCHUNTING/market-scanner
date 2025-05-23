@@ -1226,26 +1226,26 @@ def load_symbols():
             return df['symbol'].dropna().tolist()
         else:
             return df.iloc[:, 0].dropna().tolist()
-    except Exception as e:
-        print(f'⚠️ 載入股票清單錯誤:{e}')
-        return []
-    """載入7000檔美股普通股清單(排除ETF與OTC)"""
-    try:
-        df = pd.read_csv("filtered_us_stocks_common_only.csv")
-    except pd.errors.ParserError:
-        print('⚠️ CSV 讀取錯誤,略過錯行')
-    print(f"📊 股票清單載入成功,共 {len(df)} 檔")
-    return df["symbol"].tolist()
+except Exception as e:
+    print(f"⚠️ 載入股票清單錯誤: {e}")
+    return []
 
+""" 載入7000檔美股普通股清單（排除ETF與OTC） """
+try:
+    df = pd.read_csv("filtered_us_stocks_common_only.csv")
+except pd.errors.ParserError:
+    print("⚠️ CSV 讀取錯誤，略過錯行")
+print(f"✅ 股票清單載入成功，共 {len(df)} 檔")
+return df["symbol"].tolist()
 
 def main():
     import time
-    print(f"🟢 開始主程式 at {time.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
+    print(f"✅ 開始主程式 at {time.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print("✅ 進入 main()")
-    print("✅ 腳本啟動成功:V8_DEBUG 版本")
-   print("🚀 啟動 main() 成功，準備進入股票清單掃描流程")
-print("✅ 執行的是 DEBUG 確認版本 SCANNER_FINAL")
-print("🔍 [DEBUG] 開始掃描符號列表...")
+    print("✅ 腳本啟動成功：V8_DEBUG 版本")
+    print("🚀 啟動 main() 成功，準備進入股票清單掃描流程")
+    print("✅ 執行的是 DEBUG 確認版本 SCANNER_FINAL")
+    print("🔍 [DEBUG] 開始掃描符號列表...")
 
     symbols = get_us_stock_symbols_from_polygon()
     if not symbols:
