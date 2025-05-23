@@ -190,12 +190,16 @@ print("▶️ 啟動掃描器初始化...")
 # 1. 檢查模組
 try:
     import pandas as pd
+    from ta.momentum import RSIIndicator
+    from ta.trend import MACD
+    import requests
+    from ta.volatility import BollingerBands
+    print("✅ 所有必要模組成功載入")
+except Exception as e:
+    print(f"❌ 模組載入失敗: {e}")
+    sys.exit()
 
-from ta.momentum import RSIIndicator
-from ta.trend import MACD
-import requests
-
-DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
 
 def analyze_indicators_and_alert(df, symbol):
     try:
