@@ -1252,8 +1252,8 @@ def main():
     if not symbols:
         print("⚠️ 股票清單為空,請檢查 API Key 或網路")
         return
-    print("🚀 開始進行掃描...")
-   print("🚀 開始掃描所有股票...", flush=True)
+        print("🚀 開始進行掃描...")
+        print("🚀 開始掃描所有股票...", flush=True)
 for idx, symbol in enumerate(symbols):
     print(f"🔍 掃描中：{symbol}")
     print(f"▶️ [TRACE] 掃描第 {idx+1} 檔：{symbol}")
