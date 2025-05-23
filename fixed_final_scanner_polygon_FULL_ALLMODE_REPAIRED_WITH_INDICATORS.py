@@ -193,10 +193,11 @@ print("▶️ 啟動掃描器初始化...")
 # 1. 檢查模組
 try:
     import pandas as pd
-
-from ta.momentum import RSIIndicator
-from ta.trend import MACD
-import requests
+    from ta.momentum import RSIIndicator
+    from ta.trend import MACD
+    import requests
+except Exception as e:
+    print(f"⚠️ 模組載入失敗：{e}")
 
 DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK"
 
