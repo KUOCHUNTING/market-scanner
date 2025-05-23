@@ -1243,19 +1243,19 @@ def main():
     print(f"🟢 開始主程式 at {time.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
     print("✅ 進入 main()")
     print("✅ 腳本啟動成功:V8_DEBUG 版本")
-    print("🚀 啟動 main() 成功,準備進入股票清單擷取流程")
-    print("✅ 執行的是 DEBUG 確認版本 SCANNER_FINAL_OK_V8")
-    print("🔍 [DEBUG] 開始掃描符號列表...")
+   print("🚀 啟動 main() 成功，準備進入股票清單掃描流程")
+print("✅ 執行的是 DEBUG 確認版本 SCANNER_FINAL")
+print("🔍 [DEBUG] 開始掃描符號列表...")
 
     symbols = get_us_stock_symbols_from_polygon()
     if not symbols:
         print("⚠️ 股票清單為空,請檢查 API Key 或網路")
         return
     print("🚀 開始進行掃描...")
-    print("🚀 開始掃描所有股票...", flush=True)
-    for idx, symbol in enumerate(symbols):
+   print("🚀 開始掃描所有股票...", flush=True)
+for idx, symbol in enumerate(symbols):
     print(f"🔍 掃描中：{symbol}")
-        print(f"   ▶️ [TRACE] 掃描第 {idx+1} 檔:{symbol}")
+    print(f"▶️ [TRACE] 掃描第 {idx+1} 檔：{symbol}")
         for attempt in range(3):
             try:
                 for attempt in range(3):
