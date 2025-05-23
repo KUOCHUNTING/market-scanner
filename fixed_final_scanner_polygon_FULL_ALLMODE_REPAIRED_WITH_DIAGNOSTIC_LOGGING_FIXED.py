@@ -1217,18 +1217,19 @@ def write_to_gsheet_tab(stock_code, signal_type, price, win_rate, return_pct, ho
 
     print("🔁 嘗試載入股票清單...")
 def load_symbols():
-    print(f"✅ 成功載入 {len(symbols)} 檔股票")
-    print("📂 嘗試載入股票清單 CSV 檔...")
+    print("📂 嘗試載入股票清單...")
+
     df = None
     try:
-        df = pd.read_csv('filtered_us_stocks_common_only.csv')
+        df = pd.read_csv("filtered_us_stocks_common_only.csv")
         if 'symbol' in df.columns:
+            print(f"✅ 成功載入 {len(df)} 檔股票")
             return df['symbol'].dropna().tolist()
         else:
             return df.iloc[:, 0].dropna().tolist()
-except Exception as e:
-    print(f"⚠️ 載入股票清單錯誤: {e}")
-    return []
+    except Exception as e:
+        print(f"⚠️ 載入股票清單錯誤: {e}")
+        return []
 
 """ 載入7000檔美股普通股清單（排除ETF與OTC） """
 try:
