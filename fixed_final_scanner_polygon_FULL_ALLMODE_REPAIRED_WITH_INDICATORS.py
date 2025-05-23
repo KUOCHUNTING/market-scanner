@@ -235,7 +235,7 @@ def send_discord_alert(message):
     from ta.volatility import BollingerBands
     print("✅ 所有必要模組成功載入")
 except Exception as e:
-    print(f"❌ 模組載入失敗:{e}")
+    print(f"❌ 模組載入失敗: {e}")
     sys.exit()
 
 # 2. 檢查 CSV 是否存在
