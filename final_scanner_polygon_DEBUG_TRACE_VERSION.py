@@ -132,8 +132,8 @@ def scan_all_symbols(symbols):
     print(f"✅ 完成掃描 {len(symbols)} 檔股票，用時 {elapsed:.2f} 秒，平均每秒 {len(symbols)/elapsed:.2f} 檔")
 
 
-        df_vol = fetch_5min_bars(symbol)
-        if df_vol is not None and len(df_vol) > 0:
+    df_vol = fetch_5min_bars(symbol)
+    if df_vol is not None and len(df_vol) > 0:
             vol = df_vol['v'].iloc[-1]
             symbol_volumes.append((symbol, vol))
     symbols = [s for s, _ in sorted(symbol_volumes, key=lambda x: x[1], reverse=True)]
