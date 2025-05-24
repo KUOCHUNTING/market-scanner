@@ -12,7 +12,7 @@ API_KEY = "sRnfK4Nqsa8xTHXC0gBeNE3uh11_Q4ln"
 DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK"
 SHEET_NAME = "交易紀錄總表"
 TAB_NAME = "訊號紀錄"
-CSV_FILE = "filtered_us_stocks_common_only.csv"
+CSV_FILE = "filtered_sp500_list.csv"
 
 def load_symbols():
     df = pd.read_csv(CSV_FILE)
