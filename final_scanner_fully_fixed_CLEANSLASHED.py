@@ -1379,24 +1379,13 @@ for idx, symbol in enumerate(symbols):
                     except Exception as e:
                         print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗:{e}')
                     time.sleep(1)
-                if df is not None and len(df) > 0:
-                    break
-                else:
-                    pass
-                    pass
-                    pass
-                    pass
-                    pass
-                    pass
-                    pass
-                    print(f'❌ {symbol} 無資料,已記錄')
-                    with open('missing_data_log.txt', 'a') as f:
-                        f.write(symbol + '\n')
-                    break
-            except Exception as e:
-                print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗:{e}')
-            time.sleep(1)
-        try:
+               if df is not None and len(df) > 0:
+    break
+else:
+    print(f'❌ {symbol} 無資料,已記錄')
+    with open('missing_data_log.txt', 'a') as f:
+        f.write(symbol + '\n')
+    break
     if df is not None:
         try:
             tick_data = get_tick_data()
