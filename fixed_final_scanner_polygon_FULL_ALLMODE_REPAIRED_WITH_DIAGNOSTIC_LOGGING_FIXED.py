@@ -1277,13 +1277,14 @@ for idx, symbol in enumerate(symbols):
             except Exception as e:
                 print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗:{e}')
             time.sleep(1)
-        if df is not None:
-            try:
-                tick_data = get_tick_data()
-                tick_perc = 50.0  # 預設值,可替換為實際百分位計算
-            except Exception as e:
-                print(f'⚠️ 無法取得 TICK 資料:{e}')
-                tick_data = None
+        try:
+    if df is not None:
+        try:
+            tick_data = get_tick_data()
+            tick_perc = 50.0
+        except Exception as e:
+            print(f"⚠️ 無法取得 TICK 資料: {e}")
+            tick_data = None
             signal = check_signal(symbol, df, tick_data, tick_perc)
             if signal:
                 send_discord(f"{symbol}:{signal}")
