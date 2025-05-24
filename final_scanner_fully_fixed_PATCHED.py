@@ -1379,7 +1379,7 @@ for idx, symbol in enumerate(symbols):
                     except Exception as e:
                         print(f'⚠️ 第 {attempt+1} 次抓 {symbol} 失敗:{e}')
                     time.sleep(1)
-        if df is not None and len(df) > 0:
+         if df is not None and len(df) > 0:
             break
         else:
             print(f'❌ {symbol} 無資料,已記錄')
