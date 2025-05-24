@@ -1286,7 +1286,6 @@ for idx, symbol in enumerate(symbols):
                 if df is not None and len(df) > 0:
                     break
                 else:
-                    pass
                     print(f'❌ {symbol} 無資料,已記錄')
                     with open('missing_data_log.txt', 'a') as f:
                         f.write(symbol + '\n')
