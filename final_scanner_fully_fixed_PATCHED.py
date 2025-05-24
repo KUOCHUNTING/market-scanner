@@ -1358,6 +1358,12 @@ for idx, symbol in enumerate(symbols):
     print(f"▶️ [TRACE] 掃描第 {idx+1} 檔:{symbol}")
     for attempt in range(3):
             try:
+            df = fetch_stock_bars(symbol, interval='5', days=5)
+            if df is not None and len(df) > 0:
+                break
+        except Exception as e:
+            print(f"⚠️ 第 {attempt+1} 次抓 {symbol} 失敗: {e}")
+            time.sleep(1)  try:
                 for attempt in range(3):
                     try:
                         df = fetch_stock_bars(symbol, interval='5', days=5)
