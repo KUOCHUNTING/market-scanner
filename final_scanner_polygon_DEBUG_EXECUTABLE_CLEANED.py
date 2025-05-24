@@ -156,7 +156,7 @@ def main():
     test_api_connection()
 
     print(f"▶️ 掃描器啟動成功 | 時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        symbols = load_symbols()
+    symbols = load_symbols()
     print(f"✅ 股票清單載入成功，共 {len(symbols)} 檔")
     symbol_volumes = []
 
