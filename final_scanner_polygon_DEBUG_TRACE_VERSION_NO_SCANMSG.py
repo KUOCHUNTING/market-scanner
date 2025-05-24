@@ -162,24 +162,20 @@ def scan_all_symbols(symbols):
 
 
 def main():
-    print("▶️ 掃描器啟動成功")
+    print("✅ 掃描器啟動成功")
     test_api_connection()
 
-    print(f"▶️ 掃描器啟動成功 | 時間:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"✅ 掃描器啟動成功 | 時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     symbols = load_symbols()
     print(f"✅ 股票清單載入成功，共 {len(symbols)} 檔")
-    
-    print(f"▶️ 掃描器啟動成功 | 時間:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    # 已上移至 main()
-    print(f"✅ 股票清單載入成功，共 {len(symbols)} 檔")
-    
     print("▶️ 啟動強化版掃描器...")
+    print("▶️ 啟動主程式")  # 只印一次
+
     while True:
-        print("▶️ 啟動主程式")
-    symbols = load_symbols()
-    scan_all_symbols(symbols)
-    print(f"⏳ 等待 60 秒...(下一輪將於 {datetime.now() + timedelta(seconds=60):%H:%M:%S} 執行)")
-    time.sleep(60)
+        symbols = load_symbols()
+        scan_all_symbols(symbols)
+        print(f"⏳ 等待 60 秒...（下一輪將於 {datetime.now() + timedelta(seconds=60):%H:%M:%S} 執行）")
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
