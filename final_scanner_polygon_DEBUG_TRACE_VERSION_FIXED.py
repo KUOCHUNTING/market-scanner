@@ -179,8 +179,8 @@ def main():
     print("▶️ 啟動主程式")
     symbols = load_symbols()
     scan_all_symbols(symbols)
-        print(f"⏳ 等待 60 秒...（下一輪將於 {datetime.now() + timedelta(seconds=60):%H:%M:%S} 執行)")
-        time.sleep(60)
+    print(f"⏳ 等待 60 秒...（下一輪將於 {datetime.now() + timedelta(seconds=60):%H:%M:%S} 執行)")
+    time.sleep(60)
 
 if __name__ == "__main__":
     main()
