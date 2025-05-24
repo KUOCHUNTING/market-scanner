@@ -21,7 +21,7 @@ def test_api_connection():
         print(f"❌ Polygon API 錯誤：{e}")
 
 API_KEY = "sRnfK4Nqsa8xTHXC0gBeNE3uh11_Q4ln"
-DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
 SHEET_NAME = "交易紀錄總表"
 TAB_NAME = "訊號紀錄"
 CSV_FILE = "filtered_us_stocks_common_only.csv"
