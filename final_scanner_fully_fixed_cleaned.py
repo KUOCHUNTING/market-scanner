@@ -1290,7 +1290,7 @@ for idx, symbol in enumerate(symbols):
                     with open('missing_data_log.txt', 'a') as f:
                         f.write(symbol + '\n')
                     break
-    except Exception as e:
+   except Exception as e:
         print(f"⚠️ 嘗試抓取失敗：{e}")
         time.sleep(1)
 
