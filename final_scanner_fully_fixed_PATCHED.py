@@ -1332,8 +1332,9 @@ def load_symbols():
 
 """ 載入7000檔美股普通股清單(排除ETF與OTC) """
 try:
+    df = pd.read_csv("filtered_us_stocks_common_only.csv")
 except pd.errors.ParserError:
-    print("⚠️ CSV 讀取錯誤,略過錯行")
+    print("⚠️ CSV 讀取錯誤，略過錯行")
 print(f"✅ 股票清單載入成功,共 {len(df)} 檔")
 return df["symbol"].tolist()
 
