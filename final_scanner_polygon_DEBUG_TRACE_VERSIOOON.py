@@ -141,7 +141,7 @@ def classify_signal(df):
 def send_discord_message(title, message):
     try:
         payload = {
-            "content": f"**{title}**
+            "content": f"**{title}**\\n{message}"
 {message}"
         }
         requests.post("https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE", json=payload, timeout=10)
