@@ -175,7 +175,7 @@ def main():
     
     print("▶️ 啟動強化版掃描器...")
     while True:
-    print("▶️ 啟動主程式")
+        print("▶️ 啟動主程式")
     symbols = load_symbols()
     scan_all_symbols(symbols)
     print(f"⏳ 等待 60 秒...(下一輪將於 {datetime.now() + timedelta(seconds=60):%H:%M:%S} 執行)")
