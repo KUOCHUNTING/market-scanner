@@ -91,7 +91,7 @@ def push_to_discord(symbol, signal):
 def scan_all_symbols():
     # 已上移至 main()
         for idx, symbol in enumerate(symbols):
-        print(f'🔍 正在掃描第 {idx+1} 檔：{symbol}')
+            print(f'🔍 正在掃描第 {idx+1} 檔：{symbol}')
         df = fetch_5min_bars(symbol)
         if df is None or len(df) < 20:
             continue
