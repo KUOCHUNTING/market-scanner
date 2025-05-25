@@ -13,13 +13,13 @@ def fetch_price(symbol, client):
         end = datetime.utcnow()
         start = end - timedelta(days=2)
        aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=1,
-            timespan="day",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=1
-        )
+    ticker=symbol,
+    multiplier=1,
+    timespan="day",
+    from_=start.strftime("%Y-%m-%d"),
+    to=end.strftime("%Y-%m-%d"),
+    limit=1
+)
         if aggs:
             return aggs[0].close
     except Exception as e:
