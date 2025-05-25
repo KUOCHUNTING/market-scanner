@@ -8,7 +8,7 @@ import requests
 import pandas as pd
 import threading
 from datetime import datetime
-from polygon import RESTClient
+om polygon.rest import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 from google.oauth2.service_account import Credentials
