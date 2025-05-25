@@ -14,6 +14,35 @@ from ta.trend import MACD
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
+# ======== 自動補上 price 欄位 ========
+import pandas as pd
+from polygon import RESTClient
+
+def update_symbol_prices():
+    api_key = "sRnfK4Nqsa8xTHXC0gBeNE3uh11_Q4ln"
+    client = RESTClient(api_key)
+
+    df = pd.read_csv("filtered_us_stocks_common_only.csv")
+    prices = []
+
+    for symbol in df["symbol"]:
+        try:
+            aggs = client.get_aggs(symbol, 1, "day", limit=1)
+            if aggs:
+                prices.append({"symbol": symbol, "price": aggs[0].close})
+            else:
+                prices.append({"symbol": symbol, "price": None})
+        except Exception as e:
+            print(f"{symbol} 抓取錯誤：{e}")
+            prices.append({"symbol": symbol, "price": None})
+
+    df_prices = pd.DataFrame(prices)
+    df_prices.to_csv("filtered_us_stocks_common_only.csv", index=False)
+    print("✅ 已更新清單並加上 price 欄位")
+
+# 呼叫一次即可
+update_symbol_prices()
+
 # ====== [設定區] ======
 POLYGON_API_KEY = "sRnfK4Nqsa8xTHXC0gBeNE3uh11_Q4ln"
 DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
