@@ -8,6 +8,6 @@ numpy==1.24.4
 ta
 joblib
 scikit-learn
-boto3
-polygon             
+boto3     
 google-api-python-client
+polygon-api-client
