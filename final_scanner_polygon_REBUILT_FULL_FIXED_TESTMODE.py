@@ -124,12 +124,15 @@ def scan_all_symbols(symbols):
 
 # ====== [主程式入口] ======
 if __name__ == "__main__":
-    print("✅ 腳本啟動成功，進入主流程...")
+    print("✅ 腳本啟動成功，進入主流程...")  # 加這行
+    print("📍 [1] 進入 main()")
     while True:
-        print(f"▶️ 啟動掃描：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("📍 [2] 進入掃描迴圈")
         try:
             symbols = load_symbols()
+            print(f"📍 [3] 載入股票：共 {len(symbols)} 檔")
             scan_all_symbols(symbols)
+            print("📍 [4] 掃描完成")
         except Exception as e:
             print(f"⚠️ 主程式錯誤：{e}")
         print(f"⏳ 等待 {SCAN_INTERVAL} 秒...\n")
