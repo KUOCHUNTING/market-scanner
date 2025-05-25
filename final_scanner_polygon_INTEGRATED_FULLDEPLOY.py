@@ -103,7 +103,8 @@ def fetch_data(symbol):
     try:
         end = datetime.utcnow()
         start = end - timedelta(days=2)
-        with RESTClient(POLYGON_API_KEY) as client:
+        client = RESTClient(api_key)
+        aggs = client.get_aggs(...)
             bars = client.get_aggs(
                 ticker=symbol,
                 multiplier=5,
