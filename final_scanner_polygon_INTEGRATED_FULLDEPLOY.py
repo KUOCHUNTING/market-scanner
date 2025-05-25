@@ -105,7 +105,7 @@ def fetch_data(symbol):
         start = end - timedelta(days=2)
         client = RESTClient(api_key)
         aggs = client.get_aggs(...)
-            bars = client.get_aggs(
+        bars = client.get_aggs(
                 ticker=symbol,
                 multiplier=5,
                 timespan="minute",
