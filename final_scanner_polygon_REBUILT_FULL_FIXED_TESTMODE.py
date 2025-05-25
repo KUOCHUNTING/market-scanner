@@ -124,6 +124,7 @@ def scan_all_symbols(symbols):
 
 # ====== [主程式入口] ======
 if __name__ == "__main__":
+    print("✅ 腳本啟動成功，進入主流程...")
     while True:
         print(f"▶️ 啟動掃描：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         try:
