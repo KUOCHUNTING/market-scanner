@@ -9,3 +9,4 @@ ta
 joblib
 scikit-learn
 boto3
+polygon-api-client
