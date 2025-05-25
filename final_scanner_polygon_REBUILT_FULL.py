@@ -121,6 +121,5 @@ if __name__ == "__main__":
             scan_all_symbols(symbols)
         except Exception as e:
             print(f"⚠️ 主程式錯誤：{e}")
-        print(f"⏳ 等待 {SCAN_INTERVAL} 秒...
-")
+  print(f"⏳ 等待 {SCAN_INTERVAL} 秒...\n")
         time.sleep(SCAN_INTERVAL)
