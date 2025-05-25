@@ -65,9 +65,12 @@ def fetch_5min_bars(symbol, api_key):
 
 
 # ========== 主流程入口 ==========
-if __name__ == "__main__":
+def main():
+    # 主流程邏輯寫在這裡
     print("▶️ 啟動主流程...")
-    try:
-        main()
-    except Exception as e:
-        print(f"❌ 主流程執行錯誤：{e}")
+    # 例如：載入清單、執行掃描
+    symbols = load_symbols()
+    scan_all_symbols(symbols)
+
+if __name__ == "__main__":
+    main()
