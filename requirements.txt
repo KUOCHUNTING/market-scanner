@@ -9,6 +9,5 @@ ta
 joblib
 scikit-learn
 boto3
-polygon-api-client
+polygon             
 google-api-python-client
-pip install polygon-api-client
