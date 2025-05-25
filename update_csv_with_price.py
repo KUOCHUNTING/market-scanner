@@ -1,4 +1,5 @@
-# update_csv_with_price.py
+
+# update_csv_with_price_CLEANED.py
 from polygon.rest import RESTClient
 from datetime import datetime, timedelta
 import pandas as pd
@@ -12,14 +13,14 @@ def fetch_price(symbol, client):
     try:
         end = datetime.utcnow()
         start = end - timedelta(days=2)
-       aggs = client.get_aggs(
-    ticker=symbol,
-    multiplier=1,
-    timespan="day",
-    from_=start.strftime("%Y-%m-%d"),
-    to=end.strftime("%Y-%m-%d"),
-    limit=1
-)
+        aggs = client.get_aggs(
+            ticker=symbol,
+            multiplier=1,
+            timespan="day",
+            from_=start.strftime("%Y-%m-%d"),
+            to=end.strftime("%Y-%m-%d"),
+            limit=1
+        )
         if aggs:
             return aggs[0].close
     except Exception as e:
