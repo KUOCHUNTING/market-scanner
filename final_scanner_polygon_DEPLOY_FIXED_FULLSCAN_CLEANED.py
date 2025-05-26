@@ -22,7 +22,7 @@ STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
 # === Google Sheets 認證 ===
 def setup_google_sheets():
     try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]"
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)"
         client = gspread.authorize(creds)
         sheet = client.open(SPREADSHEET_NAME).sheet1
