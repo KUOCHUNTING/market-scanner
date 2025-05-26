@@ -91,18 +91,12 @@ def fetch_5min_bars(symbol):
                 print(f"[TRACE] {symbol} 無訊號")
     
     def main():
-        print("✅ [INFO] 腳本啟動成功，進入主流程...")
-        while True:
-            print(f"▶️ [TRACE] 新一輪掃描開始於 {datetime.now().strftime('%H:%M:%S')}...")
-            scan_all_symbols()
-            print(f""" ⏳ [TRACE]")
-            等待 {SCAN_INTERVAL} 秒後進行下一輪...""")
-            time.sleep(SCAN_INTERVAL)
-    
-    if __name__ == "__main__":
-        main()
-
+    print("✅ [INFO] 腳本啟動成功，進入主流程...")
+    while True:
+        print(f"▶️ [TRACE] 新一輪掃描開始於 {datetime.now().strftime('%H:%M:%S')}...")
+        scan_all_symbols()
+        print(f"⏳ [TRACE] {SCAN_INTERVAL} 秒後進行下一輪...\n")
+        time.sleep(SCAN_INTERVAL)
 
 if __name__ == "__main__":
-    print("✅ 腳本啟動成功，進入主流程...")
     main()
