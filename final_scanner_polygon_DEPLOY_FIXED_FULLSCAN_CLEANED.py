@@ -13,7 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from concurrent.futures import ThreadPoolExecutor
 
 # === 設定區 ===
-API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY""
+API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
 DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL") or "YOUR_WEBHOOK""
 SPREADSHEET_NAME = "MarketSignalLogs""
 SCAN_INTERVAL = 60
