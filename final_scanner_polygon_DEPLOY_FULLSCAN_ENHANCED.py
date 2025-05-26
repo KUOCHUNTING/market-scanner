@@ -40,22 +40,50 @@ except Exception as e:
     print(f"[WARNING] Google Sheets 無法啟動: {e}")
 
 # 抓股票資料
-def fetch_stock_data(symbol):
+from datetime import datetime, timedelta
+import pandas as pd
+import traceback
+from polygon import RESTClient
+
+def fetch_stock_data(symbol, target_date="2025-05-22"):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime.now() - timedelta(days=1)
-        start = end - timedelta(minutes=35)
+
+        # 指定目標日期區間
+        try:
+            start = datetime.strptime(f"{target_date} 09:30", "%Y-%m-%d %H:%M")
+            end = datetime.strptime(f"{target_date} 16:00", "%Y-%m-%d %H:%M")
+        except Exception as e:
+            print(f"[ERROR] 日期格式錯誤：{target_date}")
+            return None
+
+        print(f"[TRACE] 嘗試抓取 {symbol}：{start} ~ {end}")
+
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100
+            from_=start.strftime("%Y-%m-%d %H:%M"),
+            to=end.strftime("%Y-%m-%d %H:%M"),
+            limit=1000
         )
+
         if not aggs:
-            print(f"[WARNING] {symbol} 沒有回傳任何資料")
-            return None
+            print(f"[WARNING] {symbol} 在 {target_date} 無回傳資料，改抓昨天")
+            fallback_start = datetime.now() - timedelta(days=1, hours=6)
+            fallback_end = datetime.now() - timedelta(days=1)
+
+            aggs = client.get_aggs(
+                ticker=symbol,
+                multiplier=5,
+                timespan="minute",
+                from_=fallback_start.strftime("%Y-%m-%d %H:%M"),
+                to=fallback_end.strftime("%Y-%m-%d %H:%M"),
+                limit=1000
+            )
+            if not aggs:
+                print(f"[WARNING] {symbol} 昨天也無資料")
+                return None
 
         data = [{
             "timestamp": pd.to_datetime(bar["t"], unit='ms'),
@@ -76,11 +104,9 @@ def fetch_stock_data(symbol):
             return None
         df.set_index("timestamp", inplace=True)
 
-        # 加上 debug 印出筆數與資料預覽
-        print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
-        print(df.head())
-
+        print(f"[DEBUG] {symbol} 成功取得資料，共 {len(df)} 筆")
         return df
+
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
         traceback.print_exc()
