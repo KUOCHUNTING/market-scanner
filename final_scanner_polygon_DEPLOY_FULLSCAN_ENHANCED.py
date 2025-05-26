@@ -62,6 +62,11 @@ def fetch_stock_data(symbol):
         } for bar in aggs]
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
+
+        # 加上 debug 印出筆數與資料預覽
+        print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
+        print(df.head())
+
         return df
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
