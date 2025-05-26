@@ -27,8 +27,8 @@ def fetch_stock_data(symbol):
         )
 
     if not aggs:
-            print(f"[WARNING] 無資料（空回傳）：{symbol}")
-            return None
+        print(f"[WARNING] 無資料（空回傳）：{symbol}")
+        return None
 
     data = []
     for bar in aggs:  # ✅ 這裡直接用 aggs（是 list）
