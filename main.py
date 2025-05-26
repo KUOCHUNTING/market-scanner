@@ -1,4 +1,4 @@
-
+    
 import os
 import time
 import csv
@@ -59,6 +59,11 @@ def fetch_stock_data(symbol):
                 "close": bar["c"],
                 "volume": bar["v"]
             })
+
+        # [關鍵補上] 避免空 DataFrame 錯誤
+        if not data:
+            print(f"[WARNING] 無有效K線資料：{symbol}")
+            return None
 
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
