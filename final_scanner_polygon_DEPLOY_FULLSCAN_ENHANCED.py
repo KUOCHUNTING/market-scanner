@@ -1,3 +1,4 @@
+import traceback
 import os
 from dotenv import load_dotenv
 import os
@@ -82,6 +83,7 @@ def fetch_stock_data(symbol):
         return df
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
+        traceback.print_exc()
         return None
 
 # 技術指標訊號分析
