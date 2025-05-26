@@ -35,8 +35,7 @@ def setup_google_sheets():
 # === 推播到 Discord ===
 def push_to_discord(title, message):
     try:
-        data = {"content": f"**{title}**
-{message}"}
+        data = {"content": f"**{title}**\n{message}"}
         requests.post(DISCORD_WEBHOOK, json=data, timeout=10)
     except Exception as e:
         print("[推播錯誤]", e)
