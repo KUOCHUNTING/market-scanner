@@ -12,27 +12,19 @@ SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
     try:
-        client = RESTClient(api_key=API_KEY)
-        end = datetime.now()
-        start = end - timedelta(minutes=35)
+    client = RESTClient(api_key=API_KEY)
+    end = datetime.now()
+    start = end - timedelta(minutes=35)
 
-        aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100,
-            adjusted=True
-        )
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100
-        )
-
+    aggs = client.get_aggs(
+        ticker=symbol,
+        multiplier=5,
+        timespan="minute",
+        from_=start.strftime("%Y-%m-%d"),
+        to=end.strftime("%Y-%m-%d"),
+        limit=100,
+        adjusted=True)
+            
         if not aggs:
             print(f"[WARNING] 無資料（空回傳）：{symbol}")
             return None
