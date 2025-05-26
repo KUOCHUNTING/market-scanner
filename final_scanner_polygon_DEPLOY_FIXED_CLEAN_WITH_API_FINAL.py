@@ -57,8 +57,9 @@ def main():
     def fetch_5min_bars(symbol):
         try:
             client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))  # ✅ 正確縮排、括號與引號
-    except Exception as e:
-        print(f"❌ [ERROR] 初始化 Polygon Client 失敗：{e}")
+    pass
+except Exception as e:
+    print(f"發生錯誤：{e}")
         client = None
             end = datetime.utcnow()
             start = end - timedelta(days=2)
