@@ -11,3 +11,4 @@ scikit-learn
 boto3     
 google-api-python-client
 polygon-api-client
+pip install python-dotenv
