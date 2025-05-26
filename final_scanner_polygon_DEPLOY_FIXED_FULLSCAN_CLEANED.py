@@ -18,8 +18,7 @@ DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL") or "YOUR_WEBHOOK"
 SPREADSHEET_NAME = "MarketSignalLogs"
 SCAN_INTERVAL = 60
 MAX_THREADS = 10
-STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv""
-
+STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
 # === Google Sheets 認證 ===
 def setup_google_sheets():
     try:
