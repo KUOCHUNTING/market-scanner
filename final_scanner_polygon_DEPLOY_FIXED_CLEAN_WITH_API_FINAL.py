@@ -55,21 +55,18 @@ def main():
             return None
     
     def fetch_5min_bars(symbol):
-        try:
-            client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))  # ✅ 正確縮排、括號與引號
-    pass
-except Exception as e:
-    print(f"發生錯誤：{e}")
-        client = None
-            end = datetime.utcnow()
-            start = end - timedelta(days=2)
-    print("[TRACE] 正在從 Polygon API 抓取資料...")
-    aggs = client.get_aggs(symbol, 5, "minute", start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), timeout=10)
-            bars = [{"timestamp": a.timestamp, "open": a.open, "high": a.high, "low": a.low, "close": a.close, "volume": a.volume} for a in aggs]
-            return pd.DataFrame(bars)
-        except Exception as e:
-            print(f"[ERROR] 無法取得 {symbol} 資料：{e}")
-            return None
+    try:
+        client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))
+        end = datetime.utcnow()
+        start = end - timedelta(days=2)
+        print("[TRACE] 正在從 Polygon API 抓取資料...")
+        aggs = client.get_aggs(symbol, 5, "minute", start, end)
+        bars = [{"timestamp": a.timestamp, "close": a.close} for a in aggs]
+        return pd.DataFrame(bars)
+
+    except Exception as e:
+        print(f"⚠️ 發生錯誤：{e}")
+        return None
     
     def scan_all_symbols():
         print("[INFO] 開始載入股票清單...")
