@@ -43,8 +43,8 @@ except Exception as e:
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime.now()
-        start = end - pd.Timedelta(minutes=35)
+        end = datetime.now() - timedelta(days=1)
+        start = end - timedelta(minutes=35)
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
