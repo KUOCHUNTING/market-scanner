@@ -21,25 +21,25 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
+            from_=start.strftime("%Y-%m-%dT%H:%M:%S"),
+            to=end.strftime("%Y-%m-%dT%H:%M:%S"),
             limit=100
         )
 
-        if not aggs or not aggs.results:
+    if not aggs:
             print(f"[WARNING] 無資料（空回傳）：{symbol}")
             return None
 
-        data = []
-        for bar in aggs.results:
-            data.append({
-                "timestamp": pd.to_datetime(bar['t'], unit='ms'),
-                "open": bar['o'],
-                "high": bar['h'],
-                "low": bar['l'],
-                "close": bar['c'],
-                "volume": bar['v']
-            })
+    data = []
+    for bar in aggs:  # ✅ 這裡直接用 aggs（是 list）
+        data.append({
+            "timestamp": pd.to_datetime(bar['t'], unit='ms'),
+            "open": bar['o'],
+            "high": bar['h'],
+            "low": bar['l'],
+            "close": bar['c'],
+            "volume": bar['v']
+        })
 
         if not data:
             print(f"[WARNING] 無有效欄位資料：{symbol}")
