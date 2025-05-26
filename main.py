@@ -14,10 +14,8 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        
-        # 固定日期：2025-05-22
-        start = datetime(2025, 5, 22)
-        end = datetime(2025, 5, 22)
+        end = datetime.now()
+        start = end - timedelta(minutes=35)
 
         aggs = client.get_aggs(
             ticker=symbol,
@@ -29,30 +27,21 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # ✅ 這段是修正關鍵：支援 list 或物件格式
-        bars = aggs.results if hasattr(aggs, "results") else aggs
+        # ✅ 處理 list 或物件格式的回傳
+        bars = None
+        if hasattr(aggs, 'results'):
+            bars = aggs.results
+        elif isinstance(aggs, list):
+            bars = aggs
+        else:
+            print(f"[WARNING] 未知回傳格式（非 results 或 list）：{symbol}")
+            return None
 
         if not bars or not isinstance(bars, list):
-            print(f"[WARNING] 無效 bars：{symbol}")
-            return None
-        # 確保拿到的是 list 格式的 K 線資料
-        bars = None
-        try:
-            if hasattr(aggs, 'results'):  # 是 AggResponse 類型
-                bars = aggs.results
-            elif isinstance(aggs, list):  # 是 list 類型
-                bars = aggs
-            else:
-                raise ValueError("未知 aggs 類型，無法處理")
-        except Exception as e:
-            print(f"[ERROR] 處理 aggs 失敗 {symbol}: {e}")
+            print(f"[WARNING] 無有效K線資料（bars 無效）：{symbol}")
             return None
 
-        if not bars:
-            print(f"[WARNING] 無資料（空回傳）：{symbol}")
-            return None
-
-        # 開始處理每根 K 線
+        # 開始轉換為 DataFrame
         data = []
         for bar in bars:
             if not isinstance(bar, dict) or "t" not in bar:
@@ -66,14 +55,14 @@ def fetch_stock_data(symbol):
                 "volume": bar["v"]
             })
 
-        # [關鍵補上] 避免空 DataFrame 錯誤
-        if not aggs or not aggs.results:
-            print(f"[WARNING] 無有效K線資料：{symbol}")
+        if not data:
+            print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
             return None
 
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
         return df
+
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
         return None
