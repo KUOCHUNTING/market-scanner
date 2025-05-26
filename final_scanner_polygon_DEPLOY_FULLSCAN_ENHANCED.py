@@ -1,6 +1,11 @@
 import os
 from dotenv import load_dotenv
+import os
+
 load_dotenv()
+API_KEY = os.getenv("POLYGON_API_KEY")
+
+print(f"[DEBUG] API KEY：{API_KEY}")
 
 import time
 import traceback
