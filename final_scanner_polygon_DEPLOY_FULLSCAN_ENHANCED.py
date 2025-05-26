@@ -39,38 +39,14 @@ except Exception as e:
     print(f"[WARNING] Google Sheets 無法啟動: {e}")
 
 # 抓股票資料
-def fetch_stock_data(symbol):
-    try:
-        client = RESTClient(api_key=API_KEY)
-        end = datetime.now()
-        start = end - pd.Timedelta(days=5)
-        aggs = client.get_aggs(
-            symbol,                      # ticker（位置參數）
-            5,                           # multiplier
-            "minute",                    # timespan
-            start.strftime("%Y-%m-%d"),  # from_
-            end.strftime("%Y-%m-%d"),    # to
-            limit=100
-        )
-        data = [{
-            "timestamp": pd.to_datetime(bar["t"], unit='ms'),
-            "open": bar["o"],
-            "high": bar["h"],
-            "low": bar["l"],
-            "close": bar["c"],
-            "volume": bar["v"]
-        } for bar in aggs]
-        df = pd.DataFrame(data)
-        df.set_index("timestamp", inplace=True)
+df = pd.DataFrame(data)
+df.set_index("timestamp", inplace=True)
 
-        # 加上 debug 印出筆數與資料預覽
-        print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
-        print(df.head())
+# 加上 debug 印出筆數與資料預覽
+print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
+print(df.head())
 
-        return df
-    except Exception as e:
-        print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
-        return None
+return df
 
 # 技術指標訊號分析
 def analyze_signal(symbol, df):
