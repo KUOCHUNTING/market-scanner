@@ -54,7 +54,7 @@ def main():
             print(f"[ERROR] {symbol} 技術指標錯誤：{e}")
             return None
     
-    def fetch_5min_bars(symbol):
+   def fetch_5min_bars(symbol):
     try:
         client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))
         end = datetime.utcnow()
