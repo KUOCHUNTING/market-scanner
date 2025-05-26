@@ -114,15 +114,15 @@ def fetch_data(symbol):
                 limit=100,
                 adjusted=True
             )
-            df = pd.DataFrame([{
-                "timestamp": b.timestamp,
-                "open": b.open,
-                "high": b.high,
-                "low": b.low,
-                "close": b.close,
-                "volume": b.volume
-            } for b in bars])
-            return df
+        df = pd.DataFrame([{
+            "timestamp": b.timestamp,
+             "open": b.open,
+             "high": b.high,
+             "low": b.low,
+             "close": b.close,
+             "volume": b.volume
+        } for b in bars])
+      return df
     except Exception as e:
         print(f"❌ 無法取得 {symbol} 資料：{e}")
         return None
