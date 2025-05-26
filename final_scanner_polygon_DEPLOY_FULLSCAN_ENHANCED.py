@@ -38,11 +38,11 @@ def fetch_stock_data(symbol):
         end = datetime.now()
         start = end - pd.Timedelta(minutes=35)
         aggs = client.get_aggs(
-            ticker=symbol,          # ← 修正後
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
+            symbol,                      # ticker（位置參數）
+            5,                           # multiplier
+            "minute",                    # timespan
+            start.strftime("%Y-%m-%d"),  # from_
+            end.strftime("%Y-%m-%d"),    # to
             limit=100
         )
         data = [{
