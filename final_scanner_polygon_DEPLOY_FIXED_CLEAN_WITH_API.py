@@ -49,7 +49,7 @@ def analyze_signal(symbol, df):
 
 def fetch_5min_bars(symbol):
     try:
-    client = RESTClient(api_key=os.getenv("POLYGON_API_KEY")
+    client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))  # ✅ 正確縮排、括號與引號
 except Exception as e:
     print(f"❌ [ERROR] 初始化 Polygon Client 失敗：{e}")
     client = None
