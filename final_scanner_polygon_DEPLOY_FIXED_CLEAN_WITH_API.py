@@ -49,7 +49,10 @@ def analyze_signal(symbol, df):
 
 def fetch_5min_bars(symbol):
     try:
-client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))  # 從環境變數讀取 API key
+    client = RESTClient(api_key=os.getenv("sRnfK4Nqsa8xTHXC0gBeNE3uh11_Q4ln"))  # 正確縮排
+except Exception as e:
+    print(f"❌ [ERROR] 初始化 Polygon Client 失敗：{e}")
+    client = None
         end = datetime.utcnow()
         start = end - timedelta(days=2)
 print("[TRACE] 正在從 Polygon API 抓取資料...")
