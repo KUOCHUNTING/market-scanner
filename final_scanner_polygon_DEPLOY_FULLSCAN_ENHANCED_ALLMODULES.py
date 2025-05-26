@@ -118,6 +118,5 @@ if __name__ == "__main__":
     while True:
         print(f"🔍 掃描中（{len(symbols)} 檔股票）...")
         scan_all_symbols(symbols)
-        print(f"⏳ 等待 {SCAN_INTERVAL} 秒後執行下一輪...
-")
+        print(f"等待 {SCAN_INTERVAL} 秒後執行下一輪...")
         time.sleep(SCAN_INTERVAL)
