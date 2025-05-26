@@ -43,7 +43,7 @@ def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
         end = datetime.now()
-        start = end - pd.Timedelta(minutes=35)
+        start = end - pd.Timedelta(days=5)
         aggs = client.get_aggs(
             symbol,                      # ticker（位置參數）
             5,                           # multiplier
