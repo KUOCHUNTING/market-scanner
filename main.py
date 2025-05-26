@@ -14,16 +14,19 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime(2025, 5, 22, 15, 59)  # 美東時間 15:59
-        start = end - timedelta(minutes=35)
+        
+        # 固定日期：2025-05-22
+        start = datetime(2025, 5, 22)
+        end = datetime(2025, 5, 22)
 
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            to=end.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            limit=100
+            from_=start.strftime("%Y-%m-%d"),  # 改成只用日期
+            to=end.strftime("%Y-%m-%d"),
+            limit=100,
+            adjusted=True
         )
 
         if not aggs:
