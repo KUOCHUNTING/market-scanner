@@ -28,12 +28,12 @@ def fetch_stock_data(symbol):
             limit=100,
             adjusted=True
         )
-        # 嘗試從 aggs 中取出 K 線資料，處理 list 或物件的不同情況
+
+        # ✅ 這段是修正關鍵：支援 list 或物件格式
         bars = aggs.results if hasattr(aggs, "results") else aggs
 
-        # 若 bars 仍然為空，則跳過
-        if not bars:
-            print(f"[WARNING] 無有效K線資料（空 bars）：{symbol}")
+        if not bars or not isinstance(bars, list):
+            print(f"[WARNING] 無效 bars：{symbol}")
             return None
         # 確保拿到的是 list 格式的 K 線資料
         bars = None
