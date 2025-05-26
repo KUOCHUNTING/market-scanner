@@ -89,8 +89,8 @@ def main():
     while True:
         print(f"▶️ [TRACE] 新一輪掃描開始於 {datetime.now().strftime('%H:%M:%S')}...")
         scan_all_symbols()
-        print(f"⏳ [TRACE] 等待 {SCAN_INTERVAL} 秒後進行下一輪...
-")
+        print(f""" ⏳ [TRACE]
+        等待 {SCAN_INTERVAL} 秒後進行下一輪...""")
         time.sleep(SCAN_INTERVAL)
 
 if __name__ == "__main__":
