@@ -58,7 +58,7 @@ def main():
         try:
             client = RESTClient(api_key=os.getenv("POLYGON_API_KEY"))  # ✅ 正確縮排、括號與引號
     pass
-except Exception as e:
+    except Exception as e:
     print(f"發生錯誤：{e}")
         client = None
             end = datetime.utcnow()
