@@ -29,13 +29,23 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # 正確的資料應從 .results 拿出來
-        if not aggs or not aggs.results:
-            print(f"[WARNING] 無資料（空回傳）：{symbol}")
+        # 如果 aggs 是 dict 物件（含 results），取 .results；如果是 list，直接用
+        if isinstance(aggs, dict) and "results" in aggs:
+            bars = aggs["results"]
+        elif isinstance(aggs, list):
+            bars = aggs
+        else:
+            print(f"[WARNING] 無法解析資料格式：{symbol}")
+            return None
+
+        if not bars:
+            print(f"[WARNING] 空回傳資料：{symbol}")
             return None
 
         data = []
-        for bar in aggs.results:
+        for bar in bars:
+            if "t" not in bar:
+                continue
             data.append({
                 "timestamp": pd.to_datetime(bar["t"], unit='ms'),
                 "open": bar["o"],
@@ -45,15 +55,7 @@ def fetch_stock_data(symbol):
                 "volume": bar["v"]
             })
 
-        if not data:
-            print(f"[WARNING] 無有效欄位資料：{symbol}")
-            return None
-
         df = pd.DataFrame(data)
-        if "timestamp" not in df.columns:
-            print(f"[ERROR] 缺少 timestamp 欄位：{symbol}")
-            return None
-
         df.set_index("timestamp", inplace=True)
         return df
 
