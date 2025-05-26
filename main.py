@@ -18,31 +18,28 @@ def fetch_stock_data(symbol):
         start = end - timedelta(minutes=35)
 
         aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100,
-            adjusted=True
-        )
+    ticker=symbol,
+    multiplier=5,
+    timespan="minute",
+    from_=start.strftime("%Y-%m-%d"),
+    to=end.strftime("%Y-%m-%d"),
+    limit=100
+)
 
-        if not aggs:
-            print(f"[WARNING] 無資料（空回傳）：{symbol}")
-            return None
+if not aggs or not aggs.results:
+    print(f"[WARNING] 無資料（空回傳）：{symbol}")
+    return None
 
-        data = []
-        for bar in aggs:
-            if "t" not in bar or bar["t"] is None:
-                continue
-            data.append({
-                "timestamp": pd.to_datetime(bar["t"], unit='ms'),
-                "open": bar.get("o", 0),
-                "high": bar.get("h", 0),
-                "low": bar.get("l", 0),
-                "close": bar.get("c", 0),
-                "volume": bar.get("v", 0)
-            })
+data = []
+for bar in aggs.results:
+    data.append({
+        "timestamp": pd.to_datetime(bar['t'], unit='ms'),
+        "open": bar['o'],
+        "high": bar['h'],
+        "low": bar['l'],
+        "close": bar['c'],
+        "volume": bar['v']
+    })
 
         if not data:
             print(f"[WARNING] 無有效欄位資料：{symbol}")
