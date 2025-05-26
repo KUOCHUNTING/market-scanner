@@ -65,7 +65,7 @@ def main():
         return pd.DataFrame(bars)
 
     except Exception as e:
-        print(f"⚠️ 發生錯誤：{e}")
+        print(f"[ERROR] {symbol} 資料抓取失敗：{e}")
         return None
     
     def scan_all_symbols():
