@@ -61,7 +61,7 @@ def fetch_stock_data(symbol):
             })
 
         # [關鍵補上] 避免空 DataFrame 錯誤
-        if not data:
+        if not aggs or not aggs.results:
             print(f"[WARNING] 無有效K線資料：{symbol}")
             return None
 
