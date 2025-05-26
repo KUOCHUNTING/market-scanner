@@ -19,7 +19,7 @@ def fetch_stock_data(symbol):
         start = datetime(2025, 5, 22)
         end = datetime(2025, 5, 22)
 
-       aggs = client.get_aggs(
+        aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
