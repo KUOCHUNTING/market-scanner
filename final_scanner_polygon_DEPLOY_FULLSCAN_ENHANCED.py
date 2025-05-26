@@ -39,14 +39,50 @@ except Exception as e:
     print(f"[WARNING] Google Sheets 無法啟動: {e}")
 
 # 抓股票資料
-df = pd.DataFrame(data)
-df.set_index("timestamp", inplace=True)
+def fetch_stock_data(symbol):
+    try:
+        client = RESTClient(api_key=API_KEY)
+        end = datetime.now()
+        start = end - pd.Timedelta(minutes=35)
+        aggs = client.get_aggs(
+            ticker=symbol,
+            multiplier=5,
+            timespan="minute",
+            from_=start.strftime("%Y-%m-%d"),
+            to=end.strftime("%Y-%m-%d"),
+            limit=100
+        )
+        if not aggs:
+            print(f"[WARNING] {symbol} 沒有回傳任何資料")
+            return None
 
-# 加上 debug 印出筆數與資料預覽
-print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
-print(df.head())
+        data = [{
+            "timestamp": pd.to_datetime(bar["t"], unit='ms'),
+            "open": bar["o"],
+            "high": bar["h"],
+            "low": bar["l"],
+            "close": bar["c"],
+            "volume": bar["v"]
+        } for bar in aggs if "t" in bar]
 
-return df
+        if not data:
+            print(f"[WARNING] {symbol} 無有效 bar 資料")
+            return None
+
+        df = pd.DataFrame(data)
+        if "timestamp" not in df.columns:
+            print(f"[WARNING] {symbol} 資料缺少 timestamp 欄位")
+            return None
+        df.set_index("timestamp", inplace=True)
+
+        # 加上 debug 印出筆數與資料預覽
+        print(f"[DEBUG] 取得 {symbol} 資料筆數：", len(df))
+        print(df.head())
+
+        return df
+    except Exception as e:
+        print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
+        return None
 
 # 技術指標訊號分析
 def analyze_signal(symbol, df):
