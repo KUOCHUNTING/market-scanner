@@ -19,7 +19,7 @@ def fetch_stock_data(symbol):
         start = datetime(2025, 5, 22)
         end = datetime(2025, 5, 22)
 
-        aggs = client.get_aggs(
+       aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
@@ -29,22 +29,27 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # 如果 aggs 是 dict 物件（含 results），取 .results；如果是 list，直接用
-        if isinstance(aggs, dict) and "results" in aggs:
-            bars = aggs["results"]
-        elif isinstance(aggs, list):
-            bars = aggs
-        else:
-            print(f"[WARNING] 無法解析資料格式：{symbol}")
+        # 確保拿到的是 list 格式的 K 線資料
+        bars = None
+        try:
+            if hasattr(aggs, 'results'):  # 是 AggResponse 類型
+                bars = aggs.results
+            elif isinstance(aggs, list):  # 是 list 類型
+                bars = aggs
+            else:
+                raise ValueError("未知 aggs 類型，無法處理")
+        except Exception as e:
+            print(f"[ERROR] 處理 aggs 失敗 {symbol}: {e}")
             return None
 
         if not bars:
-            print(f"[WARNING] 空回傳資料：{symbol}")
+            print(f"[WARNING] 無資料（空回傳）：{symbol}")
             return None
 
+        # 開始處理每根 K 線
         data = []
         for bar in bars:
-            if "t" not in bar:
+            if not isinstance(bar, dict) or "t" not in bar:
                 continue
             data.append({
                 "timestamp": pd.to_datetime(bar["t"], unit='ms'),
@@ -58,7 +63,6 @@ def fetch_stock_data(symbol):
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
         return df
-
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
         return None
