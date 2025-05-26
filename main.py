@@ -21,8 +21,8 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%dT%H:%M:%S"),
-            to=end.strftime("%Y-%m-%dT%H:%M:%S"),
+            from_=start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            to=end.strftime("%Y-%m-%dT%H:%M:%SZ"),
             limit=100
         )
 
