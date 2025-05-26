@@ -115,6 +115,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[FATAL ERROR] 主程式崩潰：{e}")
 
+def load_symbols_from_csv(file_path):
     try:
         df = pd.read_csv(file_path)
         return df['symbol'].tolist()
