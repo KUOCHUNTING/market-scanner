@@ -122,7 +122,7 @@ def fetch_data(symbol):
              "close": b.close,
              "volume": b.volume
         } for b in bars])
-      return df
+        return df
     except Exception as e:
         print(f"❌ 無法取得 {symbol} 資料：{e}")
         return None
