@@ -46,9 +46,8 @@ def fetch_stock_data(symbol):
                     "low": bar["l"], "close": bar["c"], "volume": bar["v"]
                 })
 
-        if len(valid_bars) < 5:
-            print(f"[WARNING] 有效棒太少（{len(valid_bars)} 根），跳過：{symbol}")
-            return None
+            if len(valid_bars) < 5:
+            return None  # 不顯示警告，靜默跳過
 
         df = pd.DataFrame(valid_bars)
         df.set_index("timestamp", inplace=True)
