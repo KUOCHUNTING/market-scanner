@@ -74,7 +74,7 @@ def fetch_stock_data(symbol):
             print(f"[DEBUG] {symbol} 指標：RSI={rsi:.2f}, MACD={macd:+.2f}, VWAP={vwap:.2f}, EMA5={ema5:.2f}, EMA20={ema20:.2f}, 量能={volume_ratio:.2f}, KD={kd_cross}")
 
              # 訊號邏輯判斷
-             signal = None
+        signal = None
                 if rsi < 30 and macd > 0 and price > vwap:
                     signal = "預警 - 多頭轉折"
                 elif rsi > 70 and macd < 0 and price < vwap:
