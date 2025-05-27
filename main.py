@@ -48,6 +48,11 @@ def fetch_stock_data(symbol):
             return None
 
         if not bars or not isinstance(bars, list) or len(bars) == 0:
+            print(f"[DEBUG] aggs 原始資料：{aggs}")
+            print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
+            return None
+
+        if not bars or not isinstance(bars, list) or len(bars) == 0:
             print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
             return None
             
