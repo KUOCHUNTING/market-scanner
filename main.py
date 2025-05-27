@@ -79,6 +79,10 @@ def analyze_signal(symbol, df):
         print(f"[ERROR] 訊號分析錯誤 {symbol}: {e}")
         return None
 
+import time
+
+SCAN_INTERVAL = 60  # ✅ 一定要定義
+
 def main():
     symbols = ["AAPL"]
     for symbol in symbols:
@@ -90,8 +94,11 @@ def main():
         time.sleep(1)
 
 if __name__ == "__main__":
-    print("=== 開始掃描（無 include_pre_post） ===")
+    print("=== ✅ 開始掃描 (無 include_pre_post) ===")
     while True:
-        main()
-        print(f"等待 {SCAN_INTERVAL} 秒...")
+        try:
+            main()
+        except Exception as e:
+            print(f"[ERROR] 主程式錯誤：{e}")
+        print(f"⏳ 等待 {SCAN_INTERVAL} 秒...")
         time.sleep(SCAN_INTERVAL)
