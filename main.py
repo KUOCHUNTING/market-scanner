@@ -3,7 +3,6 @@ import time
 import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
-from polygon import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 
@@ -12,20 +11,19 @@ SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
     try:
-        client = RESTClient(api_key=API_KEY)
-        est = timezone('US/Eastern')
+        est = timezone("US/Eastern")
         end = datetime.now(est)
         start = end - timedelta(minutes=35)
+        date_str = end.strftime("%Y-%m-%d")
 
-        aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100,
-            adjusted=True,
-            include_pre_post=True
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/5/minute/{date_str}/{date_str}"
+        params = {
+            "adjusted": "true",
+            "include_pre_post": "true",
+            "sort": "asc",
+            "limit": 5000,
+            "apiKey": API_KEY
+        }
         )
 
         bars = aggs.results if hasattr(aggs, "results") else aggs
