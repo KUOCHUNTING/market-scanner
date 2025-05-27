@@ -30,8 +30,9 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.isoformat(timespec="seconds"),
-            to=end.isoformat(timespec="seconds"),
+            timespan="minute",
+            from_=start.strftime("%Y-%m-%d"),  # ✅ 換成 YYYY-MM-DD
+            to=end.strftime("%Y-%m-%d"),
             limit=100,
             adjusted=True,
         )
