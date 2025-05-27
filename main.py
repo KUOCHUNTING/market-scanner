@@ -4,6 +4,7 @@ import time
 import csv
 from datetime import datetime, timedelta
 import pandas as pd
+from pytz import timezone
 from polygon import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
@@ -14,7 +15,9 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime(2025, 5, 22, 15, 30)  # EST 時間 15:30
+        # 設定固定時間為美東時間的 2025/5/22 下午 2:30（EST 盤中）
+        est = timezone('US/Eastern')
+        end = est.localize(datetime(2025, 5, 22, 14, 30))
         start = end - timedelta(minutes=35)
 
         aggs = client.get_aggs(
