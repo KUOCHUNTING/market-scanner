@@ -10,45 +10,53 @@ from ta.trend import MACD
 API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
 SCAN_INTERVAL = 60
 
+import requests
+from datetime import datetime, timedelta
+from pytz import timezone
+import pandas as pd
+
+API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
+
 def fetch_stock_data(symbol):
     try:
-        client = RESTClient(api_key=API_KEY)
-        est = timezone('US/Eastern')
+        est = timezone("US/Eastern")
         end = datetime.now(est)
         start = end - timedelta(minutes=35)
+        date_str = end.strftime("%Y-%m-%d")
 
-        aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
-            limit=100,
-            adjusted=True  # ✅ 沒有 include_pre_post
-        )
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/5/minute/{date_str}/{date_str}"
+        params = {
+            "adjusted": "true",
+            "include_pre_post": "true",  # ✅ 支援盤前盤後
+            "sort": "asc",
+            "limit": 5000,
+            "apiKey": YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k
+        }
 
-        bars = aggs.results if hasattr(aggs, "results") else aggs
-        if not bars or not isinstance(bars, list):
-            print(f"[WARNING] 無效K線資料：{symbol}")
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            print(f"[ERROR] 無法獲取 {symbol} 資料：{response.status_code} - {response.text}")
             return None
 
-        data = []
-        for bar in bars:
-            if all(k in bar for k in ["t", "o", "h", "l", "c", "v"]):
-                data.append({
-                    "timestamp": pd.to_datetime(bar["t"], unit='ms'),
-                    "open": bar["o"],
-                    "high": bar["h"],
-                    "low": bar["l"],
-                    "close": bar["c"],
-                    "volume": bar["v"]
-                })
+        data = response.json().get("results", [])
+        if not data:
+            print(f"[WARNING] 無資料 {symbol}")
+            return None
 
-        df = pd.DataFrame(data)
+        df = pd.DataFrame([{
+            "timestamp": pd.to_datetime(bar["t"], unit='ms'),
+            "open": bar["o"],
+            "high": bar["h"],
+            "low": bar["l"],
+            "close": bar["c"],
+            "volume": bar["v"]
+        } for bar in data])
+
         df.set_index("timestamp", inplace=True)
         return df
+
     except Exception as e:
-        print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
+        print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
         return None
 
 def analyze_signal(symbol, df):
