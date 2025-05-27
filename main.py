@@ -3,7 +3,6 @@ import time
 import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
-from polygon import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 
