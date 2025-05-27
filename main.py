@@ -8,6 +8,11 @@ from polygon import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 
+# ✅ 加在這邊（dotenv 載入區）
+from dotenv import load_dotenv
+load_dotenv()
+print(f"[DEBUG] API KEY: {os.getenv('POLYGON_API_KEY')}")
+
 API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
 SCAN_INTERVAL = 60
 
