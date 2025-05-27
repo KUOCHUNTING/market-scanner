@@ -38,6 +38,19 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
+        bars = None
+        if hasattr(aggs, 'results'):
+            bars = aggs.results
+        elif isinstance(aggs, list):
+            bars = aggs
+        else:
+            print(f"[ERROR] 無法處理 aggs 結構：{symbol}")
+            return None
+
+        if not bars or not isinstance(bars, list) or len(bars) == 0:
+            print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
+            return None
+            
         # ✅ 關鍵修正：支援 Agg 回傳格式
         if hasattr(aggs, 'results'):
             bars = aggs.results
