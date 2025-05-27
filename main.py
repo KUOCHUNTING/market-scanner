@@ -76,24 +76,55 @@ def analyze_signal(symbol, df):
         close = df['close']
         if len(close) < 35:
             return None
+
+        # 技術指標
         rsi = RSIIndicator(close).rsi().iloc[-1]
         macd = MACD(close).macd_diff().iloc[-1]
         kd = StochasticOscillator(high=df['high'], low=df['low'], close=close)
         k_value = kd.stoch().iloc[-1]
         d_value = kd.stoch_signal().iloc[-1]
+        vwap = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
+        current_price = close.iloc[-1]
+        current_vwap = vwap.iloc[-1]
+        volume = df['volume'].iloc[-1]
+        avg_volume = df['volume'].rolling(window=5).mean().iloc[-2]  # 用前5根均量比對
+        ema_5 = close.ewm(span=5, adjust=False).mean().iloc[-1]
+        ema_20 = close.ewm(span=20, adjust=False).mean().iloc[-1]
 
-        # 避免半山腰進場
+        # 避開 RSI 半山腰
         if 45 <= rsi <= 65:
             return None
 
+        # ===== 預警訊號：多頭轉折 =====
         if rsi < 30 and k_value > d_value and macd < 0:
             return "預警 - 多頭轉折"
+
+        # ===== 預警訊號：空頭轉折 =====
         elif rsi > 70 and k_value < d_value and macd > 0:
             return "預警 - 空頭轉折"
-        elif rsi < 45 and macd > 0 and k_value > d_value:
+
+        # ===== 正式訊號：多頭 =====
+        elif (
+            rsi < 45 and
+            macd > 0 and
+            current_price > current_vwap and
+            volume > avg_volume and
+            ema_5 > ema_20 and
+            k_value > d_value
+        ):
             return "正式進場 - 多頭"
-        elif rsi > 65 and macd < 0 and k_value < d_value:
+
+        # ===== 正式訊號：空頭 =====
+        elif (
+            rsi > 65 and
+            macd < 0 and
+            current_price < current_vwap and
+            volume > avg_volume and
+            ema_5 < ema_20 and
+            k_value < d_value
+        ):
             return "正式進場 - 空頭"
+
         return None
     except Exception as e:
         print(f"[ERROR] 訊號分析錯誤 {symbol}: {e}")
