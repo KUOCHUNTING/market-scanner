@@ -1,4 +1,4 @@
-    
+        
 import os
 import time
 import csv
@@ -47,23 +47,12 @@ def fetch_stock_data(symbol):
             bars = aggs.results
         elif isinstance(aggs, list):
             bars = aggs
+        else:
+            print(f"[WARNING] 未知格式（非 results 或 list）：{symbol}")
+            return None
 
-        # ✅ Step 2：再檢查是否為有效 list
         if not bars or not isinstance(bars, list) or len(bars) == 0:
             print(f"[SKIP] 空資料或格式錯誤：{symbol}")
-            return None
-            
-        bars = None
-        if hasattr(aggs, 'results'):
-            bars = aggs.results
-        elif isinstance(aggs, list):
-            bars = aggs
-        else:
-            print(f"[WARNING] 未知回傳格式（非 results 或 list）：{symbol}")
-            return None
-
-        if not bars or not isinstance(bars, list):
-            print(f"[WARNING] 無有效K線資料（bars 無效）：{symbol}")
             return None
 
         # 資料轉換
