@@ -18,8 +18,12 @@ def fetch_stock_data(symbol):
 
         from pytz import timezone
         est = timezone('US/Eastern')
-        end = datetime.now(est)  # 即時時間
-        start = end - timedelta(minutes=35)  # 往前抓 35 分鐘
+        end = datetime.now(est)
+
+        # 如果不是美股盤中，就跳過
+        if not (end.hour > 9 or (end.hour == 9 and end.minute >= 30)) or end.hour >= 16:
+            print(f"[INFO] 當前時間 {end.strftime('%H:%M')} 非美股盤中，跳過 {symbol}")
+            return None
 
         aggs = client.get_aggs(
             ticker=symbol,
