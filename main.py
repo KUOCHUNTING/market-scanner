@@ -17,17 +17,25 @@ def fetch_stock_data(symbol):
         end = datetime.now(est)
         start = end - timedelta(minutes=35)
 
+        # 使用 Unix 時間戳
+        start_timestamp = int(start.timestamp())
+        end_timestamp = int(end.timestamp())
+
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
+            from_=start_timestamp,
+            to=end_timestamp,
             limit=100,
             adjusted=True,
             include_pre_post=True
         )
 
+        # 檢查 aggs 的內容
+        print(f"[DEBUG] aggs: {aggs}")
+
+        # 檢查 aggs 是否為 Agg 對象
         bars = aggs.results if hasattr(aggs, "results") else aggs
         if not bars or not isinstance(bars, list):
             print(f"[WARNING] 無效K線資料：{symbol}")
