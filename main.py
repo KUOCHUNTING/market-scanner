@@ -47,7 +47,7 @@ def fetch_stock_data(symbol):
                 })
 
             if len(valid_bars) < 5:
-            return None  # 不顯示警告，靜默跳過
+                return None  # 不顯示警告，靜默跳過
 
         df = pd.DataFrame(valid_bars)
         df.set_index("timestamp", inplace=True)
