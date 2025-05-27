@@ -7,7 +7,7 @@ from polygon import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 
-API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
+API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
