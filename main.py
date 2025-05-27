@@ -47,8 +47,10 @@ def fetch_stock_data(symbol):
         # 開始轉換為 DataFrame
         data = []
         for bar in bars:
-            if not isinstance(bar, dict) or "t" not in bar:
-                continue
+            # 檢查欄位是否齊全
+            if not all(key in bar for key in ["t", "o", "h", "l", "c", "v"]):
+                print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
+                return None
             data.append({
                 "timestamp": pd.to_datetime(bar["t"], unit='ms'),
                 "open": bar["o"],
@@ -58,10 +60,7 @@ def fetch_stock_data(symbol):
                 "volume": bar["v"]
             })
 
-        if not data:
-            print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
-            return None
-
+        # 建立 DataFrame
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
         return df
