@@ -71,18 +71,18 @@ def analyze_signal(symbol, df):
         return None
 
 def main():
+    print("=== 啟動掃描程序 ===")
     symbols = ["AAPL", "TSLA", "AMD"]
     for symbol in symbols:
+        print(f"正在抓取 {symbol} 資料...")
         df = fetch_stock_data(symbol)
         if df is not None:
+            print(f"{symbol} 資料筆數：{len(df)}")
             signal = analyze_signal(symbol, df)
             if signal:
                 print(f"[SIGNAL] {symbol}: {signal}")
+            else:
+                print(f"[INFO] {symbol} 無訊號")
+        else:
+            print(f"[WARNING] {symbol} 無法取得資料")
         time.sleep(1)
-
-if __name__ == "__main__":
-    while True:
-        print("=== 開始掃描 ===")
-        main()
-        print(f"等待 {SCAN_INTERVAL} 秒後再次掃描...")
-        time.sleep(SCAN_INTERVAL)
