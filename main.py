@@ -41,13 +41,12 @@ def fetch_stock_data(symbol):
             return None
 
         if not bars or not isinstance(bars, list):
-            print(f"[WARNING] 無有效K線資料（bars 無效）：{symbol}")
+            print(f"[WARNING] 無效K線資料（bars 無效）：{symbol}")
             return None
 
         # 開始轉換為 DataFrame
         data = []
         for bar in bars:
-            # 檢查欄位是否齊全
             if not all(key in bar for key in ["t", "o", "h", "l", "c", "v"]):
                 print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
                 return None
