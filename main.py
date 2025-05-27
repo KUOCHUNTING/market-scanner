@@ -47,15 +47,26 @@ def fetch_stock_data(symbol):
                 })
 
             if len(valid_bars) < 5:
-                return None  # 不顯示警告，靜默跳過
+                return None  # 不顯示警告，靜默跳
 
         df = pd.DataFrame(valid_bars)
         df.set_index("timestamp", inplace=True)
         return df
 
-    except Exception as e:
-        print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
-        return None
+        try:
+            rsi = RSIIndicator(close=df['c']).rsi()
+            macd = MACD(close=df['c']).macd_diff()
+            vwap = (df['v'] * (df['h'] + df['l'] + df['c']) / 3).cumsum() / df['v'].cumsum()
+    
+            print(f"[DEBUG] {symbol} 指標：RSI={rsi.iloc[-1]:.2f}, MACD={macd.iloc[-1]:.2f}, VWAP={vwap.iloc[-1]:.2f}")
+
+        except Exception as e:
+            print(f"[ERROR] 技術指標處理失敗：{symbol} - {e}")
+            return None
+            
+        except Exception as e:
+            print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
+            return None
 
 
 def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross):
