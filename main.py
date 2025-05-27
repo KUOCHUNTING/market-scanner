@@ -22,15 +22,18 @@ def fetch_stock_data(symbol):
         end = datetime.now(est)
         start = end - timedelta(minutes=35)
 
+        # 轉換為 Unix 時間戳
+        start_timestamp = int(start.timestamp())  # 轉換為秒
+        end_timestamp = int(end.timestamp())      # 轉換為秒
+
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.isoformat(),  # 使用 ISO 格式
-            to=end.isoformat(),        # 使用 ISO 格式
+            from_=start_timestamp,  # 使用 Unix 時間戳
+            to=end_timestamp,        # 使用 Unix 時間戳
             limit=100,
             adjusted=True
-            # include_pre_post=True  # 移除此參數
         )
 
         bars = aggs.results if hasattr(aggs, "results") else aggs
