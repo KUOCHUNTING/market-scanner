@@ -26,11 +26,11 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
+            from_=start.isoformat(),  # 使用 ISO 格式
+            to=end.isoformat(),        # 使用 ISO 格式
             limit=100,
-            adjusted=True,
-            include_pre_post=True  # ✅ 測試是否接受這參數
+            adjusted=True
+            # include_pre_post=True  # 移除此參數
         )
 
         bars = aggs.results if hasattr(aggs, "results") else aggs
