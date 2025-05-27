@@ -24,7 +24,7 @@ def fetch_stock_data(symbol):
             "limit": 5000,
             "apiKey": API_KEY
         }
-        )
+        
 
         bars = aggs.results if hasattr(aggs, "results") else aggs
         if not bars or not isinstance(bars, list):
