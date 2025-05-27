@@ -1,20 +1,3 @@
-import os
-import subprocess
-import time
-import pandas as pd
-from datetime import datetime, timedelta
-from pytz import timezone
-from polygon import RESTClient
-from ta.momentum import RSIIndicator, StochasticOscillator
-from ta.trend import MACD
-
-# 顯示目前的 polygon-api-client 套件版本
-print("=== 套件版本確認 ===")
-subprocess.run(["pip", "show", "polygon-api-client"])
-
-API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
-SCAN_INTERVAL = 60
-
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
@@ -23,8 +6,8 @@ def fetch_stock_data(symbol):
         start = end - timedelta(minutes=35)
 
         # 轉換為 Unix 時間戳
-        start_timestamp = int(start.timestamp())  # 轉換為秒
-        end_timestamp = int(end.timestamp())      # 轉換為秒
+        start_timestamp = int(start.timestamp())
+        end_timestamp = int(end.timestamp())
 
         aggs = client.get_aggs(
             ticker=symbol,
@@ -36,7 +19,15 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        bars = aggs.results if hasattr(aggs, "results") else aggs
+        # 打印 aggs 以檢查其內容
+        print(f"[DEBUG] aggs: {aggs}")
+
+        # 檢查 aggs 是否為 Agg 對象
+        if hasattr(aggs, 'results'):
+            bars = aggs.results
+        else:
+            bars = aggs
+
         if not bars or not isinstance(bars, list):
             print(f"[WARNING] 無效K線資料：{symbol}")
             return None
@@ -59,37 +50,3 @@ def fetch_stock_data(symbol):
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
         return None
-
-def analyze_signal(symbol, df):
-    try:
-        close = df["close"]
-        if len(close) < 35:
-            return None
-        rsi = RSIIndicator(close).rsi().iloc[-1]
-        macd = MACD(close).macd_diff().iloc[-1]
-        kd = StochasticOscillator(high=df["high"], low=df["low"], close=close)
-        k = kd.stoch().iloc[-1]
-        d = kd.stoch_signal().iloc[-1]
-
-        if rsi < 30 and macd > 0 and k > d:
-            return "多頭訊號"
-        elif rsi > 70 and macd < 0 and k < d:
-            return "空頭訊號"
-        return None
-    except Exception as e:
-        print(f"[ERROR] 訊號分析錯誤 {symbol}: {e}")
-        return None
-
-def main():
-    symbols = ["AAPL"]
-    for symbol in symbols:
-        df = fetch_stock_data(symbol)
-        if df is not None:
-            signal = analyze_signal(symbol, df)
-            if signal:
-                print(f"[SIGNAL] {symbol}: {signal}")
-        time.sleep(1)
-
-if __name__ == "__main__":
-    print("=== 開始掃描 ===")
-    main()
