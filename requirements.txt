@@ -1,4 +1,4 @@
-polygon-api-client>=1.6.0
+polygon
 ta
 pandas
 pytz
