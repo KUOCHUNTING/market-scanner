@@ -167,8 +167,7 @@ if __name__ == "__main__":
         while True:
             print(f"🔁 新一輪掃描開始於 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             scan_all_symbols(symbols)
-            print(f"⏳ 等待 {SCAN_INTERVAL} 秒後執行下一輪...
-")
+            print(f"⏳ 等待 {SCAN_INTERVAL} 秒後執行下一輪...\n")
             time.sleep(SCAN_INTERVAL)
     except Exception as e:
         print(f"[FATAL ERROR] 主程式崩潰：{e}")
