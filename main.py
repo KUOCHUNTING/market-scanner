@@ -53,6 +53,9 @@ def fetch_stock_data(symbol):
         data = []
         print(f"[DEBUG] {symbol} bars 數量：{len(bars)}")
         for bar in bars:
+            # 強制 bar 轉為 dict（有些是 Agg 類型）
+            if not isinstance(bar, dict):
+                bar = bar.__dict__  # ✅ 解開 Agg 類型成字典
             if not all(k in bar for k in ["t", "o", "h", "l", "c", "v"]):
                 print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
                 return None
