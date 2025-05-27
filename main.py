@@ -71,6 +71,22 @@ def fetch_stock_data(symbol):
 
             price = df['c'].iloc[-1]
 
+            print(f"[DEBUG] {symbol} 指標：RSI={rsi:.2f}, MACD={macd:+.2f}, VWAP={vwap:.2f}, EMA5={ema5:.2f}, EMA20={ema20:.2f}, 量能={volume_ratio:.2f}, KD={kd_cross}")
+
+             # 訊號邏輯判斷
+                signal = None
+                if rsi < 30 and macd > 0 and price > vwap:
+                    signal = "預警 - 多頭轉折"
+                elif rsi > 70 and macd < 0 and price < vwap:
+                    signal = "預警 - 空頭轉折"
+                elif rsi > 30 and macd > 0 and ema5 > ema20 and volume_ratio > 1.5:
+                    signal = "正式進場 - 多頭"
+                elif rsi < 70 and macd < 0 and ema5 < ema20 and volume_ratio > 1.5:
+                    signal = "正式進場 - 空頭"
+
+                if signal:
+                    push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross)
+        
         except Exception as e:
             print(f"[ERROR] 技術指標處理失敗：{symbol} - {e}")
             return None
@@ -78,20 +94,9 @@ def fetch_stock_data(symbol):
         except Exception as e:
             print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
             return None
-
-
 def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross):
-    if "預警" in signal:
-        prefix = "⚠️"
-    elif "正式進場 - 多頭" in signal:
-        prefix = "🐸"
-    elif "正式進場 - 空頭" in signal:
-        prefix = "🐶"
-    else:
-        prefix = ""
-
     message = f"""```yaml
-{prefix} [{signal}] {symbol}
+🐸 [{signal}] {symbol}
 💰 價格    : ${price:.2f}
 📈 RSI    : {rsi:.2f}
 📊 MACD   : {macd:+.2f}
@@ -100,7 +105,14 @@ def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cr
 📐 均線交叉: {ema_cross}
 🌀 KD     : {kd_cross}
 ```"""
-    requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
+        print(f"[推播成功] {symbol} → Discord")
+    except Exception as e:
+        print(f"[推播失敗] {symbol}：{e}")
+
+
+
     
     try:
         response = requests.post(WEBHOOK_URL, json={"content": message})
