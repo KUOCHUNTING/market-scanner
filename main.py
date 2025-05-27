@@ -52,9 +52,14 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
             return None
 
-        if not bars or not isinstance(bars, list) or len(bars) == 0:
-            print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
-            return None
+        # ✅ 接下來才轉換成 DataFrame
+        df = pd.DataFrame(bars)
+
+        # ✅ 插入這一行，顯示有效棒數
+        print(f"[DEBUG] {symbol} 棒數量（有效 K 棒）：{len(bars)}")
+
+        # ✅ 接下來才轉換成 DataFrame
+        df = pd.DataFrame(bars)
             
         # ✅ 關鍵修正：支援 Agg 回傳格式
         if hasattr(aggs, 'results'):
