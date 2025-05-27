@@ -12,7 +12,7 @@ from ta.trend import MACD
 print("=== 套件版本確認 ===")
 subprocess.run(["pip", "show", "polygon-api-client"])
 
-API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
+API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
