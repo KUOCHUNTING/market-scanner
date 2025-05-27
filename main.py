@@ -15,7 +15,8 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        # 設定固定時間為美東時間的 2025/5/22 下午 2:30（EST 盤中）
+
+        from pytz import timezone
         est = timezone('US/Eastern')
         end = est.localize(datetime(2025, 5, 22, 14, 30))
         start = end - timedelta(minutes=35)
@@ -30,8 +31,7 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # ✅ 處理 list 或物件格式的回傳
-        bars = None
+        # ✅ 關鍵修正：支援 Agg 回傳格式
         if hasattr(aggs, 'results'):
             bars = aggs.results
         elif isinstance(aggs, list):
@@ -44,10 +44,10 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] 無效K線資料（bars 無效）：{symbol}")
             return None
 
-        # 開始轉換為 DataFrame
+        # 轉換為 DataFrame
         data = []
         for bar in bars:
-            if not all(key in bar for key in ["t", "o", "h", "l", "c", "v"]):
+            if not all(k in bar for k in ["t", "o", "h", "l", "c", "v"]):
                 print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
                 return None
             data.append({
@@ -59,13 +59,12 @@ def fetch_stock_data(symbol):
                 "volume": bar["v"]
             })
 
-        # 建立 DataFrame
         df = pd.DataFrame(data)
         df.set_index("timestamp", inplace=True)
         return df
 
     except Exception as e:
-        print(f"[ERROR] 抓取資料失敗 {symbol}: {e}")
+        print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
         return None
 
 def analyze_signal(symbol, df):
