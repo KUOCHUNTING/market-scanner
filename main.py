@@ -28,11 +28,11 @@ def fetch_stock_data(symbol):
 
         aggs = client.get_aggs(
             ticker=symbol,
-            multiplier=5,
-            timespan="minute",
+            multiplier=1,
+            timespan="day",
             from_=start.strftime("%Y-%m-%d"),  # ✅ 換成 YYYY-MM-DD
             to=end.strftime("%Y-%m-%d"),
-            limit=100,
+            limit=10,
             adjusted=True,
         )
 
