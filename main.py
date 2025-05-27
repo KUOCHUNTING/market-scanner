@@ -18,8 +18,8 @@ def fetch_stock_data(symbol):
 
         from pytz import timezone
         est = timezone('US/Eastern')
-        end = est.localize(datetime(2025, 5, 22, 14, 30))
-        start = end - timedelta(minutes=35)
+        end = datetime.now(est)  # 即時時間
+        start = end - timedelta(minutes=35)  # 往前抓 35 分鐘
 
         aggs = client.get_aggs(
             ticker=symbol,
@@ -28,7 +28,8 @@ def fetch_stock_data(symbol):
             from_=start.strftime("%Y-%m-%d"),
             to=end.strftime("%Y-%m-%d"),
             limit=100,
-            adjusted=True
+            adjusted=True,
+            include_pre_post=True  # ✅ 開啟盤前 / 盤後資料
         )
 
         # ✅ 關鍵修正：支援 Agg 回傳格式
