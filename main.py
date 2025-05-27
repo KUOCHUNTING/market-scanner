@@ -24,7 +24,6 @@ def fetch_stock_data(symbol):
             to=end.strftime("%Y-%m-%d"),
             limit=100,
             adjusted=True,
-            include_pre_post=True  # ✅ 支援盤前盤後
         )
 
         if hasattr(aggs, 'results'):
