@@ -54,11 +54,22 @@ def fetch_stock_data(symbol):
         return df
 
         try:
-            rsi = RSIIndicator(close=df['c']).rsi()
-            macd = MACD(close=df['c']).macd_diff()
+            rsi = RSIIndicator(close=df['c']).rsi().iloc[-1]
+            macd = MACD(close=df['c']).macd_diff().iloc[-1]
             vwap = (df['v'] * (df['h'] + df['l'] + df['c']) / 3).cumsum() / df['v'].cumsum()
-    
-            print(f"[DEBUG] {symbol} 指標：RSI={rsi.iloc[-1]:.2f}, MACD={macd.iloc[-1]:.2f}, VWAP={vwap.iloc[-1]:.2f}")
+            vwap = vwap.iloc[-1]
+            ema5 = df['c'].ewm(span=5, adjust=False).mean().iloc[-1]
+            ema20 = df['c'].ewm(span=20, adjust=False).mean().iloc[-1]
+            volume_avg = df['v'].rolling(window=20).mean().iloc[-1]
+            volume_ratio = df['v'].iloc[-1] / volume_avg if volume_avg != 0 else 0
+            ema_cross = "EMA5 > EMA20" if ema5 > ema20 else "EMA5 < EMA20"
+
+            # KD 金叉判斷
+            k = StochasticOscillator(high=df['h'], low=df['l'], close=df['c']).stoch()
+            d = StochasticOscillator(high=df['h'], low=df['l'], close=df['c']).stoch_signal()
+            kd_cross = "金叉" if k.iloc[-2] < d.iloc[-2] and k.iloc[-1] > d.iloc[-1] else "死叉"
+
+            price = df['c'].iloc[-1]
 
         except Exception as e:
             print(f"[ERROR] 技術指標處理失敗：{symbol} - {e}")
