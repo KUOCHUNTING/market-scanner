@@ -83,11 +83,17 @@ def analyze_signal(symbol, df):
 def main():
     symbols = ["AAPL", "TSLA", "AMD"]
     for symbol in symbols:
-        df = fetch_stock_data(symbol)
+        print(f"[DEBUG] 正在抓取 {symbol} 的數據...")
+        df = fetch_stock_data(symbol)  # 抓取股票數據
         if df is not None:
-            signal = analyze_signal(symbol, df)
+            print(f"[DEBUG] 成功獲取 {symbol} 的數據，開始分析...")
+            signal = analyze_signal(symbol, df)  # 分析信號
             if signal:
                 print(f"[SIGNAL] {symbol}: {signal}")
+            else:
+                print(f"[DEBUG] {symbol} 沒有發現信號")
+        else:
+            print(f"[ERROR] 無法獲取 {symbol} 的數據")
         time.sleep(1)
 
 if __name__ == "__main__":
