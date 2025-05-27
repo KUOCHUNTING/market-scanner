@@ -15,10 +15,11 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-
+        from datetime import datetime, timedelta
         from pytz import timezone
-        est = timezone('US/Eastern')
+        est = timezone("US/Eastern")
         end = datetime.now(est)
+        start = end - timedelta(minutes=35)
 
         # 如果不是美股盤中，就跳過
         if not (end.hour > 9 or (end.hour == 9 and end.minute >= 30)) or end.hour >= 16:
