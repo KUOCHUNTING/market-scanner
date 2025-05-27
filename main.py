@@ -75,21 +75,23 @@ def fetch_stock_data(symbol):
 
              # 訊號邏輯判斷
         signal = None
-                if rsi < 30 and macd > 0 and price > vwap:
-                    signal = "預警 - 多頭轉折"
-                elif rsi > 70 and macd < 0 and price < vwap:
-                    signal = "預警 - 空頭轉折"
-                elif rsi > 30 and macd > 0 and ema5 > ema20 and volume_ratio > 1.5:
-                    signal = "正式進場 - 多頭"
-                elif rsi < 70 and macd < 0 and ema5 < ema20 and volume_ratio > 1.5:
-                    signal = "正式進場 - 空頭"
+            if rsi < 30 and macd > 0 and price > vwap:
+                signal = "預警 - 多頭轉折"
+            elif rsi > 70 and macd < 0 and price < vwap:
+                signal = "預警 - 空頭轉折"
+            elif rsi > 30 and macd > 0 and ema5 > ema20 and volume_ratio > 1.5:
+                signal = "正式進場 - 多頭"
+            elif rsi < 70 and macd < 0 and ema5 < ema20 and volume_ratio > 1.5:
+                signal = "正式進場 - 空頭"
 
-                if signal:
-                    push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross)
+            if signal:
+                push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross)
         
         except Exception as e:
             print(f"[ERROR] 技術指標處理失敗：{symbol} - {e}")
             return None
+            
+        return df
             
         except Exception as e:
             print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
