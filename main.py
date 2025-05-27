@@ -29,7 +29,6 @@ def fetch_stock_data(symbol):
             to=end.strftime("%Y-%m-%d"),
             limit=100,
             adjusted=True,
-            include_pre_post=True  # ✅ 開啟盤前 / 盤後資料
         )
 
         # ✅ 關鍵修正：支援 Agg 回傳格式
