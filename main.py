@@ -165,8 +165,7 @@ if __name__ == "__main__":
     try:
         symbols = load_symbols_from_csv("filtered_us_stocks_common_only.csv")
         while True:
-            print(f"
-🔁 新一輪掃描開始於 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"🔁 新一輪掃描開始於 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             scan_all_symbols(symbols)
             print(f"⏳ 等待 {SCAN_INTERVAL} 秒後執行下一輪...
 ")
