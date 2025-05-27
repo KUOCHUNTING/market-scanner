@@ -100,7 +100,8 @@ def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cr
 📐 均線交叉: {ema_cross}
 🌀 KD     : {kd_cross}
 ```"""
-
+    requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
+    
     try:
         response = requests.post(WEBHOOK_URL, json={"content": message})
         if response.status_code != 204:
