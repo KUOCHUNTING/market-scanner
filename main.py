@@ -14,26 +14,25 @@ SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
     try:
-        client = RESTClient(api_key=API_KEY)
-        from datetime import datetime, timedelta
-        from pytz import timezone
+        # 設定美東時間（US/Eastern）
         est = timezone("US/Eastern")
-        end = datetime.now(est)
-        start = end - timedelta(minutes=35)
+        now = datetime.now(est)
 
-        # 如果不是美股盤中，就跳過
-        if not (end.hour > 9 or (end.hour == 9 and end.minute >= 30)) or end.hour >= 16:
-            print(f"[INFO] 當前時間 {end.strftime('%H:%M')} 非美股盤中，跳過 {symbol}")
-            return None
+        # ⭐ 15分鐘延遲處理：資料只能抓到現在時間 - 15 分鐘
+        delay_minutes = 15
+        end = now - timedelta(minutes=delay_minutes)
+        start = end - timedelta(minutes=35)  # 抓近 7 根K線資料（5分鐘線）
+
+        print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
 
         aggs = client.get_aggs(
             ticker=symbol,
-            multiplier=1,
-            timespan="day",
-            from_=start.strftime("%Y-%m-%d"),  # ✅ 換成 YYYY-MM-DD
+            multiplier=5,
+            timespan="minute",
+            from_=start.strftime("%Y-%m-%d"),
             to=end.strftime("%Y-%m-%d"),
-            limit=10,
-            adjusted=True,
+            limit=100,
+            adjusted=True
         )
 
         # ✅ 關鍵修正：支援 Agg 回傳格式
