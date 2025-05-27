@@ -153,7 +153,7 @@ def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cr
     print("[DISCORD] 推播訊號：\\n" + message)
 
     # ✅ 可啟用 webhook 推播
-     import requests
+    import requests
      webhook_url = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
      requests.post(webhook_url, json={"content": message})
 def load_symbols_from_csv(file_path):
