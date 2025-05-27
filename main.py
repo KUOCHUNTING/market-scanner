@@ -42,7 +42,9 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # ✅ 資料格式防呆
+       if not bars or not isinstance(bars, list) or len(bars) == 0:
+            print(f"[SKIP] 空資料或格式錯誤：{symbol}")
+            return None
         bars = None
         if hasattr(aggs, 'results'):
             bars = aggs.results
