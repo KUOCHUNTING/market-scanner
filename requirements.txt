@@ -1,0 +1,4 @@
+polygon-api-client>=1.6.0
+ta
+pandas
+pytz
