@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
 
-API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
+API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 
 def fetch_stock_data(symbol):
     try:
