@@ -46,35 +46,34 @@ def fetch_stock_data(symbol):
                     "low": bar["l"], "close": bar["c"], "volume": bar["v"]
                 })
 
-            if len(valid_bars) < 5:
-                return None  # 不顯示警告，靜默跳
+        if len(valid_bars) < 5:
+            return None  # 太少K棒直接跳過
 
         df = pd.DataFrame(valid_bars)
         df.set_index("timestamp", inplace=True)
-        return df
 
+        # ✅ 技術指標與訊號判斷
         try:
-            rsi = RSIIndicator(close=df['c']).rsi().iloc[-1]
-            macd = MACD(close=df['c']).macd_diff().iloc[-1]
-            vwap = (df['v'] * (df['h'] + df['l'] + df['c']) / 3).cumsum() / df['v'].cumsum()
+            rsi = RSIIndicator(close=df['close']).rsi().iloc[-1]
+            macd = MACD(close=df['close']).macd_diff().iloc[-1]
+            vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
             vwap = vwap.iloc[-1]
-            ema5 = df['c'].ewm(span=5, adjust=False).mean().iloc[-1]
-            ema20 = df['c'].ewm(span=20, adjust=False).mean().iloc[-1]
-            volume_avg = df['v'].rolling(window=20).mean().iloc[-1]
-            volume_ratio = df['v'].iloc[-1] / volume_avg if volume_avg != 0 else 0
+            ema5 = df['close'].ewm(span=5, adjust=False).mean().iloc[-1]
+            ema20 = df['close'].ewm(span=20, adjust=False).mean().iloc[-1]
+            volume_avg = df['volume'].rolling(window=20).mean().iloc[-1]
+            volume_ratio = df['volume'].iloc[-1] / volume_avg if volume_avg != 0 else 0
             ema_cross = "EMA5 > EMA20" if ema5 > ema20 else "EMA5 < EMA20"
 
-            # KD 金叉判斷
-            k = StochasticOscillator(high=df['h'], low=df['l'], close=df['c']).stoch()
-            d = StochasticOscillator(high=df['h'], low=df['l'], close=df['c']).stoch_signal()
+            k = StochasticOscillator(high=df['high'], low=df['low'], close=df['close']).stoch()
+            d = StochasticOscillator(high=df['high'], low=df['low'], close=df['close']).stoch_signal()
             kd_cross = "金叉" if k.iloc[-2] < d.iloc[-2] and k.iloc[-1] > d.iloc[-1] else "死叉"
 
-            price = df['c'].iloc[-1]
+            price = df['close'].iloc[-1]
 
             print(f"[DEBUG] {symbol} 指標：RSI={rsi:.2f}, MACD={macd:+.2f}, VWAP={vwap:.2f}, EMA5={ema5:.2f}, EMA20={ema20:.2f}, 量能={volume_ratio:.2f}, KD={kd_cross}")
 
-             # 訊號邏輯判斷
-        signal = None
+            # ✅ 訊號邏輯
+            signal = None
             if rsi < 30 and macd > 0 and price > vwap:
                 signal = "預警 - 多頭轉折"
             elif rsi > 70 and macd < 0 and price < vwap:
@@ -86,16 +85,16 @@ def fetch_stock_data(symbol):
 
             if signal:
                 push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross)
-        
+
         except Exception as e:
             print(f"[ERROR] 技術指標處理失敗：{symbol} - {e}")
             return None
-            
+
         return df
-            
-        except Exception as e:
-            print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
-            return None
+
+    except Exception as e:
+        print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
+        return None
 def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross):
     message = f"""```yaml
 🐸 [{signal}] {symbol}
