@@ -87,51 +87,64 @@ def analyze_signal(symbol, df):
         current_price = close.iloc[-1]
         current_vwap = vwap.iloc[-1]
         volume = df['volume'].iloc[-1]
-        avg_volume = df['volume'].rolling(window=5).mean().iloc[-2]  # 用前5根均量比對
+        avg_volume = df['volume'].rolling(window=5).mean().iloc[-2]
         ema_5 = close.ewm(span=5, adjust=False).mean().iloc[-1]
         ema_20 = close.ewm(span=20, adjust=False).mean().iloc[-1]
 
-        # 避開 RSI 半山腰
+        # 判斷補充文字
+        ema_cross = "EMA5 > EMA20" if ema_5 > ema_20 else "EMA5 < EMA20"
+        kd_cross = "KD 金叉" if k_value > d_value else "KD 死叉"
+        volume_ratio = volume / avg_volume
+
+        # 避開半山腰 RSI
         if 45 <= rsi <= 65:
             return None
 
-        # ===== 預警訊號：多頭轉折 =====
+        # 訊號分類判斷
+        signal = None
         if rsi < 30 and k_value > d_value and macd < 0:
-            return "預警 - 多頭轉折"
-
-        # ===== 預警訊號：空頭轉折 =====
+            signal = "預警 - 多頭轉折"
         elif rsi > 70 and k_value < d_value and macd > 0:
-            return "預警 - 空頭轉折"
-
-        # ===== 正式訊號：多頭 =====
+            signal = "預警 - 空頭轉折"
         elif (
-            rsi < 45 and
-            macd > 0 and
-            current_price > current_vwap and
-            volume > avg_volume and
-            ema_5 > ema_20 and
-            k_value > d_value
+            rsi < 45 and macd > 0 and current_price > current_vwap and
+            volume_ratio > 1 and ema_5 > ema_20 and k_value > d_value
         ):
-            return "正式進場 - 多頭"
-
-        # ===== 正式訊號：空頭 =====
+            signal = "正式進場 - 多頭"
         elif (
-            rsi > 65 and
-            macd < 0 and
-            current_price < current_vwap and
-            volume > avg_volume and
-            ema_5 < ema_20 and
-            k_value < d_value
+            rsi > 65 and macd < 0 and current_price < current_vwap and
+            volume_ratio > 1 and ema_5 < ema_20 and k_value < d_value
         ):
-            return "正式進場 - 空頭"
+            signal = "正式進場 - 空頭"
+
+        # 回傳格式化訊號
+        if signal:
+            push_to_discord(symbol, signal, rsi, macd, current_vwap, current_price, volume_ratio, ema_cross, kd_cross)
+            return signal
 
         return None
     except Exception as e:
         print(f"[ERROR] 訊號分析錯誤 {symbol}: {e}")
         return None
 
-def push_to_discord(symbol, signal):
-    print(f"[DISCORD] 推播訊號：{symbol} - {signal}")
+def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross):
+    # 根據訊號類型加入 emoji 標籤
+    if "預警" in signal:
+        prefix = "⚠️"
+    elif "正式進場 - 多頭" in signal:
+        prefix = "🐸"
+    elif "正式進場 - 空頭" in signal:
+        prefix = "🐶"
+    else:
+        prefix = ""
+
+    message = f"""{prefix}**[{signal}]** {prefix}{symbol}
+價格：${price:.2f}
+RSI：{rsi:.2f} | MACD：{macd:+.2f} | VWAP：{vwap:.2f}
+量能：{volume_ratio:.1f}x | {ema_cross} | {kd_cross}
+"""
+    print("[DISCORD] 推播訊號：\n" + message)
+    可選：requests.post(https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE, json={"content": message})
 
 def load_symbols_from_csv(file_path):
     try:
