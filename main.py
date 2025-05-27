@@ -60,6 +60,47 @@ def fetch_stock_data(symbol):
 
         # ✅ 接下來才轉換成 DataFrame
         df = pd.DataFrame(bars)
+
+        # 確保欄位命名正確（Polygon 回傳格式）
+        df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
+        df['close'] = df['c']
+        df['high'] = df['h']
+        df['low'] = df['l']
+        df['volume'] = df['v']
+
+        # 技術指標分析
+        from ta.momentum import RSIIndicator
+        from ta.trend import MACD, EMAIndicator
+        from ta.volume import OnBalanceVolumeIndicator
+
+        # RSI
+        rsi = RSIIndicator(df['close'], window=14).rsi()
+        df['rsi'] = rsi
+
+        # MACD 柱狀圖（macd_diff）
+        macd = MACD(df['close'])
+        df['macd_diff'] = macd.macd_diff()
+
+        # VWAP 計算（簡易版）
+        df['typical_price'] = (df['high'] + df['low'] + df['close']) / 3
+        df['vwap'] = (df['typical_price'] * df['volume']).cumsum() / df['volume'].cumsum()
+
+        # EMA 均線
+        df['ema_5'] = EMAIndicator(df['close'], window=5).ema_indicator()
+        df['ema_20'] = EMAIndicator(df['close'], window=20).ema_indicator()
+
+        # Volume Spike 判斷（用平均值倍數來抓）
+        avg_volume = df['volume'].rolling(window=20).mean()
+        df['volume_spike'] = df['volume'] > avg_volume * 1.5
+
+        # ✅ 印出技術指標 debug
+        print(f"[DEBUG] {symbol} 技術指標：")
+        print(f"  RSI：{round(df['rsi'].iloc[-1], 2)}")
+        print(f"  MACD柱：{round(df['macd_diff'].iloc[-1], 4)}")
+        print(f"  VWAP：{round(df['vwap'].iloc[-1], 2)}")
+        print(f"  EMA5：{round(df['ema_5'].iloc[-1], 2)}")
+        print(f"  EMA20：{round(df['ema_20'].iloc[-1], 2)}")
+        print(f"  Volume Spike：{df['volume_spike'].iloc[-1]}")
             
         # ✅ 關鍵修正：支援 Agg 回傳格式
         if hasattr(aggs, 'results'):
@@ -73,8 +114,7 @@ def fetch_stock_data(symbol):
         if not bars or not isinstance(bars, list):
             print(f"[WARNING] 無效K線資料（bars 無效）：{symbol}")
             return None
-
-        # 轉換為 DataFrame
+        
         data = []
         print(f"[DEBUG] {symbol} bars 數量：{len(bars)}")
         for bar in bars:
