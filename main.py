@@ -14,6 +14,9 @@ SCAN_INTERVAL = 60
 
 def fetch_stock_data(symbol):
     try:
+        # 初始化 Polygon API 客戶端
+        client = RESTClient(api_key=API_KEY)
+        
         # 設定美東時間（US/Eastern）
         est = timezone("US/Eastern")
         now = datetime.now(est)
