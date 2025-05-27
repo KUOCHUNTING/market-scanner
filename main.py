@@ -128,7 +128,7 @@ def analyze_signal(symbol, df):
         return None
 
 def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cross, kd_cross):
-    # 根據訊號類型加入 emoji 標籤
+    # 決定 emoji 前綴
     if "預警" in signal:
         prefix = "⚠️"
     elif "正式進場 - 多頭" in signal:
@@ -138,14 +138,24 @@ def push_to_discord(symbol, signal, rsi, macd, vwap, price, volume_ratio, ema_cr
     else:
         prefix = ""
 
-    message = f"""{prefix}**[{signal}]** {prefix}{symbol}
-價格：${price:.2f}
-RSI：{rsi:.2f} | MACD：{macd:+.2f} | VWAP：{vwap:.2f}
-量能：{volume_ratio:.1f}x | {ema_cross} | {kd_cross}
-"""
-    print("[DISCORD] 推播訊號：\n" + message)
-    可選：requests.post(https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE, json={"content": message})
+    # 推播訊息內容（格式化為固定寬度）
+    message = f"""```yaml
+{prefix} [{signal}] {symbol}
+💰 價格    : ${price:.2f}
+📈 RSI    : {rsi:.2f}
+📊 MACD   : {macd:+.2f}
+🏷️ VWAP   : {vwap:.2f}
+🔥 量能    : {volume_ratio:.1f}x
+📐 均線交叉: {ema_cross}
+🌀 KD     : {kd_cross}
+```"""
 
+    print("[DISCORD] 推播訊號：\\n" + message)
+
+    # ✅ 可啟用 webhook 推播
+     import requests
+     webhook_url = "https://discord.com/api/webhooks/1373309204810563604/CUhbQ6sFvtNqSsEXxw7TnnMocMyV_VwfDqr7p3iiz3lXFUkzLNZXbzdO9EEEp87pk6lE"
+     requests.post(webhook_url, json={"content": message})
 def load_symbols_from_csv(file_path):
     try:
         df = pd.read_csv(file_path)
