@@ -1,4 +1,4 @@
-polygon
-ta
+requests
 pandas
+ta
 pytz
