@@ -14,7 +14,7 @@ SCAN_INTERVAL = 60
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime.now()
+        end = datetime(2025, 5, 22, 15, 30)  # EST 時間 15:30
         start = end - timedelta(minutes=35)
 
         aggs = client.get_aggs(
