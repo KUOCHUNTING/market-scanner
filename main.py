@@ -51,6 +51,7 @@ def fetch_stock_data(symbol):
 
         # 轉換為 DataFrame
         data = []
+        print(f"[DEBUG] {symbol} bars 數量：{len(bars)}")
         for bar in bars:
             if not all(k in bar for k in ["t", "o", "h", "l", "c", "v"]):
                 print(f"[WARNING] 無法轉換為有效 DataFrame：{symbol}")
