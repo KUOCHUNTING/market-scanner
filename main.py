@@ -82,10 +82,18 @@ def analyze_signal(symbol, df):
         k_value = kd.stoch().iloc[-1]
         d_value = kd.stoch_signal().iloc[-1]
 
-        if rsi < 30 and macd > 0 and k_value > d_value:
-            return "多頭進場訊號"
-        elif rsi > 70 and macd < 0 and k_value < d_value:
-            return "空頭進場訊號"
+        # 避免半山腰進場
+        if 45 <= rsi <= 65:
+            return None
+
+        if rsi < 30 and k_value > d_value and macd < 0:
+            return "預警 - 多頭轉折"
+        elif rsi > 70 and k_value < d_value and macd > 0:
+            return "預警 - 空頭轉折"
+        elif rsi < 45 and macd > 0 and k_value > d_value:
+            return "正式進場 - 多頭"
+        elif rsi > 65 and macd < 0 and k_value < d_value:
+            return "正式進場 - 空頭"
         return None
     except Exception as e:
         print(f"[ERROR] 訊號分析錯誤 {symbol}: {e}")
