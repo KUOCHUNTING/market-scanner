@@ -5,7 +5,7 @@ import csv
 from datetime import datetime, timedelta
 import pandas as pd
 from pytz import timezone
-from polygon import RESTClient
+from polygon_api_client.client import RESTClient
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import MACD
 
