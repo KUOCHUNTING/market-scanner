@@ -11,10 +11,20 @@ from ta.trend import MACD
 API_KEY = os.getenv("POLYGON_API_KEY") or "YOUR_API_KEY"
 SCAN_INTERVAL = 60
 
+from pytz import timezone
+
+# ===== ✅ 設定區：改這裡 =====
+TARGET_DATE = "2025-05-22"  # ← 改成你要抓的日期（格式 YYYY-MM-DD）
+TARGET_TIME = "15:59"        # ← 美東時間（收盤前最後1分鐘）
+# ===========================
+
 def fetch_stock_data(symbol):
     try:
         client = RESTClient(api_key=API_KEY)
-        end = datetime.now()
+
+        # 將字串轉換為 datetime + 美東時區處理
+        est = timezone('US/Eastern')
+        end = est.localize(datetime.strptime(f"{TARGET_DATE} {TARGET_TIME}", "%Y-%m-%d %H:%M"))
         start = end - timedelta(minutes=35)
 
         aggs = client.get_aggs(
@@ -27,7 +37,7 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # ✅ 處理 list 或物件格式的回傳
+        # ✅ 資料格式防呆
         bars = None
         if hasattr(aggs, 'results'):
             bars = aggs.results
@@ -41,7 +51,7 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] 無有效K線資料（bars 無效）：{symbol}")
             return None
 
-        # 開始轉換為 DataFrame
+        # 資料轉換
         data = []
         for bar in bars:
             if not isinstance(bar, dict) or "t" not in bar:
