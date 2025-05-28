@@ -39,6 +39,18 @@ def fetch_stock_data(symbol):
         bars = aggs.results if hasattr(aggs, 'results') else aggs
         if not bars or not isinstance(bars, list):
             return None
+        cleaned_bars = []
+        for bar in bars:
+            if not isinstance(bar, dict):
+                print(f"[ERROR] 非法 bar 結構：{bar}")
+                continue
+            if "t" not in bar or bar["t"] is None:
+                continue
+            cleaned_bars.append(bar)
+
+        if not cleaned_bars:
+            print(f"[WARNING] 無有效 K 棒資料：{symbol}")
+            return None
 
         df = pd.DataFrame(bars)
         df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
@@ -78,16 +90,19 @@ def run_scanner():
             print(f"[INDICATOR] RSI: {latest_rsi:.1f} | MACD: {latest_macd:.2f} | VWAP: {latest_vwap:.2f} | 量能倍率: {volume_ratio:.2f}x")
 
             # 判斷訊號（也可印出）
-            if latest_rsi > 70 and rsi.iloc[-1] < rsi.iloc[-2]:
-                signal_note = "⚠️ 預警 - 空頭轉折"
+           signal_note = None
+
+            # 空頭訊號
             if latest_macd < 0 and latest_price < latest_vwap and volume_ratio > 1.5:
                 signal_note = "🐶 正式進場 - 空頭"
+            elif latest_rsi > 70 and rsi.iloc[-1] < rsi.iloc[-2]:
+                signal_note = "⚠️ 預警 - 空頭轉折"
 
-            signal_note = None
-            if latest_rsi < 30 and rsi.iloc[-1] > rsi.iloc[-2]:
-                signal_note = "⚠️ 預警 - 多頭轉折"
-            if latest_macd > 0 and latest_price > latest_vwap and volume_ratio > 1.5:
+            # 多頭訊號
+            elif latest_macd > 0 and latest_price > latest_vwap and volume_ratio > 1.5:
                 signal_note = "🐸 正式進場 - 多頭"
+            elif latest_rsi < 30 and rsi.iloc[-1] > rsi.iloc[-2]:
+                signal_note = "⚠️ 預警 - 多頭轉折"
 
             if signal_note:
                 print(f"[ALERT] {signal_note}：{symbol}")
