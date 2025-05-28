@@ -63,15 +63,17 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] 無效 bars（非 list）：{symbol}")
             return None
         
+        required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
+
         cleaned_bars = []
         for bar in bars:
             if not isinstance(bar, dict):
                 print(f"[ERROR] 非法 bar 結構：{bar}")
                 continue
 
-            if "t" not in bar or bar["t"] is None:
-                print(f"[WARNING] 缺少 timestamp 欄位：{bar}")
-                continue  # 沒有時間戳就跳過
+            if not all(field in bar and bar[field] is not None for field in required_fields):
+                print(f"[WARNING] 缺少必要欄位: {bar}")
+                continue
 
             cleaned_bars.append(bar)
 
