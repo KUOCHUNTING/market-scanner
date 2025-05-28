@@ -67,10 +67,15 @@ def fetch_stock_data(symbol):
 
         cleaned_bars = []
         for bar in bars:
-            if not isinstance(bar, dict):
+            # ✅ 如果是 Agg 類別，就轉成 dict
+            if hasattr(bar, '__dict__'):
+                bar = vars(bar)
+            elif not isinstance(bar, dict):
                 print(f"[ERROR] 非法 bar 結構：{bar}")
                 continue
 
+            # ✅ 確保有 timestamp 等欄位
+            required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
             if not all(field in bar and bar[field] is not None for field in required_fields):
                 print(f"[WARNING] 缺少必要欄位: {bar}")
                 continue
