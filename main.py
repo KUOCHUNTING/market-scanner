@@ -203,6 +203,7 @@ def fetch_stock_data(symbol):
                 "extended_signal": extended_signal
                 
             }
+            
         except Exception as e:
             print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
             return None
