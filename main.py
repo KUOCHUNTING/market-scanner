@@ -203,7 +203,10 @@ def fetch_stock_data(symbol):
                 "extended_signal": extended_signal
                 
             }
-            
+     except Exception as e:
+        print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
+        return None
+         
     print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%\n")
 
 if __name__ == "__main__":
