@@ -1,4 +1,5 @@
 import os
+from ta.trend import EMAIndicator
 import pandas as pd
 from ta.momentum import RSIIndicator
 from ta.trend import MACD
