@@ -122,6 +122,7 @@ def fetch_stock_data(symbol):
         latest_macd = macd_hist.iloc[-1]
         latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else None
         latest_price = df['close'].iloc[-1]
+        print(f"[INFO] {symbol} 最新收盤價：{latest_price:.2f}")
         latest_open = df['open'].iloc[-1]
         latest_high = df['high'].iloc[-1]
         latest_low = df['low'].iloc[-1]
