@@ -153,7 +153,7 @@ def fetch_stock_data(symbol):
 
         if latest_vwap is None:
             print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
-            continue
+            return None
 
             # 訊號判斷
             signal_note = None
