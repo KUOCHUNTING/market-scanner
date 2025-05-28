@@ -80,14 +80,25 @@ def run_scanner():
             df = fetch_stock_data(symbol)
             if df is None or len(df) < 10:
                 continue
+            success_count += 1
+            ...
+        except Exception as e:
+            fail_count += 1
+            print(f"[ERROR] {symbol} 處理失敗：{e}")
 
+    print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%\n")
+    
             rsi = RSIIndicator(close=df['close']).rsi()
             macd = MACD(close=df['close']).macd_diff()
-            vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
 
+            # ✅ 改良版 VWAP（近 5 根的 rolling 計算）
+            typical_price = (df['high'] + df['low'] + df['close']) / 3
+            vwap_series = (typical_price * df['volume']).rolling(window=5).sum() / df['volume'].rolling(window=5).sum()
+
+            # ✅ 抓出最新一筆資料
             latest_rsi = rsi.iloc[-1]
             latest_macd = macd.iloc[-1]
-            latest_vwap = vwap.iloc[-1]
+            latest_vwap = vwap_series.iloc[-1] if not pd.isna(vwap_series.iloc[-1]) else None
             latest_price = df['close'].iloc[-1]
             latest_open = df['open'].iloc[-1]
             latest_high = df['high'].iloc[-1]
@@ -96,26 +107,32 @@ def run_scanner():
             avg_volume = df['volume'].mean()
             volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
 
+            # ✅ 若 VWAP 無效則跳過該股票
+            if latest_vwap is None:
+                print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
+                return
+
             # 顯示每一支股票的 K棒與指標資料
             print(f"[DATA] {symbol} 最新K棒：")
             print(f"開：{latest_open:.2f} | 高：{latest_high:.2f} | 低：{latest_low:.2f} | 收：{latest_price:.2f} | 量：{latest_volume:,}")
             print(f"[INDICATOR] RSI: {latest_rsi:.1f} | MACD: {latest_macd:.2f} | VWAP: {latest_vwap:.2f} | 量能倍率: {volume_ratio:.2f}x")
 
-            # 判斷訊號（也可印出）
+            # 判斷訊號（也可回傳出去）
             signal_note = None
 
-            # 空頭訊號
+            # ✅ 空頭訊號判斷
             if latest_macd < 0 and latest_price < latest_vwap and volume_ratio > 1.5:
                 signal_note = "🐶 正式進場 - 空頭"
             elif latest_rsi > 70 and rsi.iloc[-1] < rsi.iloc[-2]:
                 signal_note = "⚠️ 預警 - 空頭轉折"
 
-            # 多頭訊號
+            # ✅ 多頭訊號判斷
             elif latest_macd > 0 and latest_price > latest_vwap and volume_ratio > 1.5:
                 signal_note = "🐸 正式進場 - 多頭"
             elif latest_rsi < 30 and rsi.iloc[-1] > rsi.iloc[-2]:
                 signal_note = "⚠️ 預警 - 多頭轉折"
 
+            # ✅ 印出訊號
             if signal_note:
                 print(f"[ALERT] {signal_note}：{symbol}")
                 print("-" * 60)
