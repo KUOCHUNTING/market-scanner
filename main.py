@@ -1,6 +1,7 @@
 import os
 from ta.trend import EMAIndicator
 from ta.momentum import StochasticOscillator
+from ta.volatility import AverageTrueRange
 import pandas as pd
 from ta.momentum import RSIIndicator
 from ta.trend import MACD
