@@ -83,36 +83,61 @@ def fetch_stock_data(symbol):
         if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
-
+        
+        # ✅ 建立 DataFrame 並轉換欄位
         df = pd.DataFrame(cleaned_bars)
         df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
-        df = df.rename(columns={"o": "open", "h": "high", "l": "low", "c": "close", "v": "volume"})
-        return df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+        df['close'] = df['c']
+        df['high'] = df['h']
+        df['low'] = df['l']
+        df['volume'] = df['v']
+
+        # ✅ 技術指標計算
+        rsi = RSIIndicator(close=df['close']).rsi()
+        macd_hist = MACD(close=df['close']).macd_diff()
+        vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
+        volume_ratio = df['volume'].iloc[-1] / df['volume'].mean()
+
+        ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
+        ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
+        ema5_above_ema20 = ema5.iloc[-1] > ema20.iloc[-1]
+
+        # ✅ KD 指標
+        kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'])
+        k_value = kd.stoch().iloc[-1]
+        d_value = kd.stoch_signal().iloc[-1]
+        if k_value > d_value:
+            kd_status = "金叉"
+        elif k_value < d_value:
+            kd_status = "死叉"
+        else:
+            kd_status = "中性"
+
+        # ✅ TMO（以 14 為範例視窗）
+        df['momentum'] = df['close'].diff()
+        tmo_raw = df['momentum'].rolling(window=14).mean()
+        tmo_cross = "黃金交叉" if tmo_raw.iloc[-1] > 0 and tmo_raw.iloc[-2] < 0 else \
+                    "死亡交叉" if tmo_raw.iloc[-1] < 0 and tmo_raw.iloc[-2] > 0 else "中性"
+
+        # ✅ ATR（可用來判斷波動）
+        atr = AverageTrueRange(high=df['high'], low=df['low'], close=df['close']).average_true_range()
+
+        return {
+            "df": df,
+            "latest_rsi": rsi.iloc[-1],
+            "latest_macd": macd_hist.iloc[-1],
+            "latest_vwap": vwap.iloc[-1],
+            "volume_ratio": volume_ratio,
+            "ema5_above_ema20": ema5_above_ema20,
+            "kd_status": kd_status,
+            "tmo_cross": tmo_cross,
+            "atr": atr.iloc[-1],
+            "latest_price": df['close'].iloc[-1]
+        }
+
     except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
         return None
-
-def run_scanner():
-    stock_list = load_stock_list(STOCK_LIST_CSV)
-    success_count = 0
-    fail_count = 0
-
-    for symbol in stock_list:
-        try:
-            df = fetch_stock_data(symbol)
-            if df is None or len(df) < 10:
-                fail_count += 1
-                continue
-            success_count += 1
-
-            # 技術指標計算
-            rsi = RSIIndicator(close=df['close']).rsi()
-            macd = MACD(close=df['close']).macd_diff()
-
-            typical_price = (df['high'] + df['low'] + df['close']) / 3
-            vwap_series = (typical_price * df['volume']).rolling(window=5).sum() / df['volume'].rolling(window=5).sum()
-            ema_5 = df['close'].ewm(span=5, adjust=False).mean()
-            ema_20 = df['close'].ewm(span=20, adjust=False).mean()
 
             # 最新數據
             latest_rsi = rsi.iloc[-1]
