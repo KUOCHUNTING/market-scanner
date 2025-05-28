@@ -64,23 +64,32 @@ def fetch_stock_data(symbol):
             return None
         
         cleaned_bars = []
+
         for bar in bars:
-            if hasattr(bar, '__dict__'):
-                bar_dict = vars(bar)
-            elif isinstance(bar, dict):
-                bar_dict = bar
-            else:
-                print(f"[ERROR] 非法 bar 結構: {bar}")
+            try:
+                # 處理 bar 格式
+                if hasattr(bar, '__dict__'):
+                    bar_dict = vars(bar)
+                elif isinstance(bar, dict):
+                    bar_dict = bar
+                else:
+                    print(f"[ERROR] 非法 bar 結構: {bar}")
+                    continue
+
+                # 檢查關鍵欄位是否齊全
+                required_keys = ["t", "o", "h", "l", "c", "v"]
+                if not all(key in bar_dict and bar_dict[key] is not None for key in required_keys):
+                    print(f"[WARNING] 缺少必要欄位: {bar_dict}")
+                    continue
+
+                cleaned_bars.append(bar_dict)
+
+            except Exception as e:
+                print(f"[ERROR] 處理 bar 發生錯誤: {e} -> {bar}")
                 continue
 
-            if "t" not in bar_dict or bar_dict["t"] is None:
-                continue
-
-            cleaned_bars.append(bar_dict)
-
-        # ✅ 放在這裡做檢查
-        cleaned_bars = [bar for bar in bars if isinstance(bar, dict) and "t" in bar and bar["t"] is not None]
-        if not bars or len(bars) < 2:
+        # 最後檢查清洗後是否有有效 K 棒
+        if len(cleaned_bars) < 2:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
         
