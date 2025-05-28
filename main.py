@@ -47,9 +47,20 @@ def fetch_stock_data(symbol):
             limit=100,
             adjusted=True
         )
+        
+        # ✅ 插入這段來正確取得 bars 清單
+        bars = None
+        if hasattr(aggs, 'results'):
+            bars = aggs.results
+        elif isinstance(aggs, list):
+            bars = aggs
+        else:
+            print(f"[ERROR] 無法處理 aggs 結構：{symbol}")
+            return None
 
-        bars = aggs.results if hasattr(aggs, 'results') else aggs
+        # ✅ bars 必須是非空 list
         if not bars or not isinstance(bars, list):
+            print(f"[WARNING] 無效 bars（非 list）：{symbol}")
             return None
         
         cleaned_bars = []
@@ -68,6 +79,7 @@ def fetch_stock_data(symbol):
             cleaned_bars.append(bar_dict)
 
         # ✅ 放在這裡做檢查
+        cleaned_bars = [bar for bar in bars if isinstance(bar, dict) and "t" in bar and bar["t"] is not None]
         if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
