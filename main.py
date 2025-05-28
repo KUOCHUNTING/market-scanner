@@ -90,7 +90,7 @@ def run_scanner():
             print(f"[INDICATOR] RSI: {latest_rsi:.1f} | MACD: {latest_macd:.2f} | VWAP: {latest_vwap:.2f} | 量能倍率: {volume_ratio:.2f}x")
 
             # 判斷訊號（也可印出）
-           signal_note = None
+            signal_note = None
 
             # 空頭訊號
             if latest_macd < 0 and latest_price < latest_vwap and volume_ratio > 1.5:
