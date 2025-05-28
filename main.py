@@ -66,7 +66,8 @@ def fetch_stock_data(symbol):
 
             cleaned_bars.append(bar_dict)
 
-        if not cleaned_bars:
+        # ✅ 放在這裡做檢查
+        if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
 
