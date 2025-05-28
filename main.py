@@ -80,7 +80,7 @@ def fetch_stock_data(symbol):
 
         # ✅ 放在這裡做檢查
         cleaned_bars = [bar for bar in bars if isinstance(bar, dict) and "t" in bar and bar["t"] is not None]
-        if len(cleaned_bars) == 0:
+        if not bars or len(bars) < 2:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
         
