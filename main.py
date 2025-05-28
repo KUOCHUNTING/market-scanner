@@ -20,6 +20,7 @@ def load_stock_list(filepath):
 
 def fetch_stock_data(symbol):
     try:
+        print(f"[DEBUG] 處理中股票：{symbol}")
         client = RESTClient(api_key=API_KEY)
         est = timezone("US/Eastern")
         now = datetime.now(est)
