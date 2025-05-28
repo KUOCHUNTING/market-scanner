@@ -41,18 +41,26 @@ def fetch_stock_data(symbol):
             return None
         cleaned_bars = []
         for bar in bars:
-            if not isinstance(bar, dict):
+            # ✅ 先將 Polygon 的 Agg 物件轉成 dict
+            if hasattr(bar, 'dict'):
+                bar_dict = bar.dict()
+            elif isinstance(bar, dict):
+                bar_dict = bar
+            else:
                 print(f"[ERROR] 非法 bar 結構：{bar}")
                 continue
-            if "t" not in bar or bar["t"] is None:
+
+            # ✅ 檢查是否有 timestamp（t）
+            if "t" not in bar_dict or bar_dict["t"] is None:
                 continue
-            cleaned_bars.append(bar)
+
+            cleaned_bars.append(bar_dict)
 
         if not cleaned_bars:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
 
-        df = pd.DataFrame(bars)
+        df = pd.DataFrame(cleaned_bars)
         df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
         df = df.rename(columns={"o": "open", "h": "high", "l": "low", "c": "close", "v": "volume"})
         return df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
