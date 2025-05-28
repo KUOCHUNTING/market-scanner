@@ -141,9 +141,9 @@ def fetch_stock_data(symbol):
                     "死亡交叉" if tmo_raw.iloc[-1] < 0 and tmo_raw.iloc[-2] > 0 else "中性"
 
         # 輸出格式化內容
+        vwap_str = f"{latest_vwap:.2f}" if latest_vwap is not None else "無"
         print(f"[INFO] {symbol} | 價格: {latest_price:.2f} | RSI: {latest_rsi:.1f} | MACD: {latest_macd:+.2f} | "
-              f"VWAP: {latest_vwap:.2f if latest_vwap else '無'} | 量能: {volume_ratio:.1f}x | "
-              f"EMA5>EMA20: {ema_cross} | KD: {kd_status}")
+              f"VWAP: {vwap_str} | 量能: {volume_ratio:.1f}x | EMA5>EMA20: {ema_cross} | KD: {kd_status}")
     
         if latest_vwap is None:
             print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
