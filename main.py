@@ -132,8 +132,12 @@ def run_scanner():
             elif latest_rsi < 30 and rsi.iloc[-1] > rsi.iloc[-2]:
                 signal_note = "⚠️ 預警 - 多頭轉折"
 
-            # ✅ 印出訊號
+            # ✅ 只印出有訊號的個股
             if signal_note:
+                print("-" * 60)
+                print(f"[DATA] {symbol} 最新K棒：")
+                print(f"開：{latest_open:.2f} | 高：{latest_high:.2f} | 低：{latest_low:.2f} | 收：{latest_price:.2f} | 量：{latest_volume:,}")
+                print(f"[INDICATOR] RSI: {latest_rsi:.1f} | MACD: {latest_macd:.2f} | VWAP: {latest_vwap:.2f} | 倍量: {volume_ratio:.2f}x")
                 print(f"[ALERT] {signal_note}：{symbol}")
                 print("-" * 60)
 
