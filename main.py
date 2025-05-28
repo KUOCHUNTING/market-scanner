@@ -140,20 +140,20 @@ def fetch_stock_data(symbol):
         return None
 
             # 最新數據
-            latest_rsi = rsi.iloc[-1]
-            latest_macd = macd.iloc[-1]
-            latest_vwap = vwap_series.iloc[-1] if not pd.isna(vwap_series.iloc[-1]) else None
-            latest_price = df['close'].iloc[-1]
-            latest_open = df['open'].iloc[-1]
-            latest_high = df['high'].iloc[-1]
-            latest_low = df['low'].iloc[-1]
-            latest_volume = df['volume'].iloc[-1]
-            avg_volume = df['volume'].mean()
-            volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
+        latest_rsi = rsi.iloc[-1]
+        latest_macd = macd.iloc[-1]
+        latest_vwap = vwap_series.iloc[-1] if not pd.isna(vwap_series.iloc[-1]) else None
+        latest_price = df['close'].iloc[-1]
+        latest_open = df['open'].iloc[-1]
+        latest_high = df['high'].iloc[-1]
+        latest_low = df['low'].iloc[-1]
+        latest_volume = df['volume'].iloc[-1]
+        avg_volume = df['volume'].mean()
+        volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
 
-            if latest_vwap is None:
-                print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
-                continue
+        if latest_vwap is None:
+            print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
+            continue
 
             # 訊號判斷
             signal_note = None
