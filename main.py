@@ -184,7 +184,7 @@ def fetch_stock_data(symbol):
                 print(f"[ALERT] {extended_signal}：{symbol}")
                 print("-" * 60)
 
-            return {
+        return {
                 "df": df,
                 "latest_rsi": latest_rsi,
                 "latest_macd": latest_macd,
@@ -201,9 +201,9 @@ def fetch_stock_data(symbol):
                 "latest_volume": latest_volume,
                 "signal_note": signal_note,
                 "extended_signal": extended_signal
-                
-            }
-     except Exception as e:
+                }
+        
+    except Exception as e:
         print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
         return None
          
