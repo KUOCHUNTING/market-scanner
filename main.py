@@ -97,7 +97,7 @@ def fetch_stock_data(symbol):
         # ✅ 建立 DataFrame 並轉換欄位
         df = pd.DataFrame(cleaned_bars)
         df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
-        df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')  # ✅ 這裡就用 'timestamp' 了
         
 
         # 技術指標
