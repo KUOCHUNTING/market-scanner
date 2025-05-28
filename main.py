@@ -207,7 +207,8 @@ def fetch_stock_data(symbol):
         print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
         return None
          
-    def run_scanner():
+# === 主程式 ===
+def run_scanner():
     stock_list = load_stock_list(STOCK_LIST_CSV)
     success_count = 0
     fail_count = 0
@@ -216,11 +217,12 @@ def fetch_stock_data(symbol):
         data = fetch_stock_data(symbol)
         if data:
             success_count += 1
-            # 這裡可加上訊號推播、寫入 Google Sheets、判斷進場等
+            # 可加入推播 / 儲存 / 分類
         else:
             fail_count += 1
 
-    print(f"\n✅ 本輪成功：{success_count} 檔，失敗：{fail_count} 檔")
+    print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
-        if __name__ == "__main__":
-            run_scanner()
+# === 程式入口點 ===
+if __name__ == "__main__":
+    run_scanner()
