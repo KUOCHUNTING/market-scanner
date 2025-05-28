@@ -130,7 +130,7 @@ def fetch_stock_data(symbol):
         avg_volume = df['volume'].mean()
         volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
         ema5_above_ema20 = ema5.iloc[-1] > ema20.iloc[-1]
-
+        ema_cross = "✅" if ema5.iloc[-1] > ema20.iloc[-1] else "❌"
         k_value = kd.stoch().iloc[-1]
         d_value = kd.stoch_signal().iloc[-1]
         kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
@@ -140,8 +140,13 @@ def fetch_stock_data(symbol):
         tmo_cross = "黃金交叉" if tmo_raw.iloc[-1] > 0 and tmo_raw.iloc[-2] < 0 else \
                     "死亡交叉" if tmo_raw.iloc[-1] < 0 and tmo_raw.iloc[-2] > 0 else "中性"
 
-        # 輸出格式化內容
-        vwap_str = f"{latest_vwap:.2f}" if latest_vwap is not None else "無"
+        # VWAP 格式化
+        if latest_vwap is None or pd.isna(latest_vwap):
+            vwap_str = "無"
+        else:
+            vwap_str = f"{latest_vwap:.2f}"
+
+        # 格式化印出
         print(f"[INFO] {symbol} | 價格: {latest_price:.2f} | RSI: {latest_rsi:.1f} | MACD: {latest_macd:+.2f} | "
               f"VWAP: {vwap_str} | 量能: {volume_ratio:.1f}x | EMA5>EMA20: {ema_cross} | KD: {kd_status}")
     
