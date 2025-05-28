@@ -33,9 +33,10 @@ def fetch_stock_data(symbol):
         print(f"[DEBUG] 處理中股票：{symbol}")
         client = RESTClient(api_key=API_KEY)
         est = timezone("US/Eastern")
-        now = datetime.now(est)
-        end = now - timedelta(minutes=15)
-        start = end - timedelta(minutes=35)
+        # 測試抓取美東 9:55～10:25
+        start = est.localize(datetime(2025, 5, 28, 9, 55))
+        end = est.localize(datetime(2025, 5, 28, 10, 25))
+        print(f"[INFO] 測試時間範圍：{start} ~ {end}")
 
         print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
 
