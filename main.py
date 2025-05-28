@@ -74,6 +74,14 @@ def fetch_stock_data(symbol):
                 print(f"[ERROR] 非法 bar 結構：{bar}")
                 continue
 
+            # ✅ 自動抓時間欄位
+            time_key = "timestamp" if "timestamp" in bar else ("t" if "t" in bar else None)
+            if time_key is None or bar[time_key] is None:
+                print(f"[WARNING] 無有效時間欄位（{symbol}）：{bar}")
+                continue
+            else:
+                bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
+
             # ✅ 確保有 timestamp 等欄位
             required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
             if not all(field in bar and bar[field] is not None for field in required_fields):
@@ -88,12 +96,9 @@ def fetch_stock_data(symbol):
         
         # ✅ 建立 DataFrame 並轉換欄位
         df = pd.DataFrame(cleaned_bars)
+        df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
         df['timestamp'] = pd.to_datetime(df['t'], unit='ms')
-        df['close'] = df['c']
-        df['open'] = df['o']
-        df['high'] = df['h']
-        df['low'] = df['l']
-        df['volume'] = df['v']
+        
 
         # 技術指標
         rsi = RSIIndicator(close=df['close']).rsi()
