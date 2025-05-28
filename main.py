@@ -7,6 +7,17 @@ from polygon import RESTClient
 from datetime import datetime, timedelta
 from pytz import timezone
 
+# 設定美東時間
+est = timezone("US/Eastern")
+now_est = datetime.now(est)
+market_open = now_est.replace(hour=9, minute=30, second=0, microsecond=0)
+market_close = now_est.replace(hour=16, minute=0, second=0, microsecond=0)
+
+# 只在開盤期間運行
+if now_est < market_open or now_est > market_close:
+    print("[INFO] 非美股盤中時間，跳過掃描")
+    exit()
+
 API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
 
