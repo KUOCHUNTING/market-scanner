@@ -37,6 +37,8 @@ def fetch_stock_data(symbol):
         end = now - timedelta(minutes=15)
         start = end - timedelta(minutes=35)
 
+        print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
+
         aggs = client.get_aggs(
             ticker=symbol,
             multiplier=5,
