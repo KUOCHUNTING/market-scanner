@@ -50,7 +50,7 @@ def fetch_stock_data(symbol):
         bars = aggs.results if hasattr(aggs, 'results') else aggs
         if not bars or not isinstance(bars, list):
             return None
-        cleaned_bars = []
+        
         for bar in bars:
             # ✅ 先將 Polygon 的 Agg 物件轉成 dict
             cleaned_bars = []
