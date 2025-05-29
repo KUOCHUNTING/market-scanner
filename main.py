@@ -129,27 +129,33 @@ def fetch_stock_data(symbol):
         # ✅ 取最新價格
         latest_price = df['close'].iloc[-1]
 
-def check_exit_and_notify(symbol, latest_price):
+def check_exit_and_notify(symbol, latest_price, take_profit_pct=0.05, stop_loss_pct=0.02):
     if symbol not in entry_price_dict:
         return
-        
+
     entry_price = entry_price_dict[symbol]
-    take_profit = 0.05
-    stop_loss = 0.02
+    take_profit_pct = 0.05
+    stop_loss_pct = -0.02
 
     pnl = (latest_price - entry_price) / entry_price
 
-    if pnl >= take_profit:
-        message = f"🎯 **[{symbol}] 停利出場** 🎯\n價格：{latest_price:.2f}（+{pnl*100:.2f}％）"
-        send_to_discord(message)
-        record_exit_to_sheets(symbol, entry_price, latest_price, pnl, "停利")
-        del entry_price_dict[symbol]
+    # 判斷訊號類型
+    if pnl >= take_profit_pct:
+        status = "🎯 **[停利出場]** 🎯"
+    elif pnl <= stop_loss_pct:
+        status = "🛑 **[停損出場]** 🛑"
+    else:
+        return  # 尚未達到出場條件
 
-    elif pnl <= -stop_loss:
-        message = f"🛑 **[{symbol}] 停損出場** 🛑\n價格：{latest_price:.2f}（{pnl*100:.2f}％）"
-        send_to_discord(message)
-        record_exit_to_sheets(symbol, entry_price, latest_price, pnl, "停損")
-        del entry_price_dict[symbol]
+    pnl_percent = pnl * 100
+    message = f"{status} {symbol}\n價格：${latest_price:.2f}（{pnl_percent:.2f}%）"
+    
+    # 發送推播與紀錄
+    send_to_discord(message)
+    record_exit_to_sheets(symbol, entry_price, latest_price, pnl)
+
+    # 刪除已出場紀錄
+    del entry_price_dict[symbol]
         
         # ✅ 插入這段判斷：K棒資料太少就跳過
         if len(df) < 15:
