@@ -156,7 +156,7 @@ def fetch_stock_data(symbol):
         # ✅ 取最新價格
         latest_price = df['close'].iloc[-1]
 
-def check_exit_and_notify(symbol, latest_price):  # ✅ 放這裡
+def check_exit_and_notify(symbol, latest_price):
     if symbol not in entry_price_dict:
         return
 
