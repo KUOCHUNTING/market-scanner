@@ -130,7 +130,6 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
             return None
         
-
         # 技術指標
         rsi = RSIIndicator(close=df['close']).rsi()
         macd_hist = MACD(close=df['close']).macd_diff()
@@ -162,6 +161,20 @@ def fetch_stock_data(symbol):
         tmo_raw = df['momentum'].rolling(window=14).mean()
         tmo_cross = "黃金交叉" if tmo_raw.iloc[-1] > 0 and tmo_raw.iloc[-2] < 0 else \
                     "死亡交叉" if tmo_raw.iloc[-1] < 0 and tmo_raw.iloc[-2] > 0 else "中性"
+
+        if symbol in entry_price_dict:
+            entry_price = entry_price_dict[symbol]
+            pnl = (latest_price - entry_price) / entry_price
+
+            if pnl >= 0.05:
+                message = f"🎯 **[停利出場]** 🎯 {symbol}\n價格：${latest_price:.2f}（+{pnl*100:.2f}％）"
+                send_to_discord(message)  # ✅ 發送推播
+                del entry_price_dict[symbol]
+
+            elif pnl <= -0.02:
+                message = f"🛑 **[停損出場]** 🛑 {symbol}\n價格：${latest_price:.2f}（{pnl*100:.2f}％）"
+                send_to_discord(message)  # ✅ 發送推播
+                del entry_price_dict[symbol]
 
         # VWAP 格式化
         if latest_vwap is None or pd.isna(latest_vwap):
