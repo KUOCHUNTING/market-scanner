@@ -258,7 +258,7 @@ def fetch_stock_data(symbol):
                 extended_signal
             )
 
-               if symbol in entry_price_dict:
+        if symbol in entry_price_dict:
             entry_price = entry_price_dict[symbol]
             pnl = (latest_price - entry_price) / entry_price
 
