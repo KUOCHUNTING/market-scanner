@@ -129,23 +129,19 @@ def fetch_stock_data(symbol):
         # ✅ 取最新價格
         latest_price = df['close'].iloc[-1]
 
-def check_exit_and_notify(symbol, latest_price, take_profit_pct=0.05, stop_loss_pct=0.02):
+def check_exit(symbol, latest_price, take_profit_pct=0.05, stop_loss_pct=0.02):
     if symbol not in entry_price_dict:
-        return
+        return None  # 沒有進場紀錄就跳過
 
     entry_price = entry_price_dict[symbol]
-    take_profit_pct = 0.05
-    stop_loss_pct = -0.02
-
     pnl = (latest_price - entry_price) / entry_price
 
-    # 判斷訊號類型
     if pnl >= take_profit_pct:
-        status = "🎯 **[停利出場]** 🎯"
-    elif pnl <= stop_loss_pct:
-        status = "🛑 **[停損出場]** 🛑"
+        return "take_profit"
+    elif pnl <= -stop_loss_pct:
+        return "stop_loss"
     else:
-        return  # 尚未達到出場條件
+        return None  # 尚未達到停損/停利
 
     pnl_percent = pnl * 100
     message = f"{status} {symbol}\n價格：${latest_price:.2f}（{pnl_percent:.2f}%）"
