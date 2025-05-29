@@ -119,6 +119,16 @@ def fetch_stock_data(symbol):
         if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
+
+        # === ✅ 出場條件判斷（假設已持有部位） ===
+        entry_price = 10.0  # ⚠️ 範例：這應該是你進場時記錄的價格
+        take_profit = 0.05  # 5%
+        stop_loss = 0.02    # 2%
+
+        if latest_price >= entry_price * (1 + take_profit):
+            print(f"🎯 [{symbol}] 達到停利出場條件（現價 {latest_price:.2f}）")
+        elif latest_price <= entry_price * (1 - stop_loss):
+            print(f"🛑 [{symbol}] 達到停損出場條件（現價 {latest_price:.2f}）")
         
         # ✅ 建立 DataFrame 並轉換欄位
         df = pd.DataFrame(cleaned_bars)
