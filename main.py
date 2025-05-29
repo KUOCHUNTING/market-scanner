@@ -1,4 +1,5 @@
 import os
+import requests
 from ta.trend import EMAIndicator
 from ta.momentum import StochasticOscillator
 from ta.volatility import AverageTrueRange
@@ -22,6 +23,28 @@ if now_est < market_open or now_est > market_close:
 
 API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
+
+import requests
+
+WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"
+
+def push_to_discord(symbol, price, rsi, macd, vwap, volume_ratio, ema_cross, kd_status, signal_note):
+    try:
+        vwap_text = f"{vwap:.2f}" if vwap is not None and not pd.isna(vwap) else "無"
+
+        message = (
+            f"📣 **[訊號]** {symbol}\n"
+            f"💰 價格：${price:.2f} | RSI：{rsi:.1f} | MACD：{macd:.2f}\n"
+            f"📊 VWAP：{vwap_text} | 倍量：{volume_ratio:.2f}x\n"
+            f"📈 EMA：{ema_cross} | KD：{kd_status}\n"
+            f"🔔 **訊號類型**：{signal_note}"
+        )
+        payload = {"content": message}
+        response = requests.post(WEBHOOK_URL, json=payload)
+        if response.status_code != 204:
+            print(f"[WARNING] Discord 推播失敗：{response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"[ERROR] 發送 Discord 推播失敗：{e}")
 
 def load_stock_list(filepath):
     try:
