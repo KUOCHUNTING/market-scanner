@@ -194,13 +194,13 @@ def fetch_stock_data(symbol):
         elif latest_rsi < 30 and rsi.iloc[-1] > rsi.iloc[-2]:
             signal_note = "⚠️ 預警 - 多頭轉折"
 
-       # ✅ 模擬正式進場（MACD 翻正）
-       if macd.iloc[-1] > 0 and macd.iloc[-2] <= 0:
-           if symbol not in entry_price_dict and len(positions_held) < max_positions:
-               entry_price_dict[symbol] = latest_price
-               allocated = total_capital * position_size_pct
-               positions_held[symbol] = allocated
-               print(f"[模擬進場] {symbol} @ {latest_price:.2f} | 投入資金：${allocated:.2f}")
+        # ✅ 模擬正式進場（MACD 翻正）
+        if macd.iloc[-1] > 0 and macd.iloc[-2] <= 0:
+            if symbol not in entry_price_dict and len(positions_held) < max_positions:
+                entry_price_dict[symbol] = latest_price
+                allocated = total_capital * position_size_pct
+                positions_held[symbol] = allocated
+                print(f"[模擬進場] {symbol} @ {latest_price:.2f} | 投入資金：${allocated:.2f}")
 
         if symbol in entry_price_dict:
             entry_price = entry_price_dict[symbol]
