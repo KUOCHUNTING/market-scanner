@@ -128,15 +128,18 @@ def fetch_stock_data(symbol):
         # ✅ 取最新價格
         latest_price = df['close'].iloc[-1]
 
-        # === ✅ 出場條件判斷（假設已持有部位） ===
-        entry_price = 10.0  # ⚠️ 範例：這應該是你進場時記錄的價格
-        take_profit = 0.05  # 5%
-        stop_loss = 0.02    # 2%
+    if symbol in entry_price_dict:
+        entry_price = entry_price_dict[symbol]
+        current_price = latest_price
+        take_profit = 0.05  # +5%
+        stop_loss = 0.02    # -2%
 
-        if latest_price >= entry_price * (1 + take_profit):
-            print(f"🎯 [{symbol}] 達到停利出場條件（現價 {latest_price:.2f}）")
-        elif latest_price <= entry_price * (1 - stop_loss):
-            print(f"🛑 [{symbol}] 達到停損出場條件（現價 {latest_price:.2f}）")
+        if current_price >= entry_price * (1 + take_profit):
+            print(f"🎯 [{symbol}] 停利出場 (+5%)，價格：{current_price:.2f}")
+            # 清除持倉記錄 + 寫入 Google Sheets
+        elif current_price <= entry_price * (1 - stop_loss):
+            print(f"🛑 [{symbol}] 停損出場 (-2%)，價格：{current_price:.2f}")
+            # 清除持倉記錄 + 寫入 Google Sheets
         
         # ✅ 插入這段判斷：K棒資料太少就跳過
         if len(df) < 15:
