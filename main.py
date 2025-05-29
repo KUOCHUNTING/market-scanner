@@ -119,6 +119,14 @@ def fetch_stock_data(symbol):
         if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
+        
+        # ✅ 建立 DataFrame 並轉換欄位
+        df = pd.DataFrame(cleaned_bars)
+        df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')  # ✅ 這裡就用 'timestamp' 了
+
+        # ✅ 取最新價格
+        latest_price = df['close'].iloc[-1]
 
         # === ✅ 出場條件判斷（假設已持有部位） ===
         entry_price = 10.0  # ⚠️ 範例：這應該是你進場時記錄的價格
@@ -129,11 +137,6 @@ def fetch_stock_data(symbol):
             print(f"🎯 [{symbol}] 達到停利出場條件（現價 {latest_price:.2f}）")
         elif latest_price <= entry_price * (1 - stop_loss):
             print(f"🛑 [{symbol}] 達到停損出場條件（現價 {latest_price:.2f}）")
-        
-        # ✅ 建立 DataFrame 並轉換欄位
-        df = pd.DataFrame(cleaned_bars)
-        df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
-        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')  # ✅ 這裡就用 'timestamp' 了
         
         # ✅ 插入這段判斷：K棒資料太少就跳過
         if len(df) < 15:
