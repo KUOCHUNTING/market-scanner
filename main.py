@@ -123,6 +123,14 @@ def fetch_stock_data(symbol):
 
             cleaned_bars.append(bar)
 
+            from ta.trend import MACD
+
+            macd_series = MACD(close=df['close']).macd_diff()
+            macd = macd_series  # ✅ 這一行確保你能使用 macd.iloc[-1]
+            if pd.isna(macd.iloc[-1]) or pd.isna(macd.iloc[-2]):
+                continue  # 跳過這支資料不足的股票
+        
+
         if len(cleaned_bars) == 0:
             print(f"[WARNING] 無有效 K 棒資料：{symbol}")
             return None
@@ -137,14 +145,6 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
             return None
 
-
-        from ta.trend import MACD
-
-        macd_series = MACD(close=df['close']).macd_diff()
-        macd = macd_series  # ✅ 這一行確保你能使用 macd.iloc[-1]
-        if pd.isna(macd.iloc[-1]) or pd.isna(macd.iloc[-2]):
-            continue  # 跳過這支資料不足的股票
-        
         # 技術指標
         rsi = RSIIndicator(close=df['close']).rsi()
         macd_hist = MACD(close=df['close']).macd_diff()
