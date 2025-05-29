@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 from ta.trend import EMAIndicator
 from ta.momentum import StochasticOscillator
 from ta.volatility import AverageTrueRange
@@ -325,5 +326,16 @@ def run_scanner():
     print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
 # === 程式入口點 ===
+def run_scanner():
+    stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
+    for symbol in stock_list:
+        df = fetch_stock_data(symbol)
+        if df is None:
+            continue
+    
+
 if __name__ == "__main__":
-    run_scanner()
+    while True:
+        run_scanner()
+        print("[INFO] 本輪掃描完成，等待 60 秒後再次執行")
+        time.sleep(30)
