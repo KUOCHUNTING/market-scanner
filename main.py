@@ -351,9 +351,9 @@ max_positions = 5
 capital_left = total_capital
 
 def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
-tick_percentile, trin, latest_rsi, latest_tmo, tmo_slope,
-vwap_diff, volume_ratio, latest_adx, plus_di, minus_di,
-kd_status, candle_type, session, strategy_version, confidence_score):
+                           tick_percentile, trin, latest_rsi, latest_tmo, tmo_slope,
+                           vwap_diff, volume_ratio, latest_adx, plus_di, minus_di,
+                           kd_status, candle_type, session, strategy_version, confidence_score):
 global capital_left
 
 now = datetime.now()
