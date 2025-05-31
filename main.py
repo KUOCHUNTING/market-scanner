@@ -7,9 +7,6 @@ from ta.trend import EMAIndicator, ADXIndicator, MACD
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
 
-candle_type = detect_candle_pattern(df)
-tmo_value = calculate_tmo(df)
-
 # === 系統模組 ===
 import os
 import requests
@@ -180,6 +177,9 @@ def fetch_stock_data(symbol):
     if len(df) < 15:
         print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
         return None
+        
+    candle_type = detect_candle_pattern(df)
+    tmo_value = calculate_tmo(df)    
 
 
     # 技術指標
