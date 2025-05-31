@@ -3,6 +3,7 @@ from ta.volume import OnBalanceVolumeIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
+from datetime import datetime  # 若還沒寫在最上面就加
 
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
@@ -653,6 +654,7 @@ def run_scanner():
                 positions_held[symbol] = allocated
                 entry_direction_dict[symbol] = direction
                 capital_left -= allocated
+                entry_time_dict[symbol] = datetime.now()  # ✅ 記錄進場時間
                 print(f"[ENTRY] {symbol} 進場 ({direction}) @ {latest_price:.2f}，資金 ${allocated:.2f}，剩餘 ${capital_left:.2f}")
                 send_to_discord(f"{signal_note} {symbol} @ {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f} | K: {candle_type}")
 
