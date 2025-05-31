@@ -634,23 +634,36 @@ def should_push_signal(signal_note, entry_price_dict, symbol):
 
 # === 技術工具函數 ===
 
-def get_tick_slope(tick_series, window=5):
-    """回傳 TICK 斜率（目前值 - N 根前）"""
-    if len(tick_series) < window + 1:
-        return 0
-    return tick_series.iloc[-1] - tick_series.iloc[-window-1]
+def get_tick_series():
+    # ❗️你應該改成從 Polygon / API / 檔案讀取 TICK.US 資料
+    import pandas as pd
+    import random
+    # 模擬過去 30 根 TICK 值（-1000 到 +1000）
+    return pd.Series([random.randint(-1000, 1000) for _ in range(30)])
 
 def get_tick_percentile(tick_series):
-    """回傳 TICK 百分位位置"""
-    current_tick = tick_series.iloc[-1]
-    rank = (tick_series < current_tick).sum()
-    percentile = (rank / len(tick_series)) * 100
-    return round(percentile, 2)
+    if tick_series is None or tick_series.empty:
+        print("[WARNING] tick_series 是空的，無法計算百分位")
+        return None
+    try:
+        current_tick = tick_series.iloc[-1]
+        rank = (tick_series < current_tick).sum()
+        percentile = (rank / len(tick_series)) * 100
+        return round(percentile, 2)
+    except Exception as e:
+        print(f"[ERROR] 計算 tick 百分位失敗：{e}")
+        return None
 
-tick_series = get_tick_series()  # 你實際抓到的 TICK 數據（例如最近 30 根）
+# ✅ 你必須先定義好這個函數或變數
+tick_series = get_tick_series()  # 例如最近 30 根 TICK.US 資料
 
-tick_percentile = get_tick_percentile(tick_series)
-tick_slope = get_tick_slope(tick_series)
+# ✅ 防呆處理
+if tick_series is not None and not tick_series.empty:
+    tick_percentile = get_tick_percentile(tick_series)
+    print(f"[INFO] 當前 TICK 百分位：{tick_percentile}")
+else:
+    tick_percentile = None
+    print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
 # === 主程式 ===
 def run_scanner():
