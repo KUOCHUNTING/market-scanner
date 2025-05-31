@@ -634,13 +634,11 @@ def should_push_signal(signal_note, entry_price_dict, symbol):
 
 # === 技術工具函數 ===
 
+# ✅ 模擬 TICK 系列
 def get_tick_series():
-    # ❗️你應該改成從 Polygon / API / 檔案讀取 TICK.US 資料
-    import pandas as pd
-    import random
-    # 模擬過去 30 根 TICK 值（-1000 到 +1000）
     return pd.Series([random.randint(-1000, 1000) for _ in range(30)])
 
+# ✅ TICK 百分位
 def get_tick_percentile(tick_series):
     if tick_series is None or tick_series.empty:
         print("[WARNING] tick_series 是空的，無法計算百分位")
@@ -654,18 +652,25 @@ def get_tick_percentile(tick_series):
         print(f"[ERROR] 計算 tick 百分位失敗：{e}")
         return None
 
-# ✅ 你必須先定義好這個函數或變數
-tick_series = get_tick_series()  # 例如最近 30 根 TICK.US 資料
+# ✅ TICK 斜率
+def get_tick_slope(tick_series, window=5):
+    if len(tick_series) < window + 1:
+        return 0
+    return tick_series.iloc[-1] - tick_series.iloc[-window - 1]
 
-# ✅ 防呆處理
+# ✅ TRIN 模擬值
+def get_trin_value():
+    return round(random.uniform(0.5, 2.0), 2)
 
-
-# === 主程式 ===
+# ✅ 主掃描函數
 def run_scanner(tick_series):
-    # === Step 0: 抓取大盤 TICK/TRIN 數據 ===
     tick_percentile = get_tick_percentile(tick_series)
-    tick_slope = get_tick_slope()
+    tick_slope = get_tick_slope(tick_series)
     trin_value = get_trin_value()
+    
+    print("=" * 50)
+    print(f"[INFO] TICK 百分位：{tick_percentile} | 斜率：{tick_slope} | TRIN：{trin_value}")
+    print("=" * 50)
 
     # === Step 0.5: 推播大盤潛伏訊號（不影響個股邏輯）===
     check_market_latent_signals(tick_percentile, tick_slope, trin_value)
