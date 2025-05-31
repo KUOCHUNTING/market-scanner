@@ -807,15 +807,15 @@ def run_scanner(tick_series):
 
     print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
-# === 程式入口點 ===
+# ✅ 主程式入口
 if __name__ == "__main__":
     tick_series = get_tick_series()
 
     if tick_series is not None and not tick_series.empty:
         tick_percentile = get_tick_percentile(tick_series)
-        print(f"[INFO] 當前 TICK 百分位：{tick_percentile}")
+        print(f"[INFO] 當前 TICK 百分位：{tick_percentile:.2f}")
     else:
         tick_percentile = None
         print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
-    run_scanner(tick_series)  # ✅ 現在這行在函數定義之後了
+    run_scanner(tick_series)  # ✅ 呼叫在最後執行
