@@ -354,11 +354,11 @@ def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
                            tick_percentile, trin, latest_rsi, latest_tmo, tmo_slope,
                            vwap_diff, volume_ratio, latest_adx, plus_di, minus_di,
                            kd_status, candle_type, session, strategy_version, confidence_score):
-global capital_left
+    global capital_left
 
-now = datetime.now()
-stop_loss_rate = 0.02
-take_profit_rate = 0.05
+    now = datetime.now()
+    stop_loss_rate = 0.02
+    take_profit_rate = 0.05
 
 # ✅ 進場邏輯
 if symbol not in positions and len(positions) < max_positions:
