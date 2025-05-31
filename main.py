@@ -538,8 +538,8 @@ def run_scanner():
         data = fetch_stock_data(symbol)
         if data:
          # === Step 1: 整理資料 ===
-        df = pd.DataFrame(data)
-        latest_price = df['close'].iloc[-1]
+            df = pd.DataFrame(data)
+            latest_price = df['close'].iloc[-1]
 
         # === Step 2: 技術指標計算 ===
         from ta.momentum import RSIIndicator
