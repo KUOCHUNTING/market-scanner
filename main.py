@@ -828,6 +828,7 @@ def run_scanner(tick_series):
         fail_count += 1
         
 # 執行掃描並接收統計結果
+tick_series = get_tick_series()
 success_count, fail_count = run_scanner(tick_series)
 
 # 印出統計結果
