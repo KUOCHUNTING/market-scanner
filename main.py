@@ -682,23 +682,27 @@ def run_scanner(tick_series):
 
        # === Step 1: 開始個股掃描 ===
     def run_scanner(tick_series):
-        tick_percentile = get_tick_percentile(tick_series)
-        tick_slope = get_tick_slope(tick_series)
-        trin_value = get_trin_value()
+    success_count = 0
+    fail_count = 0
 
-        check_market_latent_signals(tick_percentile, tick_slope, trin_value)
-        
-        stock_list = load_stock_list(STOCK_LIST_CSV)
-        uccess_count = 0
-        fail_count = 0
+    stock_list = load_stock_list(STOCK_LIST_CSV)
 
-        for symbol in stock_list:
+    for symbol in stock_list:
+        try:
             df = fetch_stock_data(symbol)
-
-            if df is None or df.empty or 'close' not in df.columns:
-                print(f"[WARNING] {symbol} 無效 df，跳過")
+            if df is None or df.empty:
                 fail_count += 1
                 continue
+
+            # 這裡是技術指標計算與訊號判斷
+            ...
+            success_count += 1
+
+        except Exception as e:
+            print(f"[ERROR] {symbol} 發生錯誤：{e}")
+            fail_count += 1
+
+    return success_count, fail_count
 
     # 最新價格
     latest_price = df['close'].iloc[-1]
@@ -836,4 +840,7 @@ if __name__ == "__main__":
         tick_percentile = None
         print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
-    run_scanner(tick_series)  # ✅ 呼叫在最後執行
+    # ✅ 正確接住回傳值
+    success_count, fail_count = run_scanner(tick_series)
+    efficiency = round(success_count / (success_count + fail_count + 1e-6) * 100, 2)
+    print(f"\n[統計] ✅ 成功 {success_count} 檔，❌ 失敗 {fail_count} 檔，有效率：{efficiency}%")
