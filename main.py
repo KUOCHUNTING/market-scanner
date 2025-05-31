@@ -358,10 +358,12 @@ def evaluate_breakout_signal(df):
             print(f"[ENTRY] 進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
             # ✅ 可選：推播進場訊息
             send_to_discord(
-            f"{signal_note} {symbol} @ {latest_price:.2f}\n"
-            f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
-            f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
-        )
+                f"🟢 **[自動進場 - {'多頭' if direction == 'long' else '空頭'}開倉]** {symbol} @ {latest_price:.2f}\n"
+                f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
+                f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}\n"
+                f"💰 已分配資金：${allocated:.2f} | 剩餘資金：${capital_left:.2f}\n"
+                f"🕑 類型：✅進場完成"
+            )
         
     # 🐶 空頭正式進場
     elif (
@@ -392,9 +394,11 @@ def evaluate_breakout_signal(df):
             
                 # ✅ 推播空頭進場訊息
                 send_to_discord(
-                    f"{signal_note} {symbol} @ {latest_price:.2f}\n"
+                    f"🟢 **[自動進場 - {'多頭' if direction == 'long' else '空頭'}開倉]** {symbol} @ {latest_price:.2f}\n"
                     f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
-                    f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
+                    f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}\n"
+                    f"💰 已分配資金：${allocated:.2f} | 剩餘資金：${capital_left:.2f}\n"
+                    f"🕑 類型：✅進場完成"
                 )
 
     # ✅ 如果有訊號但沒進場，也發送預警推播
