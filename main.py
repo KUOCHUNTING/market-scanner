@@ -150,16 +150,16 @@ for bar in bars:  # ✅ 必須要有這個 for 迴圈
     if time_key is None or bar[time_key] is None:
         print(f"[WARNING] 無有效時間欄位（{symbol}）：{bar}")
         continue  # ✅ 這時才合法，因為在 for 迴圈裡
-else:
+
     bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
 
 # ✅ 確保有 timestamp 等欄位
-required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
-if not all(field in bar and bar[field] is not None for field in required_fields):
-    print(f"[WARNING] 缺少必要欄位: {bar}")
-    continue
+    required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
+    if not all(field in bar and bar[field] is not None for field in required_fields):
+        print(f"[WARNING] 缺少必要欄位: {bar}")
+        continue
 
-cleaned_bars.append(bar)
+    cleaned_bars.append(bar)
 
 if len(cleaned_bars) == 0:
     print(f"[WARNING] 無有效 K 棒資料：{symbol}")
