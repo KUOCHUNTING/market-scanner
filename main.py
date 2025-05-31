@@ -680,9 +680,16 @@ def run_scanner(tick_series):
 
 
        # === Step 1: 開始個股掃描 ===
-       stock_list = load_stock_list(STOCK_LIST_CSV)
-       uccess_count = 0
-       fail_count = 0
+    def run_scanner(tick_series):
+        tick_percentile = get_tick_percentile(tick_series)
+        tick_slope = get_tick_slope(tick_series)
+        trin_value = get_trin_value()
+
+        check_market_latent_signals(tick_percentile, tick_slope, trin_value)
+        
+        stock_list = load_stock_list(STOCK_LIST_CSV)
+        uccess_count = 0
+        fail_count = 0
 
        for symbol in stock_list:
            df = fetch_stock_data(symbol)
