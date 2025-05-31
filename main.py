@@ -8,7 +8,8 @@ from ta.volume import OnBalanceVolumeIndicator
 
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
-
+import pandas as pd
+import random
 # === 技術工具函數 ===
 def get_tick_series(minutes=30):
     """
@@ -636,6 +637,7 @@ def should_push_signal(signal_note, entry_price_dict, symbol):
 
 # ✅ 模擬 TICK 系列
 def get_tick_series():
+    import pandas as pd  # 如果前面已經有匯入可以省略
     return pd.Series([random.randint(-1000, 1000) for _ in range(30)])
 
 # ✅ TICK 百分位
