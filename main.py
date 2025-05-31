@@ -6,6 +6,7 @@ from ta.trend import EMAIndicator, ADXIndicator, MACD
 from datetime import datetime  # 若還沒寫在最上面就加
 from ta.volume import OnBalanceVolumeIndicator
 from ta.momentum import RSIIndicator
+from utils import push_to_discord
 
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
@@ -572,7 +573,7 @@ def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
             f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
             "大盤動能轉強，觀察個股多方機會"
         )
-        send_to_discord(message)
+        push_to_discord(message)
 
     elif tick_percentile < 50 and tick_slope < 0 and trin_value > 1.0:
         message = (
@@ -580,7 +581,7 @@ def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
             f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
             "大盤動能轉弱，注意個股風險與回檔"
         )
-        send_to_discord(message)
+        push_to_discord(message)
 
 # ✅ 接著模擬自動進出場
 def analyze_signal_and_return(symbol, df, latest_price, latest_open, latest_high, latest_low, latest_volume,
