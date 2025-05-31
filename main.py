@@ -357,7 +357,11 @@ def evaluate_breakout_signal(df):
         
             print(f"[ENTRY] 進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
             # ✅ 可選：推播進場訊息
-            send_to_discord(f"🐸 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：多頭")
+            send_to_discord(
+            f"{signal_note} {symbol} @ {latest_price:.2f}\n"
+            f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
+            f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
+        )
         
     # 🐶 空頭正式進場
     elif (
@@ -387,7 +391,11 @@ def evaluate_breakout_signal(df):
                 print(f"[ENTRY] 空頭進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
             
                 # ✅ 推播空頭進場訊息
-                send_to_discord(f"🐶 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：空頭")
+               send_to_discord(
+                   f"{signal_note} {symbol} @ {latest_price:.2f}\n"
+                   f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
+                   f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
+               )
     
     # 印出訊號（新版格式）
     if signal_note:
