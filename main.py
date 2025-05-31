@@ -163,16 +163,15 @@ def fetch_stock_data(symbol):
             print(f"[WARNING] 無效 bars（非 list）：{symbol}")
             return None
 
-required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
-cleaned_bars = []
+        required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
+        cleaned_bars = []
 
-for bar in bars:
-# ✅ 如果是 Agg 類別，就轉成 dict
-    if hasattr(bar, '__dict__'):
-        bar = vars(bar)
-    elif not isinstance(bar, dict):
-        print(f"[ERROR] 非法 bar 結構：{bar}")
-        continue
+        for bar in bars:
+            if hasattr(bar, '__dict__'):
+                bar = vars(bar)
+        elif not isinstance(bar, dict):
+            print(f"[ERROR] 非法 bar 結構：{bar}")
+            continue
 
 # ✅ 自動抓時間欄位
 cleaned_bars = []
