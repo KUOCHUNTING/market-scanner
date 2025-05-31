@@ -465,8 +465,6 @@ return {
 "signal_note": signal_note  # 只有主訊號需要保留
 }
 
-
-}
 except Exception as e:
 print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
 return None
