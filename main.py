@@ -127,9 +127,9 @@ def fetch_stock_data(symbol):
         return None
 
 # ✅ bars 必須是非空 list
-if not bars or not isinstance(bars, list):
-    print(f"[WARNING] 無效 bars（非 list）：{symbol}")
-    return None
+        if not bars or not isinstance(bars, list):
+            print(f"[WARNING] 無效 bars（非 list）：{symbol}")
+            return None
 
 required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
 cleaned_bars = []
