@@ -114,15 +114,15 @@ def fetch_stock_data(symbol):
         )
 
 # ✅ 插入這段來正確取得 bars 清單
-bars = None
-
-if hasattr(aggs, 'results'):
-    bars = aggs.results
-elif isinstance(aggs, list):
-    bars = aggs
-else:
-    print(f"[ERROR] 無法處理 aggs 結構：{symbol}")
-    return None
+try:
+    bars = None
+    if hasattr(aggs, 'results'):
+        bars = aggs.results
+    elif isinstance(aggs, list):
+        bars = aggs
+    else:
+        print(f"[ERROR] 無法處理 aggs 結構：{symbol}")
+        return None
 
 # ✅ bars 必須是非空 list
 if not bars or not isinstance(bars, list):
