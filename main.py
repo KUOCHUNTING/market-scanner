@@ -174,9 +174,9 @@ df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
 df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')  # ✅ 這裡就用 'timestamp' 了
 
 # ✅ 插入這段判斷：K棒資料太少就跳過
-if len(df) < 15:
-    print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
-    return None
+    if len(df) < 15:
+        print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
+        return None
 
 
 # 技術指標
