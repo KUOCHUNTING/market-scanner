@@ -826,7 +826,11 @@ def run_scanner(tick_series):
         # 可加入推播 / 儲存 / 分類
     else:
         fail_count += 1
+        
+# 執行掃描並接收統計結果
+success_count, fail_count = run_scanner(tick_series)
 
+# 印出統計結果
 print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
 # ✅ 主程式入口
