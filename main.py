@@ -4,6 +4,7 @@ from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
 from datetime import datetime  # 若還沒寫在最上面就加
+from ta.volume import OnBalanceVolumeIndicator
 
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
@@ -280,23 +281,34 @@ def evaluate_breakout_signal(df):
 
     signal = None
 
-    # 🌱 潛伏多頭
-    if obv_slope.iloc[-1] > 0 and price_sideways and close.iloc[-1] >= close.iloc[-5:].min():
-        signal = "🌱 潛伏預警：OBV 上升 + 價格整理或回穩"
+   def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
+       """
+       回傳潛伏訊號類別（'潛伏多頭'、'潛伏空頭' 或 None）
+       條件：價格與指標背離產生共振（RSI、TMO、OBV、VWAP）
+       """
+       signal_note = None
 
-    # 🌪️ 潛伏空頭
-    elif obv_slope.iloc[-1] < 0 and price_sideways and close.iloc[-1] <= close.iloc[-5:].max():
-        signal = "🌪️ 潛伏預警：OBV 下降 + 價格整理或轉弱"
+       # 🟢 潛伏多頭條件
+       if (
+           df['close'].iloc[-1] < df['close'].iloc[-3] and                    # 價格下跌中
+           rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and              # RSI < 30 且回升
+           tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and               # TMO 在低檔翻多
+           obv.iloc[-1] > obv.iloc[-3] and                                    # OBV 上升（資金進場）
+           latest_price > latest_vwap                                         # 價格站回 VWAP 上方
+       ):
+           signal_note = "🌱 潛伏多頭（多重共振）"
 
-    # 💥 爆發多頭
-    elif bb_contracted and close.iloc[-1] > bb.bollinger_hband().iloc[-1]:
-        signal = "💥 爆發預警：布林收斂後向上突破！"
+       # 🔴 潛伏空頭條件
+       elif (
+           df['close'].iloc[-1] > df['close'].iloc[-3] and                    # 價格上漲中
+           rsi.iloc[-1] < rsi.iloc[-2] and rsi.iloc[-2] > 70 and              # RSI > 70 且下彎
+           tmo.iloc[-1] < tmo.iloc[-2] and tmo.iloc[-2] > 5 and               # TMO 高檔轉弱
+           obv.iloc[-1] < obv.iloc[-3] and                                    # OBV 下滑（資金撤出）
+           latest_price < latest_vwap                                         # 價格跌破 VWAP
+       ):
+           signal_note = "🌪 潛伏空頭（多重共振）"
 
-    # 💣 爆跌空頭
-    elif bb_contracted and close.iloc[-1] < bb.bollinger_lband().iloc[-1]:
-        signal = "💣 爆跌預警：布林收斂後下穿下軌！"
-
-    return signal
+       return signal_note
 
     # 🔍 檢查 breakout 訊號
     breakout_signal = evaluate_breakout_signal(df)
@@ -511,14 +523,23 @@ def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
     )
 
 
-# === 印出（有訊號才印） ===
-if extended_signal:
-    print("-" * 60)
-    print(f"[DATA] {symbol} 最新K棒：")
-    print(f"開：{latest_open:.2f} | 高：{latest_high:.2f} | 低：{latest_low:.2f} | 收：{latest_price:.2f} | 量：{latest_volume:,}")
-    print(f"[INDICATOR] RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | VWAP: {latest_vwap:.2f} | 倍量: {volume_ratio:.2f}x")
-    print(f"[ALERT] {extended_signal}：{symbol}")
-    print("-" * 60)
+# === 印出（有訊號才印TICK/TRIN） ===
+def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
+    if tick_percentile > 50 and tick_slope > 0 and trin_value < 1.0:
+        message = (
+            "📊 **[大盤潛伏多頭]**\n"
+            f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
+            "大盤動能轉強，觀察個股多方機會"
+        )
+        send_to_discord(message)
+
+    elif tick_percentile < 50 and tick_slope < 0 and trin_value > 1.0:
+        message = (
+            "📉 **[大盤潛伏空頭]**\n"
+            f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
+            "大盤動能轉弱，注意個股風險與回檔"
+        )
+        send_to_discord(message)
 
 # ✅ 接著模擬自動進出場
 def analyze_signal_and_return(symbol, df, latest_price, latest_open, latest_high, latest_low, latest_volume,
@@ -573,8 +594,37 @@ def should_push_signal(signal_note, entry_price_dict, symbol):
         return True
     return False
 
+# === 技術工具函數 ===
+
+def get_tick_slope(tick_series, window=5):
+    """回傳 TICK 斜率（目前值 - N 根前）"""
+    if len(tick_series) < window + 1:
+        return 0
+    return tick_series.iloc[-1] - tick_series.iloc[-window-1]
+
+def get_tick_percentile(tick_series):
+    """回傳 TICK 百分位位置"""
+    current_tick = tick_series.iloc[-1]
+    rank = (tick_series < current_tick).sum()
+    percentile = (rank / len(tick_series)) * 100
+    return round(percentile, 2)
+
+tick_series = get_tick_series()  # 你實際抓到的 TICK 數據（例如最近 30 根）
+
+tick_percentile = get_tick_percentile(tick_series)
+tick_slope = get_tick_slope(tick_series)
+
 # === 主程式 ===
 def run_scanner():
+    # === Step 0: 抓取大盤 TICK/TRIN 數據 ===
+    tick_percentile = get_tick_percentile()  # 你要定義的函數
+    tick_slope = get_tick_slope()
+    trin_value = get_trin_value()
+
+    # === Step 0.5: 推播大盤潛伏訊號（不影響個股邏輯）===
+    check_market_latent_signals(tick_percentile, tick_slope, trin_value)
+
+    # === Step 1: 開始個股掃描 ===
     stock_list = load_stock_list(STOCK_LIST_CSV)
     success_count = 0
     fail_count = 0
@@ -605,6 +655,9 @@ def run_scanner():
         latest_open = df['open'].iloc[-1]
         candle_type = "陽線" if latest_price > latest_open else "陰線"
 
+        # 計算 OBV 指標
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+
         # TMO 計算（簡化：以 5期的差分平均當作動能）
         tmo = df['close'].diff().rolling(window=5).mean()
         latest_tmo = tmo.iloc[-1]
@@ -614,6 +667,17 @@ def run_scanner():
         # === Step 3: 判斷進場條件 ===
         signal_note = None
         direction = None
+
+        # === Step 3: 潛伏訊號偵測 + 推播 ===
+        signal_note = detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap)
+
+        if signal_note:
+            message = (
+                f"{signal_note} {symbol}\n"
+                f"收盤：{latest_price:.2f}｜RSI: {latest_rsi:.1f}｜TMO: {latest_tmo:.2f}｜"
+                f"VWAP: {latest_vwap:.2f}｜量：{volume_ratio:.2f}x"
+            )
+            send_to_discord(message)
 
         # 🐸 多頭訊號：符合多項條件
         if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
