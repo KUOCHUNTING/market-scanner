@@ -5,7 +5,10 @@ from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
 
 # === 自訂函數 ===
-from utils import detect_candle_pattern, calculate_tmo  # 你自己寫的 utils 模組
+from utils import detect_candle_pattern, calculate_tmo
+
+candle_type = detect_candle_pattern(df)
+tmo_value = calculate_tmo(df)
 
 # === 系統模組 ===
 import os
