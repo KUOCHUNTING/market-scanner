@@ -104,17 +104,16 @@ def fetch_stock_data(symbol):
         print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
 
         aggs = client.get_aggs(
-        ticker=symbol,
-        multiplier=5,
-        timespan="minute",
-        from_=start.strftime("%Y-%m-%d"),
-        to=end.strftime("%Y-%m-%d"),
-        limit=100,
-        adjusted=True
+            ticker=symbol,
+            multiplier=5,
+            timespan="minute",
+            from_=start.strftime("%Y-%m-%d"),
+            to=end.strftime("%Y-%m-%d"),
+            limit=100,
+            adjusted=True
         )
 
-# ✅ 插入這段來正確取得 bars 清單
-    try:
+        # ✅ 插入這段來正確取得 bars 清單
         bars = None
         if hasattr(aggs, 'results'):
             bars = aggs.results
