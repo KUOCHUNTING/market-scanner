@@ -14,6 +14,37 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
 
+def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio, rsi, tmo, candle_type, remark):
+    try:
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from datetime import datetime
+
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("Trading Log").worksheet("交易紀錄")
+
+        row = [
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            symbol,
+            direction,
+            f"{pnl * 100:.2f}%",
+            entry_price,
+            exit_price,
+            f"{volume_ratio:.2f}x",
+            f"{rsi:.1f}",
+            f"{tmo:.2f}",
+            candle_type,
+            remark
+        ]
+
+        sheet.append_row(row)
+        print(f"[✅ 已寫入 Sheets] {symbol} - {remark}")
+
+    except Exception as e:
+        print(f"[ERROR] 寫入 Google Sheets 失敗：{e}")
+
 # === 資料來源 ===
 from polygon import RESTClient
 
@@ -606,12 +637,41 @@ def run_scanner():
             if pnl >= 0.05:
                 send_to_discord(f"🎯 **[停利出場]** {symbol} | 報酬：+{pnl*100:.2f}%")
                 capital_left += positions_held[symbol]
+
+                # ✅ 出場寫入紀錄
+                write_to_sheet(
+                    symbol=symbol,
+                    direction=direction,
+                    pnl=pnl,
+                    entry_price=entry_price,
+                    exit_price=latest_price,
+                    volume_ratio=volume_ratio,
+                    rsi=latest_rsi,
+                    tmo=latest_tmo,
+                    candle_type=candle_type,
+                    remark="停利出場"
+                )
+
                 del entry_price_dict[symbol]
                 del positions_held[symbol]
                 del entry_direction_dict[symbol]
             elif pnl <= -0.02:
                 send_to_discord(f"🛑 **[停損出場]** {symbol} | 報酬：{pnl*100:.2f}%")
                 capital_left += positions_held[symbol]
+
+                write_to_sheet(
+                    symbol=symbol,
+                    direction=direction,
+                    pnl=pnl,
+                    entry_price=entry_price,
+                    exit_price=latest_price,
+                    volume_ratio=volume_ratio,
+                    rsi=latest_rsi,
+                    tmo=latest_tmo,
+                    candle_type=candle_type,
+                    remark="停損出場"
+                )
+
                 del entry_price_dict[symbol]
                 del positions_held[symbol]
                 del entry_direction_dict[symbol]
