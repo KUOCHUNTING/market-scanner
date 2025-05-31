@@ -86,12 +86,12 @@ def write_to_sheet(
         print(f"[ERROR] 寫入 Sheets 失敗：{e}")       
 
 def load_stock_list(filepath):
-try:
-df = pd.read_csv(filepath)
-return df['symbol'].tolist()
-except Exception as e:
-print(f"[ERROR] 無法讀取股票清單：{e}")
-return []
+    try:
+        df = pd.read_csv(filepath)
+        return df['symbol'].tolist()
+    except Exception as e:
+        print(f"[ERROR] 無法讀取股票清單：{e}")
+        return []
 
 def fetch_stock_data(symbol):
 try:
