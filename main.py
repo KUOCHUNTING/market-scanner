@@ -158,12 +158,15 @@ for bar in bars:  # ✅ 必須要有這個 for 迴圈
     if not all(field in bar and bar[field] is not None for field in required_fields):
         print(f"[WARNING] 缺少必要欄位: {bar}")
         continue
+def fetch_stock_data(symbol):
+    cleaned_bars = []
+    for bar in bars:
+        # 所有 continue 與欄位檢查
+        cleaned_bars.append(bar)
 
-    cleaned_bars.append(bar)
-
-if len(cleaned_bars) == 0:
-    print(f"[WARNING] 無有效 K 棒資料：{symbol}")
-    return None
+    if len(cleaned_bars) == 0:
+        print(f"[WARNING] 無有效 K 棒資料：{symbol}")
+        return None  # ✅ 正確位置
 
 # ✅ 建立 DataFrame 並轉換欄位
 df = pd.DataFrame(cleaned_bars)
