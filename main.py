@@ -12,6 +12,15 @@ from utils import detect_candle_pattern, calculate_tmo
 import pandas as pd
 import random
 import requests
+import requests
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
+
+def push_to_discord(message):
+    try:
+        payload = {"content": message}
+        requests.post(DISCORD_WEBHOOK_URL, json=payload)
+    except Exception as e:
+        print(f"[推播失敗] Discord 發送錯誤：{e}")
 # === 技術工具函數 ===
 def get_tick_series(minutes=30):
     """
