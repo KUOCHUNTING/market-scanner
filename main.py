@@ -10,7 +10,7 @@ from ta.volume import OnBalanceVolumeIndicator
 from utils import detect_candle_pattern, calculate_tmo
 
 # === 技術工具函數 ===
-def get_tick_series()
+def get_tick_series():
 
 # === 系統模組 ===
 import os
