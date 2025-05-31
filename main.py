@@ -665,10 +665,12 @@ else:
     tick_percentile = None
     print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
+run_scanner(tick_series)
+
 # === 主程式 ===
-def run_scanner():
+def run_scanner(tick_series):
     # === Step 0: 抓取大盤 TICK/TRIN 數據 ===
-    tick_percentile = get_tick_percentile()  # 你要定義的函數
+    tick_percentile = get_tick_percentile(tick_series)
     tick_slope = get_tick_slope()
     trin_value = get_trin_value()
 
