@@ -146,7 +146,7 @@ for bar in bars:
 time_key = "timestamp" if "timestamp" in bar else ("t" if "t" in bar else None)
 if time_key is None or bar[time_key] is None:
     print(f"[WARNING] 無有效時間欄位（{symbol}）：{bar}")
-        continue
+    continue
 else:
     bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
 
