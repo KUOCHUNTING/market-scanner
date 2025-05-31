@@ -148,7 +148,7 @@ if time_key is None or bar[time_key] is None:
     print(f"[WARNING] 無有效時間欄位（{symbol}）：{bar}")
     continue
 else:
-bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
+    bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
 
 # ✅ 確保有 timestamp 等欄位
 required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
