@@ -400,9 +400,10 @@ def evaluate_breakout_signal(df):
     # ✅ 如果有訊號但沒進場，也發送預警推播
     if should_push_signal(signal_note, entry_price_dict, symbol):
         send_to_discord(
-            f"{signal_note} {symbol} @ {latest_price:.2f}\n"
+            f"🟡 **[策略訊號 - 多頭準備]** {symbol} @ {latest_price:.2f}\n"
             f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
-            f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
+            f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}\n"
+            f"🕑 類型：⚠️訊號通知（尚未進場）"
         )
     
     # 印出訊號（新版格式）
