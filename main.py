@@ -442,45 +442,47 @@ if extended_signal:
     print("-" * 60)
 
 # ✅ 接著模擬自動進出場
-auto_trade_and_monitor(
-    symbol=symbol,
-    latest_price=latest_price,
-    signal_note=signal_note,
-    direction="多" if "多" in (signal_note or "") else "空",
-    tick_percentile=None,  # 如有 TICK 分析結果可以補上
-    trin=None,             # 如有 TRIN 結果也補上
-    latest_rsi=latest_rsi,
-    latest_tmo=latest_tmo,
-    tmo_slope=tmo_slope,
-    vwap_diff=(latest_price - latest_vwap) / latest_vwap,
-    volume_ratio=volume_ratio,
-    latest_adx=latest_adx,
-    plus_di=latest_plus_di,
-    minus_di=latest_minus_di,
-    kd_status=kd_status,
-    candle_type=candle_type,
-    session="regular",
-    strategy_version="v1.0",
-    confidence_score=1.0  # 若之後有模型可改為模型分數
- )
+def analyze_signal_and_return(symbol, df, ...):  # 補齊你需要的參數
+    # ✅ 自動進出場邏輯
+    auto_trade_and_monitor(
+        symbol=symbol,
+        latest_price=latest_price,
+        signal_note=signal_note,
+        direction="多" if "多" in (signal_note or "") else "空",
+        tick_percentile=None,  # 如有 TICK 分析結果可以補上
+        trin=None,             # 如有 TRIN 結果也補上
+        latest_rsi=latest_rsi,
+        latest_tmo=latest_tmo,
+        tmo_slope=tmo_slope,
+        vwap_diff=(latest_price - latest_vwap) / latest_vwap,
+        volume_ratio=volume_ratio,
+        latest_adx=latest_adx,
+        plus_di=latest_plus_di,
+        minus_di=latest_minus_di,
+        kd_status=kd_status,
+        candle_type=candle_type,
+        session="regular",
+        strategy_version="v1.0",
+        confidence_score=1.0  # 若之後有模型可改為模型分數
+     )
 
-    return {
-        "df": df,  # 保留原始 DataFrame（讓主程式可評估 breakout_signal）
-        "latest_price": latest_price,
-        "latest_open": latest_open,
-        "latest_high": latest_high,
-        "latest_low": latest_low,
-        "latest_volume": latest_volume,
-        "latest_rsi": latest_rsi,
-        "latest_macd": latest_macd,
-        "latest_vwap": latest_vwap,
-        "volume_ratio": volume_ratio,
-        "ema5_above_ema20": ema5_above_ema20,
-        "kd_status": kd_status,
-        "tmo_cross": tmo_cross,
-        "atr": atr.iloc[-1],
-        "signal_note": signal_note  # 只有主訊號需要保留
-    }
+     return {
+         "df": df,  # 保留原始 DataFrame（讓主程式可評估 breakout_signal）
+         "latest_price": latest_price,
+         "latest_open": latest_open,
+         "latest_high": latest_high,
+         "latest_low": latest_low,
+         "latest_volume": latest_volume,
+         "latest_rsi": latest_rsi,
+         "latest_macd": latest_macd,
+         "latest_vwap": latest_vwap,
+         "volume_ratio": volume_ratio,
+         "ema5_above_ema20": ema5_above_ema20,
+         "kd_status": kd_status,
+         "tmo_cross": tmo_cross,
+         "atr": atr.iloc[-1],
+         "signal_note": signal_note  # 只有主訊號需要保留
+     }
 
 # === 主程式 ===
 def run_scanner():
