@@ -442,7 +442,9 @@ if extended_signal:
     print("-" * 60)
 
 # ✅ 接著模擬自動進出場
-def analyze_signal_and_return(symbol, df, ...):  # 補齊你需要的參數
+def analyze_signal_and_return(symbol, df, latest_price, latest_open, latest_high, latest_low, latest_volume,
+                              latest_rsi, latest_vwap, volume_ratio, ema5_above_ema20,
+                              kd_status, tmo_cross, atr, signal_note):
     # ✅ 自動進出場邏輯
     auto_trade_and_monitor(
         symbol=symbol,
