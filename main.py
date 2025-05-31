@@ -678,18 +678,22 @@ def run_scanner(tick_series):
     # === Step 0.5: 推播大盤潛伏訊號（不影響個股邏輯）===
     check_market_latent_signals(tick_percentile, tick_slope, trin_value)
 
-    # === Step 1: 開始個股掃描 ===
-    stock_list = load_stock_list(STOCK_LIST_CSV)
-    success_count = 0
-    fail_count = 0
 
-    for symbol in stock_list:
-        data = fetch_stock_data(symbol)
-        if data:
-         # === Step 1: 整理資料 ===
-            df = pd.DataFrame(data)
-            latest_price = df['close'].iloc[-1]
+       # === Step 1: 開始個股掃描 ===
+       stock_list = load_stock_list(STOCK_LIST_CSV)
+       uccess_count = 0
+       fail_count = 0
 
+       for symbol in stock_list:
+           df = fetch_stock_data(symbol)
+
+           if df is None or df.empty or 'close' not in df.columns:
+               print(f"[WARNING] {symbol} 無效 df，跳過")
+               fail_count += 1
+               continue
+
+    # 最新價格
+    latest_price = df['close'].iloc[-1]
         # === Step 2: 技術指標計算 ===
         from ta.momentum import RSIIndicator
         from ta.trend import EMAIndicator
