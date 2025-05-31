@@ -47,6 +47,35 @@ def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio
     except Exception as e:
         print(f"[ERROR] 寫入 Google Sheets 失敗：{e}")
 
+def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
+       """
+       回傳潛伏訊號類別（'潛伏多頭'、'潛伏空頭' 或 None）
+       條件：價格與指標背離產生共振（RSI、TMO、OBV、VWAP）
+       """
+       signal_note = None
+
+       # 🟢 潛伏多頭條件
+       if (
+           df['close'].iloc[-1] < df['close'].iloc[-3] and                    # 價格下跌中
+           rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and              # RSI < 30 且回升
+           tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and               # TMO 在低檔翻多
+           obv.iloc[-1] > obv.iloc[-3] and                                    # OBV 上升（資金進場）
+           latest_price > latest_vwap                                         # 價格站回 VWAP 上方
+       ):
+           signal_note = "🌱 潛伏多頭（多重共振）"
+
+       # 🔴 潛伏空頭條件
+       elif (
+           df['close'].iloc[-1] > df['close'].iloc[-3] and                    # 價格上漲中
+           rsi.iloc[-1] < rsi.iloc[-2] and rsi.iloc[-2] > 70 and              # RSI > 70 且下彎
+           tmo.iloc[-1] < tmo.iloc[-2] and tmo.iloc[-2] > 5 and               # TMO 高檔轉弱
+           obv.iloc[-1] < obv.iloc[-3] and                                    # OBV 下滑（資金撤出）
+           latest_price < latest_vwap                                         # 價格跌破 VWAP
+       ):
+           signal_note = "🌪 潛伏空頭（多重共振）"
+
+       return signal_note
+
 # === 資料來源 ===
 from polygon import RESTClient
 
@@ -280,35 +309,6 @@ def evaluate_breakout_signal(df):
     bb_contracted = bb_width_sma.iloc[-1] < close.iloc[-1] * 0.03
 
     signal = None
-
-   def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
-       """
-       回傳潛伏訊號類別（'潛伏多頭'、'潛伏空頭' 或 None）
-       條件：價格與指標背離產生共振（RSI、TMO、OBV、VWAP）
-       """
-       signal_note = None
-
-       # 🟢 潛伏多頭條件
-       if (
-           df['close'].iloc[-1] < df['close'].iloc[-3] and                    # 價格下跌中
-           rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and              # RSI < 30 且回升
-           tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and               # TMO 在低檔翻多
-           obv.iloc[-1] > obv.iloc[-3] and                                    # OBV 上升（資金進場）
-           latest_price > latest_vwap                                         # 價格站回 VWAP 上方
-       ):
-           signal_note = "🌱 潛伏多頭（多重共振）"
-
-       # 🔴 潛伏空頭條件
-       elif (
-           df['close'].iloc[-1] > df['close'].iloc[-3] and                    # 價格上漲中
-           rsi.iloc[-1] < rsi.iloc[-2] and rsi.iloc[-2] > 70 and              # RSI > 70 且下彎
-           tmo.iloc[-1] < tmo.iloc[-2] and tmo.iloc[-2] > 5 and               # TMO 高檔轉弱
-           obv.iloc[-1] < obv.iloc[-3] and                                    # OBV 下滑（資金撤出）
-           latest_price < latest_vwap                                         # 價格跌破 VWAP
-       ):
-           signal_note = "🌪 潛伏空頭（多重共振）"
-
-       return signal_note
 
     # 🔍 檢查 breakout 訊號
     breakout_signal = evaluate_breakout_signal(df)
