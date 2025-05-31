@@ -682,27 +682,27 @@ def run_scanner(tick_series):
 
        # === Step 1: 開始個股掃描 ===
     def run_scanner(tick_series):
-    success_count = 0
-    fail_count = 0
+        success_count = 0
+        fail_count = 0
 
-    stock_list = load_stock_list(STOCK_LIST_CSV)
+        stock_list = load_stock_list(STOCK_LIST_CSV)
 
-    for symbol in stock_list:
-        try:
-            df = fetch_stock_data(symbol)
-            if df is None or df.empty:
+        for symbol in stock_list:
+            try:
+                df = fetch_stock_data(symbol)
+                if df is None or df.empty:
+                    fail_count += 1
+                    continue
+
+                # 這裡是技術指標計算與訊號判斷
+                ...
+                success_count += 1
+
+            except Exception as e:
+                print(f"[ERROR] {symbol} 發生錯誤：{e}")
                 fail_count += 1
-                continue
 
-            # 這裡是技術指標計算與訊號判斷
-            ...
-            success_count += 1
-
-        except Exception as e:
-            print(f"[ERROR] {symbol} 發生錯誤：{e}")
-            fail_count += 1
-
-    return success_count, fail_count
+        return success_count, fail_count
 
     # 最新價格
     latest_price = df['close'].iloc[-1]
