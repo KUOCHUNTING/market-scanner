@@ -10,7 +10,42 @@ from ta.volume import OnBalanceVolumeIndicator
 from utils import detect_candle_pattern, calculate_tmo
 
 # === 技術工具函數 ===
-def get_tick_series():
+def get_tick_series(minutes=30):
+    """
+    回傳最近 N 分鐘的 TICK.US 收盤值（用於斜率與百分位計算）
+    """
+    try:
+        est = timezone("US/Eastern")
+        now = datetime.now(est)
+        start_time = now - timedelta(minutes=minutes)
+
+        client = RESTClient(api_key=API_KEY)
+
+        aggs = client.get_aggs(
+            ticker="TICK",
+            multiplier=1,
+            timespan="minute",
+            from_=start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+            to=now.strftime("%Y-%m-%dT%H:%M:%S"),
+            limit=minutes,
+            adjusted=True
+        )
+
+        # 解析 bars
+        if hasattr(aggs, 'results'):
+            bars = aggs.results
+        elif isinstance(aggs, list):
+            bars = aggs
+        else:
+            print("[ERROR] 無效 TICK 結構")
+            return pd.Series()
+
+        tick_values = [bar['c'] for bar in bars if 'c' in bar]
+        return pd.Series(tick_values)
+
+    except Exception as e:
+        print(f"[ERROR] 抓取 TICK 資料失敗：{e}")
+        return pd.Series()
 
 # === 系統模組 ===
 import os
