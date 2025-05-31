@@ -179,48 +179,48 @@ def fetch_stock_data(symbol):
         return None
 
 
-# 技術指標
-rsi = RSIIndicator(close=df['close']).rsi()
-tmo = calculate_tmo(df['close'])  # ✅ 替代 MACD
-vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
-ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
-ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
-adx = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).adx()
-plus_di = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).plus_di()
-minus_di = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).minus_di()
-volume_ratio = df['volume'].iloc[-1] / df['volume'].rolling(20).mean().iloc[-1]
-candle_type = detect_candle_pattern(df)  # 自訂：K棒型態判斷
+    # 技術指標
+    rsi = RSIIndicator(close=df['close']).rsi()
+    tmo = calculate_tmo(df['close'])  # ✅ 替代 MACD
+    vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
+    ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
+    ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
+    adx = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).adx()
+    plus_di = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).plus_di()
+    minus_di = ADXIndicator(high=df['high'], low=df['low'], close=df['close']).minus_di()
+    volume_ratio = df['volume'].iloc[-1] / df['volume'].rolling(20).mean().iloc[-1]
+    candle_type = detect_candle_pattern(df)  # 自訂：K棒型態判斷
 
-# 最新值
-latest_price = df['close'].iloc[-1]
-latest_open = df['open'].iloc[-1]
-latest_high = df['high'].iloc[-1]
-latest_low = df['low'].iloc[-1]
-latest_volume = df['volume'].iloc[-1]
-avg_volume = df['volume'].rolling(20).mean().iloc[-1]
-volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
+    # 最新值
+    latest_price = df['close'].iloc[-1]
+    latest_open = df['open'].iloc[-1]
+    latest_high = df['high'].iloc[-1]
+    latest_low = df['low'].iloc[-1]
+    latest_volume = df['volume'].iloc[-1]
+    avg_volume = df['volume'].rolling(20).mean().iloc[-1]
+    volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
 
-latest_rsi = rsi.iloc[-1]
-latest_tmo = tmo.iloc[-1]
-tmo_slope = tmo.diff().iloc[-1]
-latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else 0
-ema5_above_ema20 = ema5.iloc[-1] > ema20.iloc[-1]
-ema_cross = "✅" if ema5_above_ema20 else "❌"
+    latest_rsi = rsi.iloc[-1]
+    latest_tmo = tmo.iloc[-1]
+    tmo_slope = tmo.diff().iloc[-1]
+    latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else 0
+    ema5_above_ema20 = ema5.iloc[-1] > ema20.iloc[-1]
+    ema_cross = "✅" if ema5_above_ema20 else "❌"
 
-k_value = kd.stoch().iloc[-1]
-d_value = kd.stoch_signal().iloc[-1]
-kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
+    k_value = kd.stoch().iloc[-1]
+    d_value = kd.stoch_signal().iloc[-1]
+    kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
 
-latest_adx = adx.iloc[-1]
-latest_plus_di = plus_di.iloc[-1]
-latest_minus_di = minus_di.iloc[-1]
+    latest_adx = adx.iloc[-1]
+    latest_plus_di = plus_di.iloc[-1]
+    latest_minus_di = minus_di.iloc[-1]
 
-candle_type = detect_candle_pattern(df)  # K棒型態
+    candle_type = detect_candle_pattern(df)  # K棒型態
 
-# ✅ 半山腰過濾條件：VWAP 偏離過大（避免追高追空）
-if latest_price > latest_vwap * 1.05 or latest_price < latest_vwap * 0.95:
-    print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，疑似半山腰，跳過。")
-    return None
+    # ✅ 半山腰過濾條件：VWAP 偏離過大（避免追高追空）
+    if latest_price > latest_vwap * 1.05 or latest_price < latest_vwap * 0.95:
+        print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，疑似半山腰，跳過。")
+        return None
 
 # 顯示 Log
 print(f"[INFO] {symbol} 最新收盤價：{latest_price:.2f}")
