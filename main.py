@@ -464,23 +464,23 @@ auto_trade_and_monitor(
     confidence_score=1.0  # 若之後有模型可改為模型分數
  )
 
-return {
-    "df": df,  # 保留原始 DataFrame（讓主程式可評估 breakout_signal）
-    "latest_price": latest_price,
-    "latest_open": latest_open,
-    "latest_high": latest_high,
-    "latest_low": latest_low,
-    "latest_volume": latest_volume,
-    "latest_rsi": latest_rsi,
-    "latest_macd": latest_macd,
-    "latest_vwap": latest_vwap,
-    "volume_ratio": volume_ratio,
-    "ema5_above_ema20": ema5_above_ema20,
-    "kd_status": kd_status,
-    "tmo_cross": tmo_cross,
-    "atr": atr.iloc[-1],
-    "signal_note": signal_note  # 只有主訊號需要保留
-}
+    return {
+        "df": df,  # 保留原始 DataFrame（讓主程式可評估 breakout_signal）
+        "latest_price": latest_price,
+        "latest_open": latest_open,
+        "latest_high": latest_high,
+        "latest_low": latest_low,
+        "latest_volume": latest_volume,
+        "latest_rsi": latest_rsi,
+        "latest_macd": latest_macd,
+        "latest_vwap": latest_vwap,
+        "volume_ratio": volume_ratio,
+        "ema5_above_ema20": ema5_above_ema20,
+        "kd_status": kd_status,
+        "tmo_cross": tmo_cross,
+        "atr": atr.iloc[-1],
+        "signal_note": signal_note  # 只有主訊號需要保留
+    }
 
 # === 主程式 ===
 def run_scanner():
