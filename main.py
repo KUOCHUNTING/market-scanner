@@ -5,6 +5,7 @@ from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
 from datetime import datetime  # 若還沒寫在最上面就加
 from ta.volume import OnBalanceVolumeIndicator
+from ta.momentum import RSIIndicator
 
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
@@ -702,8 +703,6 @@ def run_scanner(tick_series):
     # 最新價格
     latest_price = df['close'].iloc[-1]
         # === Step 2: 技術指標計算 ===
-        from ta.momentum import RSIIndicator
-        from ta.trend import EMAIndicator
         rsi = RSIIndicator(close=df['close']).rsi()
         latest_rsi = rsi.iloc[-1]
 
