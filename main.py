@@ -711,34 +711,45 @@ def run_scanner(tick_series):
                 fail_count += 1
 
         return success_count, fail_count
+for symbol in stock_list:
+    try:
+        df = fetch_stock_data(symbol)
 
-    # 最新價格
-    latest_price = df['close'].iloc[-1]
-    # === Step 2: 技術指標計算 ===
-    rsi = RSIIndicator(close=df['close']).rsi()
-    latest_rsi = rsi.iloc[-1]
+        if df is None or df.empty or 'close' not in df.columns:
+            fail_count += 1
+            continue
+        # 技術指標
+        latest_price = df['close'].iloc[-1]
+        rsi = RSIIndicator(close=df['close']).rsi()
+        latest_rsi = rsi.iloc[-1]
 
-    # VWAP
-    vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
-    latest_vwap = vwap.iloc[-1]
+        # VWAP
+        vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap.iloc[-1]
 
-     # 成交量倍數
-    volume = df['volume']
-    volume_avg = volume.rolling(window=20).mean()
-    volume_ratio = volume.iloc[-1] / volume_avg.iloc[-1]
+         # 成交量倍數
+        volume = df['volume']
+        volume_avg = volume.rolling(window=20).mean()
+        volume_ratio = volume.iloc[-1] / volume_avg.iloc[-1]
 
-    # K線形態（陽線 or 陰線）
-    latest_open = df['open'].iloc[-1]
-    candle_type = "陽線" if latest_price > latest_open else "陰線"
+        # K線形態（陽線 or 陰線）
+        latest_open = df['open'].iloc[-1]
+        candle_type = "陽線" if latest_price > latest_open else "陰線"
 
-    # 計算 OBV 指標
-    obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+        # 計算 OBV 指標
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
 
-    # TMO 計算（簡化：以 5期的差分平均當作動能）
-    tmo = df['close'].diff().rolling(window=5).mean()
-    latest_tmo = tmo.iloc[-1]
-    prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
-    tmo_cross = latest_tmo > 0 and prev_tmo <= 0
+        # TMO 計算（簡化：以 5期的差分平均當作動能）
+        tmo = df['close'].diff().rolling(window=5).mean()
+        latest_tmo = tmo.iloc[-1]
+        prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
+        tmo_cross = latest_tmo > 0 and prev_tmo <= 0
+
+        success_count += 1  # ✅ 放在最後，表示這支股票處理成功
+
+    except Exception as e:
+        print(f"[ERROR] {symbol} 發生錯誤：{e}")
+        fail_count += 1
 
     # === Step 3: 判斷進場條件 ===
     signal_note = None
