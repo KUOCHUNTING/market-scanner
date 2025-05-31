@@ -354,6 +354,9 @@ def evaluate_breakout_signal(df):
             positions_held[symbol] = allocated
             capital_left -= allocated
             entry_direction_dict[symbol] = 'long'
+
+            # 拿 direction 變數出來用
+            direction = entry_direction_dict[symbol]
         
             print(f"[ENTRY] 進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
             # ✅ 可選：推播進場訊息
@@ -389,6 +392,9 @@ def evaluate_breakout_signal(df):
                 positions_held[symbol] = allocated
                 capital_left -= allocated
                 entry_direction_dict[symbol] = 'short'
+
+                # 拿 direction 變數出來用
+                direction = entry_direction_dict[symbol]
 
                 print(f"[ENTRY] 空頭進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
             
