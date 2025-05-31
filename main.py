@@ -169,9 +169,9 @@ def fetch_stock_data(symbol):
         for bar in bars:
             if hasattr(bar, '__dict__'):
                 bar = vars(bar)
-        elif not isinstance(bar, dict):
-            print(f"[ERROR] 非法 bar 結構：{bar}")
-            continue
+            elif not isinstance(bar, dict):
+                print(f"[ERROR] 非法 bar 結構：{bar}")
+                continue
 
 # ✅ 自動抓時間欄位
 cleaned_bars = []
