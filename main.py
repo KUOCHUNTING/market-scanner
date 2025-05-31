@@ -311,6 +311,23 @@ def evaluate_breakout_signal(df):
         ):
         signal_note = f"🐸 正式進場 - 多頭\n📊 RSI：{latest_rsi:.1f} ↗️\n⚡ TMO：{latest_tmo:.2f} ↗️\n📈 VWAP：上穿\n🔍 成交量：{volume_ratio:.2f} 倍\n🕯️ K棒：{candle_type}\n📐 ADX：{latest_adx:.1f} | DI+: {latest_plus_di:.1f} > DI-: {latest_minus_di:.1f}"
 
+    if symbol not in entry_price_dict and len(positions_held) < max_positions:
+        allocated = total_capital * position_size_pct
+
+        # 若剩餘資金不足，就不進場
+        if capital_left < allocated:
+            print(f"[SKIP] 資金不足，無法進場：{symbol}")
+        else:
+            # 記錄進場價格與資金
+            entry_price_dict[symbol] = latest_price
+            positions_held[symbol] = allocated
+            capital_left -= allocated
+            entry_direction_dict[symbol] = 'long'
+        
+            print(f"[ENTRY] 進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
+            # ✅ 可選：推播進場訊息
+            send_to_discord(f"🐸 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：多頭")
+        
     # 🐶 空頭正式進場
     elif (
         latest_rsi < 70 and rsi.iloc[-2] > rsi.iloc[-1] and
@@ -321,6 +338,26 @@ def evaluate_breakout_signal(df):
         ):
         signal_note = f"🐶 正式進場 - 空頭\n📊 RSI：{latest_rsi:.1f} ↘️\n⚡ TMO：{latest_tmo:.2f} ↘️\n📉 VWAP：跌破\n🔍 成交量：{volume_ratio:.2f} 倍\n🕯️ K棒：{candle_type}\n📐 ADX：{latest_adx:.1f} | DI-: {latest_minus_di:.1f} > DI+: {latest_plus_di:.1f}"
 
+    if latest_macd < 0 and latest_price < latest_vwap and volume_ratio > 1.5:
+        signal_note = "🐶 正式進場 - 空頭"
+
+        # ✅ 空頭模擬進場（與多頭邏輯相同，只是方向不同）
+        if symbol not in entry_price_dict and len(positions_held) < max_positions:
+            allocated = total_capital * position_size_pct
+
+            if capital_left < allocated:
+                print(f"[SKIP] 資金不足，無法進場：{symbol}")
+            else:
+                entry_price_dict[symbol] = latest_price
+                positions_held[symbol] = allocated
+                capital_left -= allocated
+                entry_direction_dict[symbol] = 'short'
+
+                print(f"[ENTRY] 空頭進場：{symbol} @ {latest_price:.2f}，投入資金 ${allocated:.2f}，剩餘資金 ${capital_left:.2f}")
+            
+                # ✅ 推播空頭進場訊息
+                send_to_discord(f"🐶 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：空頭")
+    
     # 印出訊號（新版格式）
     if signal_note:
         print("-" * 60)
@@ -353,6 +390,7 @@ def evaluate_breakout_signal(df):
 import time
 from datetime import datetime
 
+entry_price_dict = {}
 positions = {}  # 持倉記錄：{symbol: {...}}
 total_capital = 100000
 position_size_pct = 0.05
@@ -499,6 +537,84 @@ def run_scanner():
     for symbol in stock_list:
         data = fetch_stock_data(symbol)
         if data:
+         # === Step 1: 整理資料 ===
+        df = pd.DataFrame(data)
+        latest_price = df['close'].iloc[-1]
+
+        # === Step 2: 技術指標計算 ===
+        from ta.momentum import RSIIndicator
+        from ta.trend import EMAIndicator
+        rsi = RSIIndicator(close=df['close']).rsi()
+        latest_rsi = rsi.iloc[-1]
+
+        # VWAP
+        vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap.iloc[-1]
+
+        # 成交量倍數
+        volume = df['volume']
+        volume_avg = volume.rolling(window=20).mean()
+        volume_ratio = volume.iloc[-1] / volume_avg.iloc[-1]
+
+        # K線形態（陽線 or 陰線）
+        latest_open = df['open'].iloc[-1]
+        candle_type = "陽線" if latest_price > latest_open else "陰線"
+
+        # TMO 計算（簡化：以 5期的差分平均當作動能）
+        tmo = df['close'].diff().rolling(window=5).mean()
+        latest_tmo = tmo.iloc[-1]
+        prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
+        tmo_cross = latest_tmo > 0 and prev_tmo <= 0
+
+        # === Step 3: 判斷進場條件 ===
+        signal_note = None
+        direction = None
+
+        # 🐸 多頭訊號：符合多項條件
+        if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
+            signal_note = "🐸 正式進場 - 多頭"
+            direction = 'long'
+
+        # 🐶 空頭訊號（你可以另外定義條件）
+        elif latest_rsi > 70 and latest_price < latest_vwap and latest_tmo < 0 and volume_ratio > 1.5 and candle_type == "陰線":
+            signal_note = "🐶 正式進場 - 空頭"
+            direction = 'short'
+
+        # === Step 4: 模擬進場 ===
+        if signal_note and symbol not in entry_price_dict and len(positions_held) < max_positions:
+            allocated = total_capital * position_size_pct
+            if capital_left >= allocated:
+                entry_price_dict[symbol] = latest_price
+                positions_held[symbol] = allocated
+                entry_direction_dict[symbol] = direction
+                capital_left -= allocated
+                print(f"[ENTRY] {symbol} 進場 ({direction}) @ {latest_price:.2f}，資金 ${allocated:.2f}，剩餘 ${capital_left:.2f}")
+                send_to_discord(f"{signal_note} {symbol} @ {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f} | K: {candle_type}")
+
+        # === Step 5: 出場條件 ===
+        if symbol in entry_price_dict and symbol in entry_direction_dict:
+            entry_price = entry_price_dict[symbol]
+            direction = entry_direction_dict[symbol]
+
+            if direction == 'long':
+                pnl = (latest_price - entry_price) / entry_price
+            elif direction == 'short':
+                pnl = (entry_price - latest_price) / entry_price
+            else:
+                pnl = 0
+
+            if pnl >= 0.05:
+                send_to_discord(f"🎯 **[停利出場]** {symbol} | 報酬：+{pnl*100:.2f}%")
+                capital_left += positions_held[symbol]
+                del entry_price_dict[symbol]
+                del positions_held[symbol]
+                del entry_direction_dict[symbol]
+            elif pnl <= -0.02:
+                send_to_discord(f"🛑 **[停損出場]** {symbol} | 報酬：{pnl*100:.2f}%")
+                capital_left += positions_held[symbol]
+                del entry_price_dict[symbol]
+                del positions_held[symbol]
+                del entry_direction_dict[symbol]
             success_count += 1
             # 可加入推播 / 儲存 / 分類
         else:
