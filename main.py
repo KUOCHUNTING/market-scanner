@@ -94,24 +94,24 @@ def load_stock_list(filepath):
         return []
 
 def fetch_stock_data(symbol):
-try:
-print(f"[DEBUG] 處理中股票：{symbol}")
-client = RESTClient(api_key=API_KEY)
-est = timezone("US/Eastern")
-now = datetime.now(est)
-end = now - timedelta(minutes=15)
-start = end - timedelta(minutes=35)
-print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
+    try:
+        print(f"[DEBUG] 處理中股票：{symbol}")
+        client = RESTClient(api_key=API_KEY)
+        est = timezone("US/Eastern")
+        now = datetime.now(est)
+        end = now - timedelta(minutes=15)
+        start = end - timedelta(minutes=35)
+        print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
 
-aggs = client.get_aggs(
-ticker=symbol,
-multiplier=5,
-timespan="minute",
-from_=start.strftime("%Y-%m-%d"),
-to=end.strftime("%Y-%m-%d"),
-limit=100,
-adjusted=True
-)
+        aggs = client.get_aggs(
+        ticker=symbol,
+        multiplier=5,
+        timespan="minute",
+        from_=start.strftime("%Y-%m-%d"),
+        to=end.strftime("%Y-%m-%d"),
+        limit=100,
+        adjusted=True
+        )
 
 # ✅ 插入這段來正確取得 bars 清單
 bars = None
