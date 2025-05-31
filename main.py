@@ -363,13 +363,17 @@ take_profit_rate = 0.05
 # ✅ 進場邏輯
 if symbol not in positions and len(positions) < max_positions:
     capital_used = total_capital * position_size_pct
+    capital_left -= capital_used
     positions[symbol] = {
         'entry_price': latest_price,
-        'timestamp': now,
+        'entry_time': now,
         'direction': direction,
-        'capital_used': capital_used
+        'capital_used': capital_used,
+        'strategy': strategy_version,
+        'confidence': confidence_score
     }
-    capital_left -= capital_used
+    send_to_discord(f"🐸 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：{direction}")
+    
     print(f"[自動進場] {symbol} @ {latest_price} 方向：{direction}")
     return
 
