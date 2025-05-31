@@ -10,6 +10,7 @@ from ta.volume import OnBalanceVolumeIndicator
 from utils import detect_candle_pattern, calculate_tmo
 import pandas as pd
 import random
+import requests
 # === 技術工具函數 ===
 def get_tick_series(minutes=30):
     """
