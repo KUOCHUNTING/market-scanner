@@ -658,14 +658,7 @@ def get_tick_percentile(tick_series):
 tick_series = get_tick_series()  # 例如最近 30 根 TICK.US 資料
 
 # ✅ 防呆處理
-if tick_series is not None and not tick_series.empty:
-    tick_percentile = get_tick_percentile(tick_series)
-    print(f"[INFO] 當前 TICK 百分位：{tick_percentile}")
-else:
-    tick_percentile = None
-    print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
-run_scanner(tick_series)
 
 # === 主程式 ===
 def run_scanner(tick_series):
@@ -816,4 +809,13 @@ def run_scanner(tick_series):
 
 # === 程式入口點 ===
 if __name__ == "__main__":
-    run_scanner()
+    tick_series = get_tick_series()
+
+    if tick_series is not None and not tick_series.empty:
+        tick_percentile = get_tick_percentile(tick_series)
+        print(f"[INFO] 當前 TICK 百分位：{tick_percentile}")
+    else:
+        tick_percentile = None
+        print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
+
+    run_scanner(tick_series)  # ✅ 現在這行在函數定義之後了
