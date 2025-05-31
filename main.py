@@ -399,11 +399,11 @@ def evaluate_breakout_signal(df):
 
     # ✅ 如果有訊號但沒進場，也發送預警推播
     if should_push_signal(signal_note, entry_price_dict, symbol):
-    send_to_discord(
-        f"{signal_note} {symbol} @ {latest_price:.2f}\n"
-        f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
-        f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
-    )
+        send_to_discord(
+            f"{signal_note} {symbol} @ {latest_price:.2f}\n"
+            f"📊 RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f}x | K棒: {candle_type}\n"
+            f"📐 ADX: {latest_adx:.1f} | DI+: {latest_plus_di:.1f} / DI-: {latest_minus_di:.1f}"
+        )
     
     # 印出訊號（新版格式）
     if signal_note:
