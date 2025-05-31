@@ -366,70 +366,70 @@ def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
     stop_loss_rate = 0.02
     take_profit_rate = 0.05
     # 自動跳過股價過高的股票（例如大於 100 美元）
-if latest_price < 1 or latest_price > 10:
-    print(f"[SKIP] {symbol} 不在價格區間，跳過進場")
-    return
+    if latest_price < 1 or latest_price > 10:
+        print(f"[SKIP] {symbol} 不在價格區間，跳過進場")
+        return
     
-# ✅ 進場邏輯
-if symbol not in positions and len(positions) < max_positions:
-    capital_used = total_capital * position_size_pct
-    capital_left -= capital_used
-    positions[symbol] = {
-        'entry_price': latest_price,
-        'entry_time': now,
-        'direction': direction,
-        'capital_used': capital_used,
-        'strategy': strategy_version,
-        'confidence': confidence_score
-    }
-    send_to_discord(f"🐸 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：{direction}")
+    # ✅ 進場邏輯
+    if symbol not in positions and len(positions) < max_positions:
+        capital_used = total_capital * position_size_pct
+        capital_left -= capital_used
+        positions[symbol] = {
+            'entry_price': latest_price,
+            'entry_time': now,
+            'direction': direction,
+            'capital_used': capital_used,
+            'strategy': strategy_version,
+            'confidence': confidence_score
+        }
+        send_to_discord(f"🐸 **[自動進場]** {symbol} @ {latest_price:.2f} 方向：{direction}")
     
-    print(f"[自動進場] {symbol} @ {latest_price} 方向：{direction}")
-    return
+        print(f"[自動進場] {symbol} @ {latest_price} 方向：{direction}")
+        return
 
-# ✅ 出場邏輯
-if symbol in positions:
-    entry_data = positions[symbol]
-    entry_price = entry_data['entry_price']
-    holding_time_sec = int((now - entry_data['timestamp']).total_seconds())
-    return_rate = (latest_price - entry_price) / entry_price if direction == "多" else (entry_price - latest_price) / entry_price
+    # ✅ 出場邏輯
+    if symbol in positions:
+        entry_data = positions[symbol]
+        entry_price = entry_data['entry_price']
+        holding_time_sec = int((now - entry_data['timestamp']).total_seconds())
+        return_rate = (latest_price - entry_price) / entry_price if direction == "多" else (entry_price - latest_price) / entry_price
 
-if return_rate >= take_profit_rate or return_rate <= -stop_loss_rate:
-    exit_price = latest_price
-    capital_left += entry_data['capital_used']
-    del positions[symbol]
+    if return_rate >= take_profit_rate or return_rate <= -stop_loss_rate:
+        exit_price = latest_price
+        capital_left += entry_data['capital_used']
+        del positions[symbol]
 
-    print(f"[出場] {symbol} @ {exit_price:.2f}，報酬率：{return_rate*100:.2f}%，持倉：{holding_time_sec} 秒")
+        print(f"[出場] {symbol} @ {exit_price:.2f}，報酬率：{return_rate*100:.2f}%，持倉：{holding_time_sec} 秒")
 
-    remark = "停利出場" if return_rate >= take_profit_rate else "停損出場"
-    write_to_sheet(
-        symbol=symbol,
-        direction=direction,
-        signal_type=signal_note,
-        tick_percentile=tick_percentile,
-        trin=trin,
-        latest_rsi=latest_rsi,
-        latest_macd=None,
-        latest_tmo=latest_tmo,
-        tmo_slope=tmo_slope,
-        vwap_diff=vwap_diff,
-        volume_ratio=volume_ratio,
-        latest_adx=latest_adx,
-        plus_di=plus_di,
-        minus_di=minus_di,
-        kd_status=kd_status,
-        candle_type=candle_type,
-        entry_price=entry_price,
-        exit_price=exit_price,
-        holding_time_sec=holding_time_sec,
-        return_rate=return_rate,
-        capital_used=entry_data['capital_used'],
-        capital_left=capital_left,
-        session=session,
-        strategy_version=strategy_version,
-        confidence_score=confidence_score,
-        remark=remark
-)
+        remark = "停利出場" if return_rate >= take_profit_rate else "停損出場"
+        write_to_sheet(
+            symbol=symbol,
+            direction=direction,
+            signal_type=signal_note,
+            tick_percentile=tick_percentile,
+            trin=trin,
+            latest_rsi=latest_rsi,
+            latest_macd=None,
+            latest_tmo=latest_tmo,
+            tmo_slope=tmo_slope,
+            vwap_diff=vwap_diff,
+            volume_ratio=volume_ratio,
+            latest_adx=latest_adx,
+            plus_di=plus_di,
+            minus_di=minus_di,
+            kd_status=kd_status,
+            candle_type=candle_type,
+            entry_price=entry_price,
+            exit_price=exit_price,
+            holding_time_sec=holding_time_sec,
+            return_rate=return_rate,
+            capital_used=entry_data['capital_used'],
+            capital_left=capital_left,
+            session=session,
+            strategy_version=strategy_version,
+            confidence_score=confidence_score,
+            remark=remark
+    )
 
 
 # === 印出（有訊號才印） ===
