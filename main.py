@@ -359,7 +359,11 @@ def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
     now = datetime.now()
     stop_loss_rate = 0.02
     take_profit_rate = 0.05
-
+    # 自動跳過股價過高的股票（例如大於 100 美元）
+if latest_price < 1 or latest_price > 10:
+    print(f"[SKIP] {symbol} 不在價格區間，跳過進場")
+    return
+    
 # ✅ 進場邏輯
 if symbol not in positions and len(positions) < max_positions:
     capital_used = total_capital * position_size_pct
@@ -471,10 +475,6 @@ return {
     "atr": atr.iloc[-1],
     "signal_note": signal_note  # 只有主訊號需要保留
 }
-
-except Exception as e:
-    print(f"[ERROR] 抓取資料失敗 {symbol}：{e}")
-    return None
 
 # === 主程式 ===
 def run_scanner():
