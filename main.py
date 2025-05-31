@@ -222,25 +222,25 @@ def fetch_stock_data(symbol):
         print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，疑似半山腰，跳過。")
         return None
 
-# 顯示 Log
-print(f"[INFO] {symbol} 最新收盤價：{latest_price:.2f}")
-print(f"📊 RSI：{latest_rsi:.1f} | TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）")
-print(f"📈 VWAP：{latest_vwap:.2f} | 均線交叉：{ema_cross}")
-print(f"🔍 成交量：{volume_ratio:.2f} 倍 | K棒型態：{candle_type}")
-print(f"📐 ADX：{latest_adx:.1f} | +DI：{latest_plus_di:.1f} | -DI：{latest_minus_di:.1f}")
+    # 顯示 Log
+    print(f"[INFO] {symbol} 最新收盤價：{latest_price:.2f}")
+    print(f"📊 RSI：{latest_rsi:.1f} | TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）")
+    print(f"📈 VWAP：{latest_vwap:.2f} | 均線交叉：{ema_cross}")
+    print(f"🔍 成交量：{volume_ratio:.2f} 倍 | K棒型態：{candle_type}")
+    print(f"📐 ADX：{latest_adx:.1f} | +DI：{latest_plus_di:.1f} | -DI：{latest_minus_di:.1f}")
 
-# VWAP 格式化
-vwap_str = "無" if latest_vwap is None or pd.isna(latest_vwap) else f"{latest_vwap:.2f}"
+    # VWAP 格式化
+    vwap_str = "無" if latest_vwap is None or pd.isna(latest_vwap) else f"{latest_vwap:.2f}"
 
-# 格式化印出（改為 TMO / ADX / candle_type）
-print(f"[INFO] {symbol} | 價格: {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:+.2f} | "
-f"VWAP: {vwap_str} | 量能: {volume_ratio:.1f}x | EMA5>EMA20: {ema_cross} | KD: {kd_status} | K棒: {candle_type}")
-print(f"📐 ADX: {latest_adx:.1f} | +DI: {latest_plus_di:.1f} | -DI: {latest_minus_di:.1f}")
+    # 格式化印出（改為 TMO / ADX / candle_type）
+    print(f"[INFO] {symbol} | 價格: {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:+.2f} | "
+    f"VWAP: {vwap_str} | 量能: {volume_ratio:.1f}x | EMA5>EMA20: {ema_cross} | KD: {kd_status} | K棒: {candle_type}")
+    print(f"📐 ADX: {latest_adx:.1f} | +DI: {latest_plus_di:.1f} | -DI: {latest_minus_di:.1f}")
 
-# 檢查 VWAP 是否為空值（避免除錯失敗）
-if latest_vwap is None or pd.isna(latest_vwap):
-    print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
-    return None
+    # 檢查 VWAP 是否為空值（避免除錯失敗）
+    if latest_vwap is None or pd.isna(latest_vwap):
+        print(f"[WARNING] VWAP 為 NaN，跳過：{symbol}")
+        return None
 
 
 def evaluate_breakout_signal(df):
