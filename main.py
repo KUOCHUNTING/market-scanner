@@ -691,13 +691,13 @@ def run_scanner(tick_series):
         uccess_count = 0
         fail_count = 0
 
-       for symbol in stock_list:
-           df = fetch_stock_data(symbol)
+        for symbol in stock_list:
+            df = fetch_stock_data(symbol)
 
-           if df is None or df.empty or 'close' not in df.columns:
-               print(f"[WARNING] {symbol} 無效 df，跳過")
-               fail_count += 1
-               continue
+            if df is None or df.empty or 'close' not in df.columns:
+                print(f"[WARNING] {symbol} 無效 df，跳過")
+                fail_count += 1
+                continue
 
     # 最新價格
     latest_price = df['close'].iloc[-1]
