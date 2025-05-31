@@ -145,68 +145,48 @@ def fetch_stock_data(symbol):
             adjusted=True
         )
 
-        # ✅ 插入這段來正確取得 bars 清單
-        bars = None
-        if hasattr(aggs, 'results'):
-            bars = aggs.results
-        elif isinstance(aggs, list):
-            bars = aggs
-        else:
-            print(f"[ERROR] 無法處理 aggs 結構：{symbol}")
-            return None
-    except Exception as e:
-        print(f"[ERROR] 抓取 bars 時發生錯誤：{e}")
-        return None
-
-# ✅ bars 必須是非空 list
+        # ✅ 取得 bars 清單
+        bars = aggs.results if hasattr(aggs, 'results') else (aggs if isinstance(aggs, list) else None)
         if not bars or not isinstance(bars, list):
-            print(f"[WARNING] 無效 bars（非 list）：{symbol}")
+            print(f"[WARNING] 無效 bars：{symbol}")
             return None
 
-        required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
         cleaned_bars = []
 
         for bar in bars:
             if hasattr(bar, '__dict__'):
                 bar = vars(bar)
             elif not isinstance(bar, dict):
-                print(f"[ERROR] 非法 bar 結構：{bar}")
                 continue
 
-# ✅ 自動抓時間欄位
-cleaned_bars = []
+            time_key = "timestamp" if "timestamp" in bar else ("t" if "t" in bar else None)
+            if time_key is None or bar[time_key] is None:
+                continue
 
-for bar in bars:  # ✅ 必須要有這個 for 迴圈
-    time_key = "timestamp" if "timestamp" in bar else ("t" if "t" in bar else None)
-    if time_key is None or bar[time_key] is None:
-        print(f"[WARNING] 無有效時間欄位（{symbol}）：{bar}")
-        continue  # ✅ 這時才合法，因為在 for 迴圈裡
+            bar["timestamp"] = bar[time_key]
 
-    bar["timestamp"] = bar[time_key]  # 統一欄位名稱為 timestamp，後面 DataFrame 可用
+            required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
+            if not all(field in bar and bar[field] is not None for field in required_fields):
+                continue
 
-# ✅ 確保有 timestamp 等欄位
-    required_fields = ["timestamp", "open", "high", "low", "close", "volume"]
-    if not all(field in bar and bar[field] is not None for field in required_fields):
-        print(f"[WARNING] 缺少必要欄位: {bar}")
-        continue
-def fetch_stock_data(symbol):
-    cleaned_bars = []
-    for bar in bars:
-        # 所有 continue 與欄位檢查
-        cleaned_bars.append(bar)
+            cleaned_bars.append(bar)
 
-    if len(cleaned_bars) == 0:
-        print(f"[WARNING] 無有效 K 棒資料：{symbol}")
-        return None  # ✅ 正確位置
+        if len(cleaned_bars) == 0:
+            print(f"[WARNING] 無有效 K 棒資料：{symbol}")
+            return None
 
-    # ✅ 建立 DataFrame 並轉換欄位
-    df = pd.DataFrame(cleaned_bars)
-    df['timestamp'] = [bar.get("timestamp") or bar.get("t") for bar in cleaned_bars]
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')  # ✅ 這裡就用 'timestamp' 了
+        # ✅ 建立 DataFrame 並轉換欄位
+        df = pd.DataFrame(cleaned_bars)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
 
-    # ✅ 插入這段判斷：K棒資料太少就跳過
-    if len(df) < 15:
-        print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
+        if len(df) < 15:
+            print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
+            return None
+
+        return df
+
+    except Exception as e:
+        print(f"[ERROR] {symbol} 資料抓取失敗：{e}")
         return None
         
     candle_type = detect_candle_pattern(df)
