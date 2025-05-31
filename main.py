@@ -136,11 +136,11 @@ cleaned_bars = []
 
 for bar in bars:
 # ✅ 如果是 Agg 類別，就轉成 dict
-if hasattr(bar, '__dict__'):
-    bar = vars(bar)
-elif not isinstance(bar, dict):
-    print(f"[ERROR] 非法 bar 結構：{bar}")
-    continue
+    if hasattr(bar, '__dict__'):
+        bar = vars(bar)
+    elif not isinstance(bar, dict):
+        print(f"[ERROR] 非法 bar 結構：{bar}")
+        continue
 
 # ✅ 自動抓時間欄位
 time_key = "timestamp" if "timestamp" in bar else ("t" if "t" in bar else None)
