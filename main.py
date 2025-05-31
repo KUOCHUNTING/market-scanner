@@ -494,4 +494,4 @@ def run_scanner():
 
 # === 程式入口點 ===
 if __name__ == "__main__":
-run_scanner()
+    run_scanner()
