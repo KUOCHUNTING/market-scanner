@@ -65,36 +65,57 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
 
-def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio, rsi, tmo, candle_type, remark):
+def write_to_sheet(
+    symbol, direction, signal_type, entry_price, exit_price, pnl, holding_time,
+    rsi, tmo, vwap, volume_ratio, ema_cross, kd_status, candle_type,
+    adx, plus_di, minus_di, tick_percentile, tick_slope, trin_value,
+    strategy_version, confidence_score, note
+):
     try:
         import gspread
         from oauth2client.service_account import ServiceAccountCredentials
         from datetime import datetime
 
+        # ✅ 認證與連線設定
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
+
         sheet = client.open("Trading Log").worksheet("交易紀錄")
 
+        # ✅ 要寫入的資料列
         row = [
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             symbol,
             direction,
-            f"{pnl * 100:.2f}%",
+            signal_type,
             entry_price,
             exit_price,
-            f"{volume_ratio:.2f}x",
-            f"{rsi:.1f}",
-            f"{tmo:.2f}",
+            f"{pnl*100:.2f}%" if pnl is not None else "",
+            holding_time,
+            f"{rsi:.1f}" if rsi is not None else "",
+            f"{tmo:.1f}" if tmo is not None else "",
+            f"{vwap:.2f}" if vwap is not None else "",
+            f"{volume_ratio:.2f}" if volume_ratio is not None else "",
+            ema_cross,
+            kd_status,
             candle_type,
-            remark
+            f"{adx:.1f}" if adx is not None else "",
+            f"{plus_di:.1f}" if plus_di is not None else "",
+            f"{minus_di:.1f}" if minus_di is not None else "",
+            f"{tick_percentile:.1f}" if tick_percentile is not None else "",
+            f"{tick_slope:.1f}" if tick_slope is not None else "",
+            f"{trin_value:.2f}" if trin_value is not None else "",
+            strategy_version,
+            confidence_score,
+            note
         ]
 
+        # ✅ 寫入工作表
         sheet.append_row(row)
-        print(f"[✅ 已寫入 Sheets] {symbol} - {remark}")
 
     except Exception as e:
-        print(f"[ERROR] 寫入 Google Sheets 失敗：{e}")
+        print(f"[寫入錯誤] Google Sheets 寫入失敗：{e}")
 
 def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
        """
