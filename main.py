@@ -146,31 +146,50 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
 
-write_to_sheet(
-    symbol=symbol,
-    direction=direction,
-    signal_type="出場",
-    entry_price=entry_price,
-    exit_price=exit_price,
-    pnl=return_rate,
-    holding_time=holding_time,
-    rsi=None,
-    tmo=None,
-    vwap=None,
-    volume_ratio=None,
-    ema_cross=None,
-    kd_status=None,
-    candle_type=None,
-    adx=None,
-    plus_di=None,
-    minus_di=None,
-    tick_percentile=None,
-    tick_slope=None,
-    trin_value=None,
-    strategy_version=entry_data['strategy'],
-    confidence_score=entry_data['confidence'],
-    note=reason
-)
+def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio, rsi, tmo,
+                   candle_type, remark, holding_time, vwap, ema_cross, kd_status,
+                   adx, plus_di, minus_di, tick_percentile, tick_slope,
+                   trin_value, strategy_version, confidence_score, signal_type):
+    try:
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from datetime import datetime
+
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("Trading Log").worksheet("交易紀錄")
+
+        row = [
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            symbol,
+            direction,
+            signal_type,
+            entry_price,
+            exit_price,
+            round(pnl * 100, 2),
+            holding_time,
+            rsi,
+            tmo,
+            vwap,
+            volume_ratio,
+            ema_cross,
+            kd_status,
+            candle_type,
+            adx,
+            plus_di,
+            minus_di,
+            tick_percentile,
+            tick_slope,
+            trin_value,
+            strategy_version,
+            confidence_score,
+            remark
+        ]
+        sheet.append_row(row)
+    except Exception as e:
+        print(f"[ERROR] 寫入交易紀錄失敗：{e}")
+        
     try:
         import gspread
         from oauth2client.service_account import ServiceAccountCredentials
