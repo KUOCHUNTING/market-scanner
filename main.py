@@ -14,7 +14,7 @@ import requests
 import requests
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
-def push_to_discord(message):
+def send_to_discord(message):  # ✅ 安全不會衝突
     try:
         payload = {"content": message}
         requests.post(DISCORD_WEBHOOK_URL, json=payload)
@@ -580,7 +580,7 @@ def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
             f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
             "大盤動能轉強，觀察個股多方機會"
         )
-        push_to_discord(message)
+       send_to_discord(message)
 
     elif tick_percentile < 50 and tick_slope < 0 and trin_value > 1.0:
         message = (
@@ -588,7 +588,7 @@ def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
             f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
             "大盤動能轉弱，注意個股風險與回檔"
         )
-        push_to_discord(message)
+        send_to_discord(message)
 
 # ✅ 接著模擬自動進出場
 def analyze_signal_and_return(symbol, df, latest_price, latest_open, latest_high, latest_low, latest_volume,
