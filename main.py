@@ -654,7 +654,7 @@ def get_tick_series():
 def get_tick_percentile(tick_series):
     if tick_series is None or tick_series.empty:
         print("[WARNING] tick_series 是空的，無法計算百分位")
-        return None
+        return Noneg
     try:
         current_tick = tick_series.iloc[-1]
         rank = (tick_series < current_tick).sum()
@@ -877,6 +877,44 @@ if __name__ == "__main__":
     else:
         tick_percentile = None
         print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
+
+    # ✅ 加入 TICK 推播訊號區（極端值 / 潛伏多空）
+    tick_slope = get_tick_slope(tick_series)
+    current_tick = tick_series.iloc[-1]
+    trin_value = get_trin_value()
+
+    if tick_percentile is not None and tick_slope is not None and trin_value is not None:
+        if tick_percentile > 50 and tick_slope > 0 and trin_value < 1.0:
+            message = (
+                f"📊 **[大盤潛伏多頭]**\n"
+                f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
+                "大盤動能轉強，觀察個股多方機會"
+            )
+            send_to_discord(message)
+
+        if tick_percentile < 5 and tick_slope < 0 and trin_value > 1.0:
+            message = (
+                f"📉 **[大盤潛伏空頭]**\n"
+                f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
+                "大盤動能轉弱，觀察個股空方壓力"
+            )
+            send_to_discord(message)
+
+        if current_tick > 1000:
+            message = (
+                f"🚀 **[TICK 極端多頭]**\n"
+                f"TICK 當前值：{current_tick:.0f}｜斜率：+{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
+                "市場情緒極端偏多，短線可能急拉"
+            )
+            send_to_discord(message)
+
+        if current_tick < -1000:
+            message = (
+                f"⚠️ **[TICK 極端空頭]**\n"
+                f"TICK 當前值：{current_tick:.0f}｜斜率：{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
+                "市場情緒極端偏空，短線恐慌賣壓湧現"
+            )
+            send_to_discord(message
 
     # ✅ 正確接住回傳值
     success_count, fail_count = run_scanner(tick_series)
