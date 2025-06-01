@@ -512,9 +512,9 @@ from datetime import datetime
 
 entry_price_dict = {}
 positions = {}  # 持倉記錄：{symbol: {...}}
-total_capital = 100000
+total_capital = 1000000
 position_size_pct = 0.05
-max_positions = 5
+max_positions = 15
 capital_left = total_capital
 
 def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
