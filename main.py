@@ -580,7 +580,7 @@ def check_market_latent_signals(tick_percentile, tick_slope, trin_value):
             f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.2f}｜TRIN：{trin_value:.2f}\n"
             "大盤動能轉強，觀察個股多方機會"
         )
-       send_to_discord(message)
+        send_to_discord(message)
 
     elif tick_percentile < 50 and tick_slope < 0 and trin_value > 1.0:
         message = (
