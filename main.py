@@ -136,6 +136,7 @@ def write_tick_to_sheet(tick_value, tick_percentile, tick_slope, trin_value):
         now_est = datetime.now(timezone("US/Eastern")).strftime("%Y-%m-%d %H:%M:%S")
         row = [now_est, tick_value, tick_percentile, tick_slope, trin_value]
         sheet.append_row(row)
+        print(f"[INFO] ✅ TICK 已寫入 Sheets：{now_est}")
     except Exception as e:
         print(f"[ERROR] TICK 寫入失敗：{e}")
 
