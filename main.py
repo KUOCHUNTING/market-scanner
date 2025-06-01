@@ -58,6 +58,57 @@ def get_tick_series(minutes=30):
         print(f"[ERROR] 抓取 TICK 資料失敗：{e}")
         return pd.Series()
 
+# 動態風控參數
+TRAIL_TRIGGER = 0.03  # +3% 啟動追蹤停利
+TRAIL_MARGIN = 0.015  # 回落超過 1.5% 即出場
+DEFAULT_STOP_LOSS = 0.02
+DEFAULT_TAKE_PROFIT = 0.05
+
+def check_exit_and_notify_dynamic(symbol, latest_price, now):
+    if symbol not in positions:
+        return
+
+    entry_data = positions[symbol]
+    entry_price = entry_data['entry_price']
+    direction = entry_data['direction']
+    capital_used = entry_data['capital_used']
+    entry_time = entry_data['entry_time']
+    
+    holding_time = int((now - entry_time).total_seconds())
+    return_rate = (latest_price - entry_price) / entry_price if direction == "多" else (entry_price - latest_price) / entry_price
+
+    # ✅ 停利停損條件判斷（含浮動停利）
+    should_exit = False
+    reason = ""
+
+    if return_rate >= DEFAULT_TAKE_PROFIT:
+        should_exit = True
+        reason = f"🎯 達標停利 +{return_rate*100:.2f}%"
+
+    elif return_rate >= TRAIL_TRIGGER and entry_data.get("max_gain", 0) - return_rate > TRAIL_MARGIN:
+        should_exit = True
+        reason = f"🔁 漲後回落超過 {TRAIL_MARGIN*100:.1f}%，出場鎖利"
+
+    elif return_rate <= -DEFAULT_STOP_LOSS:
+        should_exit = True
+        reason = f"🛑 達標停損 -{return_rate*100:.2f}%"
+
+    # ✅ 實際出場流程
+    if should_exit:
+        exit_price = latest_price
+        capital_left += capital_used
+        del positions[symbol]
+        
+        print(f"[出場] {symbol} @ {exit_price:.2f}｜{reason}")
+        
+        # ✅ 推播＋寫入 Sheets
+        write_to_sheet(...)  # 你原本的交易紀錄函數
+        send_to_discord(f"💼 **[{symbol}] 出場** @ {exit_price:.2f}\n📉 原因：{reason}\n⏱️ 持倉：{holding_time//60} 分鐘")
+
+    # ✅ 若還在持倉中，更新歷史最大報酬率（用於追蹤停利）
+    else:
+        entry_data['max_gain'] = max(entry_data.get("max_gain", 0), return_rate)
+
 def get_tick_percentile(tick_series):
     """回傳目前 TICK 值在歷史序列中的百分位位置"""
     if tick_series is None or tick_series.empty:
@@ -842,6 +893,8 @@ def run_scanner(tick_series):
         direction = 'short'
 
     # === Step 4: 模擬進場 ===
+    check_exit_and_notify(symbol, latest_price)
+    
     if signal_note and symbol not in entry_price_dict and len(positions_held) < max_positions:
         allocated = total_capital * position_size_pct
         if capital_left >= allocated:
@@ -854,6 +907,8 @@ def run_scanner(tick_series):
             send_to_discord(f"{signal_note} {symbol} @ {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f} | K: {candle_type}")
 
     # === Step 5: 出場條件 ===
+    check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
+    
     if symbol in entry_price_dict and symbol in entry_direction_dict:
         entry_price = entry_price_dict[symbol]
         direction = entry_direction_dict[symbol]
