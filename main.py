@@ -941,3 +941,33 @@ if __name__ == "__main__":
     success_count, fail_count = run_scanner(tick_series)
     efficiency = round(success_count / (success_count + fail_count + 1e-6) * 100, 2)
     print(f"\n[統計] ✅ 成功 {success_count} 檔，❌ 失敗 {fail_count} 檔，有效率：{efficiency}%")
+
+    ✅ 統計 df_log 交易資料（這區建議你主程式原本就有）
+    total_trades = len(df_log)
+    win_count = len(df_log[df_log['pnl'] > 0])
+    lose_count = len(df_log[df_log['pnl'] <= 0])
+    total_pnl = df_log['pnl'].sum() * 100
+    max_profit = df_log['pnl'].max() * 100
+    max_loss = df_log['pnl'].min() * 100
+
+    avg_seconds = df_log['holding_time'].mean()
+    hours = int(avg_seconds // 3600)
+    minutes = int((avg_seconds % 3600) // 60)
+    avg_holding_time_str = f"{hours} 小時 {minutes} 分"
+
+    # ✅ 建立 summary_row
+    summary_row = {
+        "日期": datetime.now().strftime("%Y-%m-%d"),
+        "策略版本": "v4.2",
+        "總交易次數": total_trades,
+        "勝場": win_count,
+        "敗場": lose_count,
+        "勝率": f"{(win_count / total_trades * 100):.1f}%",
+        "總報酬率": f"{total_pnl:.2f}%",
+        "最大獲利": f"{max_profit:.2f}%",
+        "最大虧損": f"{max_loss:.2f}%",
+        "平均持倉時間": avg_holding_time_str
+    }
+    # ✅ 每日總結統計 + 推播（就在這裡補上）
+    write_summary_to_sheets(summary_row)
+    send_summary_to_discord(summary_row)
