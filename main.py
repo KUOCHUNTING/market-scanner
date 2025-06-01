@@ -952,7 +952,7 @@ if __name__ == "__main__":
     print("[INFO] 等待 60 秒再執行下一輪...")
     time.sleep(60)
 
-    ✅ 統計 df_log 交易資料（這區建議你主程式原本就有）
+    #✅ 統計 df_log 交易資料（這區建議你主程式原本就有）
     total_trades = len(df_log)
     win_count = len(df_log[df_log['pnl'] > 0])
     lose_count = len(df_log[df_log['pnl'] <= 0])
