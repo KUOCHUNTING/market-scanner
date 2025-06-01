@@ -69,6 +69,25 @@ def get_tick_percentile(tick_series):
     percentile = rank / len(sorted_series) * 100
     return round(percentile, 2)
 
+# ✅ 就貼在這區塊的下方
+def write_tick_to_sheet(tick_value, tick_percentile, tick_slope, trin_value):
+    try:
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from datetime import datetime
+        from pytz import timezone
+
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("Trading Log").worksheet("TICK紀錄")
+
+        now_est = datetime.now(timezone("US/Eastern")).strftime("%Y-%m-%d %H:%M:%S")
+        row = [now_est, tick_value, tick_percentile, tick_slope, trin_value]
+        sheet.append_row(row)
+    except Exception as e:
+        print(f"[ERROR] TICK 寫入失敗：{e}")
+
 # === 系統模組 ===
 import os
 import requests
