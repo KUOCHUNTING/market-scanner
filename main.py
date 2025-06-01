@@ -914,7 +914,7 @@ if __name__ == "__main__":
                 f"TICK 當前值：{current_tick:.0f}｜斜率：{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
                 "市場情緒極端偏空，短線恐慌賣壓湧現"
             )
-            send_to_discord(message
+            send_to_discord(message)
 
     # ✅ 正確接住回傳值
     success_count, fail_count = run_scanner(tick_series)
