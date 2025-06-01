@@ -890,57 +890,67 @@ print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，
 
 # ✅ 主程式入口
 if __name__ == "__main__":
-    tick_series = get_tick_series()
+    while True:
+        tick_series = get_tick_series()
 
-    if tick_series is not None and not tick_series.empty:
-        tick_percentile = get_tick_percentile(tick_series)
-        print(f"[INFO] 當前 TICK 百分位：{tick_percentile:.2f}")
-    else:
-        tick_percentile = None
-        print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
+        if tick_series is not None and not tick_series.empty:
+            tick_percentile = get_tick_percentile(tick_series)
+            print(f"[INFO] 當前 TICK 百分位：{tick_percentile:.2f}")
+        else:
+            tick_percentile = None
+            print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
-    # ✅ 加入 TICK 推播訊號區（極端值 / 潛伏多空）
-    tick_slope = get_tick_slope(tick_series)
-    current_tick = tick_series.iloc[-1]
-    trin_value = get_trin_value()
+        tick_slope = get_tick_slope(tick_series)
+        current_tick = tick_series.iloc[-1]
+        trin_value = get_trin_value()
 
-    if tick_percentile is not None and tick_slope is not None and trin_value is not None:
-        if tick_percentile > 50 and tick_slope > 0 and trin_value < 1.0:
-            message = (
-                f"📊 **[大盤潛伏多頭]**\n"
-                f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
-                "大盤動能轉強，觀察個股多方機會"
-            )
-            send_to_discord(message)
+        if tick_percentile is not None and tick_slope is not None and trin_value is not None:
+            if tick_percentile > 50 and tick_slope > 0 and trin_value < 1.0:
+                message = (
+                    f"📊 **[大盤潛伏多頭]**\n"
+                    f"TICK 百分位：{tick_percentile:.1f}｜斜率：+{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
+                    "大盤動能轉強，觀察個股多方機會"
+                )
+                send_to_discord(message)
 
-        if tick_percentile < 5 and tick_slope < 0 and trin_value > 1.0:
-            message = (
-                f"📉 **[大盤潛伏空頭]**\n"
-                f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
-                "大盤動能轉弱，觀察個股空方壓力"
-            )
-            send_to_discord(message)
+            if tick_percentile < 5 and tick_slope < 0 and trin_value > 1.0:
+                message = (
+                    f"📉 **[大盤潛伏空頭]**\n"
+                    f"TICK 百分位：{tick_percentile:.1f}｜斜率：{tick_slope:.0f}｜TRIN：{trin_value:.2f}\n"
+                    "大盤動能轉弱，觀察個股空方壓力"
+                )
+                send_to_discord(message)
 
-        if current_tick > 1000:
-            message = (
-                f"🚀 **[TICK 極端多頭]**\n"
-                f"TICK 當前值：{current_tick:.0f}｜斜率：+{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
-                "市場情緒極端偏多，短線可能急拉"
-            )
-            send_to_discord(message)
+            if current_tick > 1000:
+                message = (
+                    f"🚀 **[TICK 極端多頭]**\n"
+                    f"TICK 當前值：{current_tick:.0f}｜斜率：+{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
+                    "市場情緒極端偏多，短線可能急拉"
+                )
+                send_to_discord(message)
 
-        if current_tick < -1000:
-            message = (
-                f"⚠️ **[TICK 極端空頭]**\n"
-                f"TICK 當前值：{current_tick:.0f}｜斜率：{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
-                "市場情緒極端偏空，短線恐慌賣壓湧現"
-            )
-            send_to_discord(message)
+            if current_tick < -1000:
+                message = (
+                    f"⚠️ **[TICK 極端空頭]**\n"
+                    f"TICK 當前值：{current_tick:.0f}｜斜率：{tick_slope:.0f}｜百分位：{tick_percentile:.1f}\n"
+                    "市場情緒極端偏空，短線恐慌賣壓湧現"
+                )
+                send_to_discord(message)
 
-    # ✅ 正確接住回傳值
-    success_count, fail_count = run_scanner(tick_series)
-    efficiency = round(success_count / (success_count + fail_count + 1e-6) * 100, 2)
-    print(f"\n[統計] ✅ 成功 {success_count} 檔，❌ 失敗 {fail_count} 檔，有效率：{efficiency}%")
+        # ✅ 執行掃描器
+        success_count, fail_count = run_scanner(tick_series)
+        efficiency = round(success_count / (success_count + fail_count + 1e-6) * 100, 2)
+        print(f"\n[統計] ✅ 成功 {success_count} 檔，❌ 失敗 {fail_count} 檔，有效率：{efficiency}%")
+
+        # ✅ 可加每日統計與推播（選配）
+        # generate_and_push_summary(df_log)
+
+    except Exception as e:
+        print(f"[ERROR] 掃描輪出錯：{e}")
+        time.sleep(30)    
+        
+    print("[INFO] 等待 60 秒再執行下一輪...")
+    time.sleep(60)
 
     ✅ 統計 df_log 交易資料（這區建議你主程式原本就有）
     total_trades = len(df_log)
