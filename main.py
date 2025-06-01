@@ -58,6 +58,17 @@ def get_tick_series(minutes=30):
         print(f"[ERROR] 抓取 TICK 資料失敗：{e}")
         return pd.Series()
 
+def get_tick_percentile(tick_series):
+    """回傳目前 TICK 值在歷史序列中的百分位位置"""
+    if tick_series is None or tick_series.empty:
+        print("[WARNING] tick_series 是空的，無法計算百分位")
+        return None
+    current_tick = tick_series.iloc[-1]
+    sorted_series = tick_series.sort_values()
+    rank = sorted_series[sorted_series <= current_tick].count()
+    percentile = rank / len(sorted_series) * 100
+    return round(percentile, 2)
+
 # === 系統模組 ===
 import os
 import requests
@@ -900,9 +911,11 @@ if __name__ == "__main__":
             tick_percentile = None
             print("[WARNING] tick_series 是空的，跳過 tick 百分位計算")
 
-        tick_slope = get_tick_slope(tick_series)
-        current_tick = tick_series.iloc[-1]
-        trin_value = get_trin_value()
+        tick_series = get_tick_series()                       # 🟢 第一步：先抓 TICK 序列
+        tick_percentile = get_tick_percentile(tick_series)    # 🟢 第二步：算百分位
+        tick_slope = get_tick_slope(tick_series)              # 🟢 第三步：算斜率
+        current_tick = tick_series.iloc[-1]                   # 🟢 第四步：抓當前值
+        trin_value = get_trin_value()                         # 🟢 第五步：TRIN 指標
 
         if tick_percentile is not None and tick_slope is not None and trin_value is not None:
             if tick_percentile > 50 and tick_slope > 0 and trin_value < 1.0:
@@ -936,6 +949,9 @@ if __name__ == "__main__":
                     "市場情緒極端偏空，短線恐慌賣壓湧現"
                 )
                 send_to_discord(message)
+
+            # ✅ 寫入 TICK 歷史紀錄到 Google Sheets
+            write_tick_to_sheet(current_tick, tick_percentile, tick_slope, trin_value)
 
     try:   # ✅ 執行掃描器
         success_count, fail_count = run_scanner(tick_series)
