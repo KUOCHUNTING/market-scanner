@@ -937,7 +937,7 @@ if __name__ == "__main__":
                 )
                 send_to_discord(message)
 
-        # ✅ 執行掃描器
+    try:   # ✅ 執行掃描器
         success_count, fail_count = run_scanner(tick_series)
         efficiency = round(success_count / (success_count + fail_count + 1e-6) * 100, 2)
         print(f"\n[統計] ✅ 成功 {success_count} 檔，❌ 失敗 {fail_count} 檔，有效率：{efficiency}%")
