@@ -985,111 +985,110 @@ def run_scanner(tick_series):
             print(f"[ERROR] {symbol} 發生錯誤：{e}")
             fail_count += 1
 
-    # === Step 3: 判斷進場條件 ===
-    signal_note = None
-    direction = None
+            # === Step 3: 判斷進場條件 ===
+            signal_note = None
+            direction = None
 
-    # === Step 3: 潛伏訊號偵測 + 推播 ===
-    signal_note = detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap)
+            # === Step 3: 潛伏訊號偵測 + 推播 ===
+            signal_note = detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap)
+            if signal_note:
+                message = (
+                    f"{signal_note} {symbol}\n"
+                    f"收盤：{latest_price:.2f}｜RSI: {latest_rsi:.1f}｜TMO: {latest_tmo:.2f}｜"
+                    f"VWAP: {latest_vwap:.2f}｜量：{volume_ratio:.2f}x"
+                )
+                send_to_discord(message)
 
-    if signal_note:
-        message = (
-            f"{signal_note} {symbol}\n"
-            f"收盤：{latest_price:.2f}｜RSI: {latest_rsi:.1f}｜TMO: {latest_tmo:.2f}｜"
-            f"VWAP: {latest_vwap:.2f}｜量：{volume_ratio:.2f}x"
-        )
-        send_to_discord(message)
+            # 🐸 多頭訊號：符合多項條件
+            if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
+                signal_note = "🐸 正式進場 - 多頭"
+                direction = 'long'
 
-    # 🐸 多頭訊號：符合多項條件
-    if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
-        signal_note = "🐸 正式進場 - 多頭"
-        direction = 'long'
-
-    # 🐶 空頭訊號（你可以另外定義條件）
-    elif latest_rsi > 70 and latest_price < latest_vwap and latest_tmo < 0 and volume_ratio > 1.5 and candle_type == "陰線":
-        signal_note = "🐶 正式進場 - 空頭"
-        direction = 'short'
+            # 🐶 空頭訊號（你可以另外定義條件）
+            elif latest_rsi > 70 and latest_price < latest_vwap and latest_tmo < 0 and volume_ratio > 1.5 and candle_type == "陰線":
+                signal_note = "🐶 正式進場 - 空頭"
+                direction = 'short'
 
     # === Step 4: 模擬進場 ===
-    check_exit_and_notify(symbol, latest_price)
+            check_exit_and_notify(symbol, latest_price)
     
-    if signal_note and symbol not in entry_price_dict and len(positions_held) < max_positions:
-        allocated = total_capital * position_size_pct
-        if capital_left >= allocated:
-            entry_price_dict[symbol] = latest_price
-            positions_held[symbol] = allocated
-            entry_direction_dict[symbol] = direction
-            capital_left -= allocated
-            entry_time_dict[symbol] = datetime.now()  # ✅ 記錄進場時間
-            print(f"[ENTRY] {symbol} 進場 ({direction}) @ {latest_price:.2f}，資金 ${allocated:.2f}，剩餘 ${capital_left:.2f}")
-            send_to_discord(f"{signal_note} {symbol} @ {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f} | K: {candle_type}")
+            if signal_note and symbol not in entry_price_dict and len(positions_held) < max_positions:
+                allocated = total_capital * position_size_pct
+                if capital_left >= allocated:
+                    entry_price_dict[symbol] = latest_price
+                    positions_held[symbol] = allocated
+                    entry_direction_dict[symbol] = direction
+                    capital_left -= allocated
+                    entry_time_dict[symbol] = datetime.now()  # ✅ 記錄進場時間
+                    print(f"[ENTRY] {symbol} 進場 ({direction}) @ {latest_price:.2f}，資金 ${allocated:.2f}，剩餘 ${capital_left:.2f}")
+                    send_to_discord(f"{signal_note} {symbol} @ {latest_price:.2f} | RSI: {latest_rsi:.1f} | TMO: {latest_tmo:.2f} | 倍量: {volume_ratio:.2f} | K: {candle_type}")
 
     # === Step 5: 出場條件 ===
-    check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
+            check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
     
-    if symbol in entry_price_dict and symbol in entry_direction_dict:
-        entry_price = entry_price_dict[symbol]
-        direction = entry_direction_dict[symbol]
+            if symbol in entry_price_dict and symbol in entry_direction_dict:
+                entry_price = entry_price_dict[symbol]
+                direction = entry_direction_dict[symbol]
 
-        if direction == 'long':
-            pnl = (latest_price - entry_price) / entry_price
-        elif direction == 'short':
-            pnl = (entry_price - latest_price) / entry_price
-        else:
-            pnl = 0
+                if direction == 'long':
+                    pnl = (latest_price - entry_price) / entry_price
+                elif direction == 'short':
+                    pnl = (entry_price - latest_price) / entry_price
+                else:
+                    pnl = 0
 
-        if pnl >= 0.05:
-            send_to_discord(f"🎯 **[停利出場]** {symbol} | 報酬：+{pnl*100:.2f}%")
-            capital_left += positions_held[symbol]
+                if pnl >= 0.05:
+                    send_to_discord(f"🎯 **[停利出場]** {symbol} | 報酬：+{pnl*100:.2f}%")
+                    capital_left += positions_held[symbol]
 
-            # ✅ 出場寫入紀錄
-            write_to_sheet(
-                symbol=symbol,
-                direction=direction,
-                pnl=pnl,
-                entry_price=entry_price,
-                exit_price=latest_price,
-                volume_ratio=volume_ratio,
-                rsi=latest_rsi,
-                tmo=latest_tmo,
-                candle_type=candle_type,
-                remark="停利出場"
-            )
+                    # ✅ 出場寫入紀錄
+                    write_to_sheet(
+                        symbol=symbol,
+                        direction=direction,
+                        pnl=pnl,
+                        entry_price=entry_price,
+                        exit_price=latest_price,
+                        volume_ratio=volume_ratio,
+                        rsi=latest_rsi,
+                        tmo=latest_tmo,
+                        candle_type=candle_type,
+                        remark="停利出場"
+                    )
 
-            del entry_price_dict[symbol]
-            del positions_held[symbol]
-            del entry_direction_dict[symbol]
-        elif pnl <= -0.02:
-            send_to_discord(f"🛑 **[停損出場]** {symbol} | 報酬：{pnl*100:.2f}%")
-            capital_left += positions_held[symbol]
+                    del entry_price_dict[symbol]
+                    del positions_held[symbol]
+                    del entry_direction_dict[symbol]
+                elif pnl <= -0.02:
+                    send_to_discord(f"🛑 **[停損出場]** {symbol} | 報酬：{pnl*100:.2f}%")
+                    capital_left += positions_held[symbol]
 
-            write_to_sheet(
-                symbol=symbol,
-                direction=direction,
-                pnl=pnl,
-                entry_price=entry_price,
-                exit_price=latest_price,
-                volume_ratio=volume_ratio,
-                rsi=latest_rsi,
-                tmo=latest_tmo,
-                candle_type=candle_type,
-                remark="停損出場"
-            )
+                    write_to_sheet(
+                        symbol=symbol,
+                        direction=direction,
+                        pnl=pnl,
+                        entry_price=entry_price,
+                        exit_price=latest_price,
+                        volume_ratio=volume_ratio,
+                        rsi=latest_rsi,
+                        tmo=latest_tmo,
+                        candle_type=candle_type,
+                        remark="停損出場"
+                    )
 
-            del entry_price_dict[symbol]
-            del positions_held[symbol]
-            del entry_direction_dict[symbol]
-        success_count += 1
-        # 可加入推播 / 儲存 / 分類
-    else:
-        fail_count += 1
+                    del entry_price_dict[symbol]
+                    del positions_held[symbol]
+                    del entry_direction_dict[symbol]
+                success_count += 1
+                # 可加入推播 / 儲存 / 分類
+            else:
+                fail_count += 1
         
-# 執行掃描並接收統計結果
-tick_series = get_tick_series()
-success_count, fail_count = run_scanner(tick_series)
+        # 執行掃描並接收統計結果
+        tick_series = get_tick_series()
+        success_count, fail_count = run_scanner(tick_series)
 
-# 印出統計結果
-print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
+        # 印出統計結果
+        print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
 # ✅ 主程式入口
 if __name__ == "__main__":
