@@ -359,8 +359,8 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=5,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%d"),
-            to=end.strftime("%Y-%m-%d"),
+            from_=start.strftime("%Y-%m-%dT%H:%M:%S"),
+            to=end.strftime("%Y-%m-%dT%H:%M:%S"),
             limit=100,
             adjusted=True
         )
@@ -419,6 +419,10 @@ def analyze_stock_data(symbol, bars):
             print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
             return None
 
+        if 'close' not in df.columns or df['close'].isnull().all():
+            print(f"[WARNING] {symbol} 缺少有效收盤價")
+            return None
+
         # === 技術指標 ===
         latest_price = df['close'].iloc[-1]
 
@@ -435,7 +439,7 @@ def analyze_stock_data(symbol, bars):
         k_value = kd.stoch().iloc[-1]
         d_value = kd.stoch_signal().iloc[-1]
 
-        # TMO（自訂）
+        # TMO（你自訂的函數）
         tmo_value = calculate_tmo(df)
 
         # 過濾 NaN
@@ -457,7 +461,7 @@ def analyze_stock_data(symbol, bars):
         }
 
     except Exception as e:
-        print(f"[ERROR] {symbol} 技術指標錯誤：{e}")
+        print(f"[ERROR] {symbol} 技術分析失敗：{e}")
         return None
     
         
