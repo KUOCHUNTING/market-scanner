@@ -13,6 +13,13 @@ import pandas as pd
 import random
 import requests
 import requests
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("Trading Log").worksheet("TICK紀錄")
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
 def send_to_discord(message):  # ✅ 安全不會衝突
@@ -124,15 +131,8 @@ def get_tick_percentile(tick_series):
 # ✅ 就貼在這區塊的下方
 def write_tick_to_sheet(tick_value, tick_percentile, tick_slope, trin_value):
     try:
-        import gspread
-        from oauth2client.service_account import ServiceAccountCredentials
         from datetime import datetime
         from pytz import timezone
-
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Trading Log").worksheet("TICK紀錄")
 
         now_est = datetime.now(timezone("US/Eastern")).strftime("%Y-%m-%d %H:%M:%S")
         row = [now_est, tick_value, tick_percentile, tick_slope, trin_value]
