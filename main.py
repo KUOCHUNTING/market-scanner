@@ -5,7 +5,7 @@ from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
 from datetime import datetime  # 若還沒寫在最上面就加
 from ta.volume import OnBalanceVolumeIndicator
-
+import numpy as np
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
 import pandas as pd
