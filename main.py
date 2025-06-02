@@ -409,7 +409,7 @@ def fetch_stock_data(symbol):
         print(f"[ERROR] {symbol} 資料抓取失敗：{e}")
         return None
         
-def fetch_stock_data(symbol, bars):
+def analyze_stock_data(symbol, bars):
     try:
         df = pd.DataFrame(bars)
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
@@ -894,8 +894,10 @@ def run_scanner(tick_series):
                 if df is None or df.empty:
                     fail_count += 1
                     continue
-
-                analyze_stock_data(symbol, df.to_dict("records"))  # 這裡是技術指標計算與訊號判斷
+                    
+                bars_df = fetch_stock_data(symbol)  # ← 這個是抓資料的
+                if bars_df is not None:
+                analyze_stock_data(symbol, bars_df.to_dict("records"))  # ← 這是分析技術指標的
                 
                 success_count += 1
 
