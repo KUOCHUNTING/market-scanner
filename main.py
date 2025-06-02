@@ -349,22 +349,33 @@ def load_stock_list(filepath):
 def fetch_stock_data(symbol):
     try:
         print(f"[DEBUG] 處理中股票：{symbol}")
+
+        # 初始化 Polygon API client
         client = RESTClient(api_key=API_KEY)
+
+        # ✅ 轉換為美東時間
         est = timezone("US/Eastern")
         now = datetime.now(est)
-        end = now - timedelta(minutes=15)
-        start = end - timedelta(minutes=35)
-        print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {start} ~ {end}")
 
-        aggs = client.get_aggs(
+        # ✅ 設定時間範圍（避開未來時間）
+        end_time = now - timedelta(minutes=15)
+        start_time = end_time - timedelta(minutes=30)
+
+        # ✅ 轉為符合 API 規範的格式（無微秒、無時區）
+        from_str = start_time.strftime("%Y-%m-%dT%H:%M:%S")
+        to_str = end_time.strftime("%Y-%m-%dT%H:%M:%S")
+
+        print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {from_str} ~ {to_str}")
+
+        # ✅ 呼叫 Polygon API
+        bars = client.get_aggs(
             ticker=symbol,
-            multiplier=5,
+            multiplier=1,
             timespan="minute",
-            from_=start.strftime("%Y-%m-%dT%H:%M:%S"),
-            to=end.strftime("%Y-%m-%dT%H:%M:%S"),
-            limit=100,
+            from_=from_str,
+            to=to_str,
             adjusted=True
-        )
+        )    
 
         # ✅ 取得 bars 清單
         bars = aggs.results if hasattr(aggs, 'results') else (aggs if isinstance(aggs, list) else None)
