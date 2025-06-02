@@ -372,8 +372,8 @@ def fetch_stock_data(symbol):
             ticker=symbol,
             multiplier=1,
             timespan="minute",
-            from_=from_str,
-            to=to_str,
+            from_=from_ts,
+            to=to_ts,
             adjusted=True
         )    
 
