@@ -409,6 +409,58 @@ def fetch_stock_data(symbol):
         print(f"[ERROR] {symbol} 資料抓取失敗：{e}")
         return None
         
+def fetch_stock_data(symbol, bars):
+    try:
+        df = pd.DataFrame(bars)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+
+        if len(df) < 20:
+            print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
+            return None
+
+        # === 技術指標 ===
+        latest_price = df['close'].iloc[-1]
+
+        # RSI
+        rsi = RSIIndicator(close=df['close'], window=14).rsi().iloc[-1]
+
+        # VWAP
+        typical_price = (df['high'] + df['low'] + df['close']) / 3
+        vwap = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap.iloc[-1]
+
+        # KD（K, D）
+        kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14)
+        k_value = kd.stoch().iloc[-1]
+        d_value = kd.stoch_signal().iloc[-1]
+
+        # TMO（自訂）
+        tmo_value = calculate_tmo(df)
+
+        # 過濾 NaN
+        if any(map(np.isnan, [latest_price, rsi, latest_vwap, k_value, d_value, tmo_value])):
+            print(f"[WARNING] {symbol} 有 NaN 技術指標，跳過")
+            return None
+
+        # ✅ 顯示結果
+        print(f"✅ {symbol} 收盤：{latest_price:.2f}｜RSI：{rsi:.1f}｜TMO：{tmo_value:.2f}｜VWAP：{latest_vwap:.2f}｜K：{k_value:.1f}｜D：{d_value:.1f}")
+
+        return {
+            "symbol": symbol,
+            "price": latest_price,
+            "rsi": rsi,
+            "tmo": tmo_value,
+            "vwap": latest_vwap,
+            "k": k_value,
+            "d": d_value
+        }
+
+    except Exception as e:
+        print(f"[ERROR] {symbol} 技術指標錯誤：{e}")
+        return None
+    
+        
     candle_type = detect_candle_pattern(df)
     tmo_value = calculate_tmo(df)    
 
