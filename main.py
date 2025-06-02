@@ -419,9 +419,13 @@ def analyze_stock_data(symbol, bars):
             print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
             return None
 
+        # ✅ 收盤價檢查
         if 'close' not in df.columns or df['close'].isnull().all():
             print(f"[WARNING] {symbol} 缺少有效收盤價")
             return None
+
+        latest_price = df['close'].iloc[-1]
+        print(f"[DATA] {symbol} 最新收盤價：{latest_price:.2f}")
 
         # === 技術指標 ===
         latest_price = df['close'].iloc[-1]
