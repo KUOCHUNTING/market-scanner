@@ -897,7 +897,7 @@ def run_scanner(tick_series):
                     
                 bars_df = fetch_stock_data(symbol)  # ← 這個是抓資料的
                 if bars_df is not None:
-                analyze_stock_data(symbol, bars_df.to_dict("records"))  # ← 這是分析技術指標的
+                    analyze_stock_data(symbol, bars_df.to_dict("records"))  # ← 這是分析技術指標的
                 
                 success_count += 1
 
