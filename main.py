@@ -361,10 +361,10 @@ def fetch_stock_data(symbol):
         end_time = now - timedelta(minutes=15)
         start_time = end_time - timedelta(minutes=30)
 
-        # ✅ 轉為符合 API 規範的格式（無微秒、無時區）
-        from_str = start_time.strftime("%Y-%m-%dT%H:%M:%S")
-        to_str = end_time.strftime("%Y-%m-%dT%H:%M:%S")
-
+        # ✅ 使用 Unix timestamp（整數秒數）
+        from_ts = int(start_time.timestamp())
+        to_ts = int(end_time.timestamp())
+        
         print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {from_str} ~ {to_str}")
 
         # ✅ 呼叫 Polygon API
