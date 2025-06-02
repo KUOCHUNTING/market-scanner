@@ -290,6 +290,8 @@ WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk
 
 def push_to_discord(symbol, price, rsi, tmo, vwap, volume_ratio, ema_cross, kd_status, candle_type, adx, plus_di, minus_di, signal_note):
     try:
+        print(f"[DATA] {symbol}｜價格：${price:.2f}｜RSI：{rsi:.1f}｜TMO：{tmo:.2f}｜VWAP：{vwap:.2f}｜成交量倍數：{volume_ratio:.2f}")
+        
         vwap_text = f"{vwap:.2f}" if vwap is not None and not pd.isna(vwap) else "無"
         message = (
         f"📣 **[訊號]** {symbol}\n"
