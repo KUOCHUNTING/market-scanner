@@ -399,7 +399,7 @@ def fetch_stock_data(symbol):
         df = pd.DataFrame(cleaned_bars)
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
 
-        if len(df) < 15:
+        if len(df) < 10:
             print(f"[WARNING] {symbol} K線不足（僅 {len(df)} 筆），跳過")
             return None
 
@@ -927,6 +927,9 @@ def run_scanner(tick_series):
             if df is None or df.empty or 'close' not in df.columns:
                 fail_count += 1
                 continue
+                
+            print(f"[INFO] {symbol} K線取得成功，開始進行技術指標分析")  # ✅ 插這裡
+            
             # 技術指標
             latest_price = df['close'].iloc[-1]
             rsi = RSIIndicator(close=df['close']).rsi()
