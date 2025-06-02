@@ -895,7 +895,7 @@ def run_scanner(tick_series):
                     fail_count += 1
                     continue
 
-                # 這裡是技術指標計算與訊號判斷
+               analyze_stock_data(symbol, df.to_dict("records"))  # 這裡是技術指標計算與訊號判斷
                 ...
                 success_count += 1
 
