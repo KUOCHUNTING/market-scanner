@@ -368,7 +368,7 @@ def fetch_stock_data(symbol):
         print(f"[INFO] 正在抓取延遲15分鐘資料：{symbol} - 時間範圍 {from_ts} ~ {to_ts}")
 
         # ✅ 呼叫 Polygon API
-        bars = client.get_aggs(
+        aggs = client.get_aggs(
             ticker=symbol,
             multiplier=1,
             timespan="minute",
