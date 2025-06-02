@@ -3,7 +3,8 @@ from ta.volume import OnBalanceVolumeIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator, MACD
-from datetime import datetime  # 若還沒寫在最上面就加
+from datetime import datetime, timedelta
+from pytz import timezone
 from ta.volume import OnBalanceVolumeIndicator
 import numpy as np
 # === 自訂函數 ===
