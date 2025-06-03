@@ -20,13 +20,22 @@ def fetch_vix_data():
     today = datetime.now().strftime('%Y-%m-%d')
     start = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
     url = f"https://api.polygon.io/v2/aggs/ticker/^VIX/range/1/day/{start}/{today}?adjusted=true&sort=desc&limit=2&apiKey={POLYGON_API_KEY}"
-    res = requests.get(url)
+
+    try:
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+    except Exception as e:
+        print(f"[ERROR] VIX 抓取失敗：{e}")
+        return None, None, None, "❓ API錯誤"
+
     data = res.json().get("results", [])
     if len(data) < 2:
         return None, None, None, "❓ 無足夠資料"
+
     vix_today = data[-1]["c"]
     vix_yesterday = data[-2]["c"]
     change = (vix_today - vix_yesterday) / vix_yesterday * 100
+
     if vix_today > 30:
         level = "⚠️ 極度恐慌"
     elif vix_today > 25:
@@ -35,6 +44,7 @@ def fetch_vix_data():
         level = "🔶 謹慎觀察"
     else:
         level = "✅ 正常"
+
     return vix_today, change, level, None
 
 def fetch_tick_series(minutes=30):
@@ -74,6 +84,9 @@ def fetch_trin_value():
 def push_to_discord(message):
     data = {"content": message}
     requests.post(DISCORD_WEBHOOK_URL, json=data)
+    try:
+    res = requests.get(url, timeout=10)
+    res.raise_for_status()
 
 def write_to_sheets(date_str, vix, change, tick_pct, tick_slope, trin, summary):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
