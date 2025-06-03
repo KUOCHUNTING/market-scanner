@@ -350,7 +350,7 @@ def detect_latent_signal(df, rsi, tmo, obv, adx, latest_price, latest_vwap):
         rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and
         tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and
         obv.iloc[-1] > obv.iloc[-3] and
-        price > latest_vwap and
+        price > latest_vwap 
     ):
         if symbol in observed_candidates:
             first = observed_candidates[symbol]
