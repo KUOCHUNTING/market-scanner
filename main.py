@@ -238,6 +238,9 @@ def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio
     except Exception as e:
         print(f"[寫入錯誤] Google Sheets 寫入失敗：{e}")
 
+# === 資料來源 ===
+from polygon import RESTClientdef 
+
 def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
     signal_note = None
     ema5 = df['close'].ewm(span=5, adjust=False).mean().iloc[-1]
@@ -292,9 +295,6 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
         )
 
     return signal_note
-
-# === 資料來源 ===
-from polygon import RESTClientdef detect_latent_signal
 
 # 設定美東時間
 est = timezone("US/Eastern")
