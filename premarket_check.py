@@ -86,16 +86,22 @@ def write_to_sheets(date_str, vix, change, tick_pct, tick_slope, trin, summary):
 
 def main():
     now = datetime.now(timezone("US/Eastern")).strftime("%Y-%m-%d %H:%M")
+
     vix, vix_change, vix_level, vix_err = fetch_vix_data()
-    tick_series = fetch_tick_series()
-    tick_pct, tick_slope, tick_status = analyze_tick(tick_series)
+
+    try:
+        tick_series = fetch_tick_series()
+        tick_pct, tick_slope, tick_status = analyze_tick(tick_series)
+    except Exception as e:
+        print(f"[ERROR] TICK 抓取失敗：{e}")
+        tick_pct, tick_slope, tick_status = None, None, "❓ 無資料"
+
     trin_value, trin_status = fetch_trin_value()
 
     if vix_err or tick_status == "❓ 無資料" or trin_status == "❓ 無資料":
         push_to_discord("⚠️ 開盤前市場偵測失敗，請手動確認 API 資料來源")
         return
 
-    # 組合 summary 訊息
     summary = (
         f"📊 **[開盤前市場情緒預判]**\n"
         f"VIX：{vix:.2f}（{vix_change:+.2f}%）｜風險：{vix_level}\n"
@@ -103,14 +109,12 @@ def main():
         f"TRIN：{trin_value:.2f}｜結構：{trin_status}"
     )
 
-    # 加入附加建議
     if vix > 25 or tick_pct < 5 or trin_value > 1.2:
         summary += (
             "\n⚠️ 今日盤前預警：\n"
             f"TICK 百分位過低或 TRIN 偏高，建議開盤觀望，注意開盤震盪與風險控管。"
         )
 
-    # 推播與記錄
     push_to_discord(summary)
     write_to_sheets(now, vix, vix_change, tick_pct, tick_slope, trin_value, tick_status)
 
