@@ -416,7 +416,7 @@ def detect_latent_signal(df, rsi, tmo, obv, adx, latest_price, latest_vwap):
                     auto_entry = True
                     direction = "long"
                 else:
-                    print(f"[INFO] ADX ({adx:.1f}）過低，不進場，只發出觀察訊號")
+                    print(f"[INFO] ADX（{adx_text}）過低，不進場，只發出觀察訊號")
 
                 # ✅ 實際記錄建倉資訊（避免重複建倉）
                 if symbol not in entered_positions:
