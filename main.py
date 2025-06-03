@@ -3,6 +3,7 @@ from ta.volume import OnBalanceVolumeIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.trend import EMAIndicator, ADXIndicator
+from ta.trend import ADXIndicator
 from datetime import datetime, timedelta
 from pytz import timezone
 from ta.volume import OnBalanceVolumeIndicator
@@ -667,6 +668,14 @@ def analyze_stock_data(symbol, bars):
 
         # TMO（你自訂的函數）
         tmo_value = calculate_tmo(df)
+
+        # ✅ 這裡插入 ADX 定義（放在其他指標後面，還沒用 adx 前）
+        adx_indicator = ADXIndicator(high=df["high"], low=df["low"], close=df["close"], window=14)
+        adx = adx_indicator.adx().iloc[-1]
+
+        # 🔽 這邊才會用到 adx，例如：
+        if adx > 20:
+            print(f"[DEBUG] 趨勢強度高（ADX={adx:.2f}）")
 
         # 過濾 NaN
         if any(map(np.isnan, [latest_price, rsi, latest_vwap, k_value, d_value, tmo_value])):
