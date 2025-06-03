@@ -241,60 +241,72 @@ def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio
 # === 資料來源 ===
 from polygon import RESTClient 
 
-def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
-    signal_note = None
-    ema5 = df['close'].ewm(span=5, adjust=False).mean().iloc[-1]
-    price = latest_price
-    candle_type = "陽線" if df['close'].iloc[-1] > df['open'].iloc[-1] else "陰線"
+observed_candidates = {}  # 在主程式中設為全域變數
 
-    # OBV 方向判斷
+def detect_latent_signal(df, rsi, tmo, obv, adx, latest_price, latest_vwap):
+    signal_note = None
+    price = latest_price
+    ema5 = df['close'].ewm(span=5, adjust=False).mean().iloc[-1]
+    candle_type = "陽線" if df['close'].iloc[-1] > df['open'].iloc[-1] else "陰線"
     obv_direction = "上升" if obv.iloc[-1] > obv.iloc[-3] else "下滑"
 
-    # 🌱 潛伏多頭（多重共振）
-    if (
-        df['close'].iloc[-1] < df['close'].iloc[-3] and
-        rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and
-        tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and
-        obv.iloc[-1] > obv.iloc[-3] and
-        latest_price > latest_vwap
-    ):
-        signal_note = (
-            f"🌱 潛伏多頭（多重共振）\n"
-            f"價格開始反轉，OBV正在上升\n"
-            f"📊 RSI：{rsi.iloc[-1]:.1f} ↗️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↗️｜💰 OBV：{obv_direction}｜🧭 價格 > VWAP｜🕯️ {candle_type}"
-        )
+    # ✅ 半山腰過濾
+    rsi_middle = 45 <= rsi.iloc[-1] <= 65
+    vwap_bias = price > latest_vwap * 1.05 or price < latest_vwap * 0.95
+    recent_high = df['high'].rolling(window=20).max().iloc[-2]
+    not_breakout = df['high'].iloc[-1] < recent_high
+    if vwap_bias or rsi_middle or not_breakout:
+        print("[WARNING] 疑似半山腰，跳過。")
+        return None
 
-    # 🌪 潛伏空頭（多重共振）
-    elif (
-        df['close'].iloc[-1] > df['close'].iloc[-3] and
-        rsi.iloc[-1] < rsi.iloc[-2] and rsi.iloc[-2] > 70 and
-        tmo.iloc[-1] < tmo.iloc[-2] and tmo.iloc[-2] > 5 and
-        obv.iloc[-1] < obv.iloc[-3] and
-        latest_price < latest_vwap
-    ):
-        signal_note = (
-            f"🌪 潛伏空頭（多重共振）\n"
-            f"價格開始反轉，OBV正在下跌\n"
-            f"📊 RSI：{rsi.iloc[-1]:.1f} ↘️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↘️｜💰 OBV：{obv_direction}｜🧭 價格 < VWAP｜🕯️ {candle_type}"
-        )
+    now = datetime.now()
 
-    # ⚠️ 潛伏 - 空頭轉折
-    elif price > ema5 and rsi.iloc[-1] < rsi.iloc[-2] and tmo.iloc[-1] < tmo.iloc[-2]:
-        signal_note = (
-            f"⚠️ 潛伏 - 空頭轉折\n"
-            f"價格雖漲，但技術線轉弱\n"
-            f"📊 RSI：{rsi.iloc[-1]:.1f} ↘️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↘️｜🧭 價格 > EMA5｜🕯️ {candle_type}"
-        )
-
-    # ⚠️ 潛伏 - 多頭轉折
-    elif price < ema5 and rsi.iloc[-1] > rsi.iloc[-2] and tmo.iloc[-1] > tmo.iloc[-2]:
-        signal_note = (
+    # ✅ 第一次通知（預警 - 潛伏轉折）
+    if price < ema5 and rsi.iloc[-1] > rsi.iloc[-2] and tmo.iloc[-1] > tmo.iloc[-2]:
+        observed_candidates[df['symbol'].iloc[-1]] = {
+            "price": price,
+            "time": now
+        }
+        return (
             f"⚠️ 潛伏 - 多頭轉折\n"
             f"價格雖跌，但動能轉強\n"
             f"📊 RSI：{rsi.iloc[-1]:.1f} ↗️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↗️｜🧭 價格 < EMA5｜🕯️ {candle_type}"
         )
 
-    return signal_note
+    elif price > ema5 and rsi.iloc[-1] < rsi.iloc[-2] and tmo.iloc[-1] < tmo.iloc[-2]:
+        observed_candidates[df['symbol'].iloc[-1]] = {
+            "price": price,
+            "time": now
+        }
+        return (
+            f"⚠️ 潛伏 - 空頭轉折\n"
+            f"價格雖漲，但技術線轉弱\n"
+            f"📊 RSI：{rsi.iloc[-1]:.1f} ↘️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↘️｜🧭 價格 > EMA5｜🕯️ {candle_type}"
+        )
+
+    # ✅ 第二次啟動（潛伏共振進場條件 + ADX 過濾）
+    symbol = df['symbol'].iloc[-1]
+    if (
+        df['close'].iloc[-1] < df['close'].iloc[-3] and
+        rsi.iloc[-1] > rsi.iloc[-2] and rsi.iloc[-2] < 30 and
+        tmo.iloc[-1] > tmo.iloc[-2] and tmo.iloc[-2] < 0 and
+        obv.iloc[-1] > obv.iloc[-3] and
+        price > latest_vwap and
+        adx.iloc[-1] < 15  # 🔍 ADX過濾：弱勢整理盤才適用
+    ):
+        if symbol in observed_candidates:
+            first_signal = observed_candidates[symbol]
+            price_diff = abs(price - first_signal["price"]) / first_signal["price"]
+            time_diff = (now - first_signal["time"]).total_seconds() / 60
+            if price_diff <= 0.01 and time_diff <= 20:
+                del observed_candidates[symbol]  # 移除觀察名單
+                return (
+                    f"🌱 潛伏多頭（正式啟動）\n"
+                    f"價格開始反轉，OBV正在上升\n"
+                    f"📊 RSI：{rsi.iloc[-1]:.1f} ↗️｜⚡ TMO：{tmo.iloc[-1]:.2f} ↗️｜💰 OBV：{obv_direction}｜🧭 價格 > VWAP｜📉 ADX < 15｜🕯️ {candle_type}"
+                )
+
+    return None
 
 # 設定美東時間
 est = timezone("US/Eastern")
