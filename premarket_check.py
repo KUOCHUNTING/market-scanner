@@ -59,7 +59,10 @@ def analyze_tick(tick_series):
     return percentile, slope, sentiment
 
 def fetch_trin_value():
-    url = f"https://api.polygon.io/v2/aggs/ticker/TRIN/range/1/minute/{(datetime.now() - timedelta(minutes=5)).strftime('%Y-%m-%d')}/{datetime.now().strftime('%Y-%m-%d')}?adjusted=true&sort=desc&limit=1&apiKey={POLYGON_API_KEY}"
+    est = timezone("US/Eastern")
+    now = datetime.now(est)
+    start = now - timedelta(minutes=15)
+    url = f"https://api.polygon.io/v2/aggs/ticker/TRIN/range/1/minute/{start.strftime('%Y-%m-%dT%H:%M:%S')}/{now.strftime('%Y-%m-%dT%H:%M:%S')}?adjusted=true&sort=desc&limit=10&apiKey={POLYGON_API_KEY}"
     res = requests.get(url)
     bars = res.json().get("results", [])
     if not bars:
