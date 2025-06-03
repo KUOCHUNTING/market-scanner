@@ -549,9 +549,14 @@ def analyze_stock_data(symbol, bars):
 
     candle_type = detect_candle_pattern(df)  # K棒型態
 
-    # ✅ 半山腰過濾條件：VWAP 偏離過大（避免追高追空）
-    if latest_price > latest_vwap * 1.05 or latest_price < latest_vwap * 0.95:
-        print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，疑似半山腰，跳過。")
+    # 半山腰過濾機制（避免追高或追空）
+    rsi_middle = 45 <= latest_rsi <= 65
+    vwap_bias = latest_price > latest_vwap * 1.05 or latest_price < latest_vwap * 0.95
+    recent_high = df['high'].rolling(window=20).max().iloc[-2]  # 前一根收盤前最高點
+    not_breakout = latest_high < recent_high  # 沒創新高代表非攻擊型K棒
+
+    if vwap_bias or rsi_middle or not_breakout:
+        print(f"[WARNING] {symbol} 疑似半山腰（VWAP乖離/RSi中性/未突破），跳過。")
         return None
 
     # 顯示 Log
