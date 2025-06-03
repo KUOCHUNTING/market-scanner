@@ -674,16 +674,18 @@ def analyze_stock_data(symbol, bars):
         adx = adx_indicator.adx().iloc[-1]
 
         # 🔽 這邊才會用到 adx，例如：
-        if adx > 20:
-            print(f"[DEBUG] 趨勢強度高（ADX={adx:.2f}）")
+        adx = None
+        try:
+            adx_indicator = ADXIndicator(high=df["high"], low=df["low"], close=df["close"], window=14)
+            adx = adx_indicator.adx().iloc[-1]
+        except Exception as e:
+            print(f"[ERROR] {symbol} ADX 計算失敗：{e}")
 
-        # 過濾 NaN
-        if any(map(np.isnan, [latest_price, rsi, latest_vwap, k_value, d_value, tmo_value])):
-            print(f"[WARNING] {symbol} 有 NaN 技術指標，跳過")
-            return None
+        # 最後印出所有指標，確認有值
+        print(f"[DEBUG] {symbol} 指標分析結果：收盤={latest_price:.2f}｜RSI={rsi:.2f}｜TMO={tmo:.2f}｜VWAP={latest_vwap:.2f}｜ADX={adx:.2f if adx else -1}")
 
-        # ✅ 顯示結果
-        print(f"✅ {symbol} 收盤：{latest_price:.2f}｜RSI：{rsi:.1f}｜TMO：{tmo_value:.2f}｜VWAP：{latest_vwap:.2f}｜K：{k_value:.1f}｜D：{d_value:.1f}")
+    except Exception as e:
+        print(f"[ERROR] {symbol} 技術分析失敗：{e}")
 
         return {
             "symbol": symbol,
