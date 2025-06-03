@@ -104,8 +104,11 @@ def main():
 
     # 加入警示建議
     if vix > 25 or tick_pct < 5 or trin_value > 1.2:
-        summary += "
-🧯 建議：今日盤勢偏空，觀察共振反轉訊號，建議保守開倉。"
+        總結 += (
+    "📊 今日盤前觀察：\n"
+    f"TICK 百分位：{tick_percentile:.1f}%｜TRIN：{trin_value:.2f}\n"
+    "VIX 偏高，預期開盤震盪大，請留意風險控管。"
+)
 
     push_to_discord(summary)
     write_to_sheets(now, vix, vix_change, tick_pct, tick_slope, trin_value, tick_status)
