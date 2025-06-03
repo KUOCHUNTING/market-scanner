@@ -92,24 +92,22 @@ def main():
         push_to_discord("⚠️ 開盤前市場偵測失敗，請手動確認 API 資料來源")
         return
 
+    # 組合 summary 訊息
     summary = (
-                message = f"📊 **[開盤前市場情緒預判]**\nTICK：{tick}｜TRIN：{trin}｜VIX：{vix}\n..."
+        f"📊 **[開盤前市場情緒預判]**\n"
+        f"VIX：{vix:.2f}（{vix_change:+.2f}%）｜風險：{vix_level}\n"
+        f"TICK 百分位：{tick_pct:.1f}｜斜率：{tick_slope:.1f}｜情緒：{tick_status}\n"
+        f"TRIN：{trin_value:.2f}｜結構：{trin_status}"
+    )
 
-                f"VIX：{vix:.2f}（{vix_change:+.2f}%）｜風險：{vix_level}"
-
-                f"TICK 百分位：{tick_pct:.1f}｜斜率：{tick_slope:.1f}｜情緒：{tick_status}"
-
-                f"TRIN：{trin_value:.2f}｜結構：{trin_status}"
-                )
-
-    # 加入警示建議
+    # 加入附加建議
     if vix > 25 or tick_pct < 5 or trin_value > 1.2:
-        總結 += (
-    "📊 今日盤前觀察：\n"
-    f"TICK 百分位：{tick_percentile:.1f}%｜TRIN：{trin_value:.2f}\n"
-    "VIX 偏高，預期開盤震盪大，請留意風險控管。"
-)
+        summary += (
+            "\n⚠️ 今日盤前預警：\n"
+            f"TICK 百分位過低或 TRIN 偏高，建議開盤觀望，注意開盤震盪與風險控管。"
+        )
 
+    # 推播與記錄
     push_to_discord(summary)
     write_to_sheets(now, vix, vix_change, tick_pct, tick_slope, trin_value, tick_status)
 
