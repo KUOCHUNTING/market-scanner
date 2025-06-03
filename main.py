@@ -564,6 +564,9 @@ def fetch_stock_data(symbol):
         end_time = now - timedelta(minutes=15)
         start_time = end_time - timedelta(minutes=30)
 
+        # ✅ 這裡插入時間區間的印出
+        print(f"[INFO] 抓取時間範圍：{start_time} ~ {end_time}")
+
         # ✅ 使用 Unix timestamp（整數秒數）
         from_ts = int(start_time.timestamp())
         to_ts = int(end_time.timestamp())
