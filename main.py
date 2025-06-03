@@ -239,7 +239,7 @@ def write_to_sheet(symbol, direction, pnl, entry_price, exit_price, volume_ratio
         print(f"[寫入錯誤] Google Sheets 寫入失敗：{e}")
 
 # === 資料來源 ===
-from polygon import RESTClientdef 
+from polygon import RESTClient 
 
 def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
     signal_note = None
