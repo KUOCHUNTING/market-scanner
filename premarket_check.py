@@ -114,5 +114,10 @@ def main():
     push_to_discord(summary)
     write_to_sheets(now, vix, vix_change, tick_pct, tick_slope, trin_value, tick_status)
 
+    print("[DEBUG] vix_err =", vix_err)
+    print("[DEBUG] tick_status =", tick_status)
+    print("[DEBUG] trin_status =", trin_status)
+
 if __name__ == "__main__":
     main()
+    print("[INFO] 開盤前市場偵測完成 ✅")
