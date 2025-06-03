@@ -10,7 +10,7 @@ import numpy as np
 # === 自訂函數 ===
 from utils import detect_candle_pattern, calculate_tmo
 import pandas as pd
-import randomF
+import random
 import requests
 import requests
 # === 資料來源 ===
