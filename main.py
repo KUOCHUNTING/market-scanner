@@ -2,7 +2,7 @@
 from ta.volume import OnBalanceVolumeIndicator
 from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
-from ta.trend import EMAIndicator, ADXIndicator, 
+from ta.trend import EMAIndicator, ADXIndicator
 from datetime import datetime, timedelta
 from pytz import timezone
 from ta.volume import OnBalanceVolumeIndicator
