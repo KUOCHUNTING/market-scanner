@@ -14,7 +14,7 @@ import random
 import requests
 import requests
 # === 資料來源 ===
-from polygon import RESTClientdef 
+from polygon import RESTClient 
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
 def send_to_discord(message):  # ✅ 安全不會衝突
