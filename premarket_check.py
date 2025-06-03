@@ -93,14 +93,13 @@ def main():
         return
 
     summary = (
-        f"📊 **[開盤前市場情緒預判]**
-"
-        f"VIX：{vix:.2f}（{vix_change:+.2f}%）｜風險：{vix_level}
-"
-        f"TICK 百分位：{tick_pct:.1f}｜斜率：{tick_slope:.1f}｜情緒：{tick_status}
-"
-        f"TRIN：{trin_value:.2f}｜結構：{trin_status}
-"
+        message = f"📊 **[開盤前市場情緒預判]**\nTICK：{tick}｜TRIN：{trin}｜VIX：{vix}\n..."
+
+        f"VIX：{vix:.2f}（{vix_change:+.2f}%）｜風險：{vix_level}"
+
+        f"TICK 百分位：{tick_pct:.1f}｜斜率：{tick_slope:.1f}｜情緒：{tick_status}"
+
+        f"TRIN：{trin_value:.2f}｜結構：{trin_status}"
     )
 
     # 加入警示建議
