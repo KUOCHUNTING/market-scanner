@@ -407,9 +407,7 @@ def detect_latent_signal(df, rsi, tmo, obv, adx, latest_price, latest_vwap):
                 del observed_candidates[symbol]
                 signal_note = (
                     f"🌱 潛伏多頭（正式建倉）\n"
-                    adx_text = f"[adx:{adx:.1f}]" if adx is not None else "N/A"
-
-                    push_text = f"📊 RSI：{rsi:.1f} ↗️｜TMO：{tmo:.2f} ↗️｜OBV：{obv_direction}｜VWAP：突破｜ADX：{adx_text}｜🕯️ {candle_type}"
+                    f"📊 RSI：{rsi.iloc[-1]:.1f} ↗️｜TMO：{tmo.iloc[-1]:.2f} ↗️｜OBV：{obv_direction}｜VWAP：突破｜ADX < 15｜🕯️ {candle_type}"
                     f"📌 確認多頭啟動，建倉時機已到"
                 )
                 if adx is not None and adx > 15:
