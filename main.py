@@ -17,6 +17,8 @@ from datetime import timedelta
 from datetime import datetime
 from polygon import RESTClient
 
+POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
+
 def generate_daily_summary():
     try:
         # Google Sheets 連線
@@ -1265,7 +1267,6 @@ def get_trin_value():
 
 # ✅ 主掃描函數
 def run_scanner(tick_series):
-    # ✅ 初始化成功與失敗計數器
     success_count = 0
     fail_count = 0
     # ✅ 每次掃描前，先檢查持倉是否該出場
@@ -1281,6 +1282,23 @@ def run_scanner(tick_series):
     print("=" * 50)
     print(f"[INFO] TICK 百分位：{tick_percentile} | 斜率：{tick_slope} | TRIN：{trin_value}")
     print("=" * 50)
+
+    # ⬇️ ⬇️ 這裡開始貼你剛剛的個股掃描迴圈 ⬇️ ⬇️
+    for symbol in stock_list:
+        try:
+            print(f"[DEBUG] 嘗試抓資料：{symbol}")
+            df = fetch_stock_data(symbol)
+            if df is None or len(df) < 10:
+                print(f"[警告] {symbol} 無效或資料不足，跳過")
+                fail_count += 1
+                continue
+
+            # 成功處理邏輯 ...
+            success_count += 1
+
+        except Exception as e:
+            print(f"[ERROR] {symbol} 發生錯誤：{e}")
+            fail_count += 1
 
     # ✅ 推播市場潛伏訊號（如果有）
     check_market_latent_signals(tick_percentile, tick_slope, trin_value)
