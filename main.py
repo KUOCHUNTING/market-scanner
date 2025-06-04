@@ -601,8 +601,7 @@ def load_stock_list(filepath):
     except Exception as e:
         print(f"[ERROR] 無法讀取股票清單：{e}")
         return []
-    except Exception as e:
-        print(f"[ERROR] {e}")
+stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 
 def fetch_stock_data(symbol):
     try:
