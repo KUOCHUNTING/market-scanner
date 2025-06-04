@@ -462,9 +462,7 @@ def write_to_sheet(
     entry_price, exit_price, holding_time_sec, return_rate,
     capital_used, capital_left, session, strategy_version, confidence_score, remark
 ):
-try:
-    pass  # 🔧 自動補上預設處理區塊
-    pass  # 自動補上
+
     except Exception as e:
         print(f"[ERROR] {e}")
 
