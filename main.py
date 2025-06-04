@@ -1267,6 +1267,7 @@ def get_trin_value():
 
 # ✅ 主掃描函數
 def run_scanner(tick_series):
+    global positions
     success_count = 0
     fail_count = 0
     # ✅ 每次掃描前，先檢查持倉是否該出場
@@ -1299,6 +1300,8 @@ def run_scanner(tick_series):
         except Exception as e:
             print(f"[ERROR] {symbol} 發生錯誤：{e}")
             fail_count += 1
+
+    print(f"\n📊 執行完畢：成功 {success_count} 檔、失敗 {fail_count} 檔")
 
     # ✅ 推播市場潛伏訊號（如果有）
     check_market_latent_signals(tick_percentile, tick_slope, trin_value)
