@@ -690,79 +690,81 @@ def evaluate_breakout_signal(symbol, df):
         push_to_discord(symbol, breakout_signal)  # 需定義推播函數
         return breakout_signal
     
+   # ✅ 條件不符就退出
+if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
+    print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
     return None
 
-    # ⚠️ 預警 - 多頭轉折（含 VWAP、OBV）
-    elif (
-        latest_rsi < 35 and rsi.iloc[-2] < rsi.iloc[-1] and
-        tmo_slope > 0 and
-     latest_price > latest_vwap and
-        obv.iloc[-1] > obv.iloc[-3]
-    ):
-        signal_note = (
-            f"⚠️ 預警 - 多頭轉折\n"
-            f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️\n"
-            f"📈 VWAP：已上穿｜💰 OBV：上升｜🕯️ K棒：{candle_type}"
-        )
+# ✅ 預警 - 多頭轉折（含 VWAP、OBV）
+elif (
+    latest_rsi < 35 and rsi.iloc[-2] < rsi.iloc[-1] and
+    tmo_slope > 0 and
+    latest_price > latest_vwap and
+    obv.iloc[-1] > obv.iloc[-3]
+):
+    signal_note = (
+        f"⚠️ 預警 - 多頭轉折\n"
+        f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️\n"
+        f"📈 VWAP：已上穿｜💰 OBV：上升｜🕯️ K棒：{candle_type}"
+    )
 
-    # ⚠️ 預警 - 空頭轉折（含 VWAP、OBV）
-    elif (
-        latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
-        tmo_slope < 0 and
-        latest_price < latest_vwap and
-        obv.iloc[-1] < obv.iloc[-3]
-    ):
-        signal_note = (
-            f"⚠️ 預警 - 空頭轉折\n"
-            f"📊 RSI：{latest_rsi:.1f} ↘️｜⚡ TMO：{latest_tmo:.2f} ↘️\n"
-            f"📉 VWAP：已跌破｜💰 OBV：下滑｜🕯️ K棒：{candle_type}"
-        )
+# ✅ 預警 - 空頭轉折（含 VWAP、OBV）
+elif (
+    latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
+    tmo_slope < 0 and
+    latest_price < latest_vwap and
+    obv.iloc[-1] < obv.iloc[-3]
+):
+    signal_note = (
+        f"⚠️ 預警 - 空頭轉折\n"
+        f"📊 RSI：{latest_rsi:.1f} ↘️｜⚡ TMO：{latest_tmo:.2f} ↘️\n"
+        f"📉 VWAP：已跌破｜💰 OBV：下滑｜🕯️ K棒：{candle_type}"
+    )
 
-    # 🐸 多頭正式進場
-    elif (
-        latest_rsi > 30 and rsi.iloc[-2] < rsi.iloc[-1] and            # RSI 回升
-        tmo.iloc[-2] < 0 and latest_tmo > 0 and tmo_slope > 0 and       # TMO 翻正
-        latest_price > latest_vwap and                                  # 價格突破 VWAP
-        volume_ratio > 1.5 and                                          # 放量
-        ema5_above_20 and                                               # EMA5 上穿 EMA20
-        obv.iloc[-1] > obv.iloc[-3] and                                 # OBV 上升
-        candle_type in ['hammer', 'bullish_engulfing']                  # 多頭 K 棒
-    ):
-        signal_note = (
-            f"🐸 正式進場 - 多頭\n"
-            f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️｜💰 OBV：上升\n"
-            f"📈 VWAP：上穿｜📊 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}"
-        )
+# ✅ 正式進場 - 多頭
+elif (
+    latest_rsi > 30 and rsi.iloc[-2] < rsi.iloc[-1] and
+    tmo.iloc[-2] < 0 and latest_tmo > 0 and tmo_slope > 0 and
+    latest_price > latest_vwap and
+    volume_ratio > 1.5 and
+    ema5_above_20 and
+    obv.iloc[-1] > obv.iloc[-3] and
+    candle_type in ['hammer', 'bullish_engulfing']
+):
+    signal_note = (
+        f"🐸 正式進場 - 多頭\n"
+        f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️｜💰 OBV：上升\n"
+        f"📈 VWAP：上穿｜📊 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}"
+    )
 
-        final_entry_signal_detected = True  # ➕ 標記為可進場
-        direction = "多"  # 保留方向給建倉區塊用
+    final_entry_signal_detected = True
+    direction = "多"
+    capital_used = capital_left * 0.05
+    entry_price = latest_price
 
-        capital_used = capital_left * 0.05
-        entry_price = latest_price
+    positions[symbol] = {
+        'entry_price': entry_price,
+        'capital_used': capital_used,
+        'entry_time': now,
+        'direction': '多',
+        'holding_ratio': 1.0,
+        'sell_stage': 0,
+        'max_gain': 0,
+        'volume_ratio': volume_ratio,
+        'obv': obv.iloc[-1],
+        'rsi': latest_rsi,
+        'tmo': latest_tmo,
+        'vwap': latest_vwap,
+        'ema_cross': ema_cross,
+        'kd_status': kd_status,
+        'tick_percentile': tick_percentile,
+        'tick_slope': tick_slope,
+        'trin_value': trin_value,
+        'confidence_score': confidence_score,
+    }
 
-        positions[symbol] = {
-            'entry_price': entry_price,
-            'capital_used': capital_used,
-            'entry_time': now,
-            'direction': '多',
-            'holding_ratio': 1.0,
-            'sell_stage': 0,
-            'max_gain': 0,
-            'volume_ratio': volume_ratio,
-            'obv': obv.iloc[-1],
-            'rsi': latest_rsi,
-            'tmo': latest_tmo,
-            'vwap': latest_vwap,
-            'ema_cross': ema_cross,
-            'kd_status': kd_status,
-            'tick_percentile': tick_percentile,
-            'tick_slope': tick_slope,
-            'trin_value': trin_value,
-            'confidence_score': confidence_score,
-        }
-
-        capital_left -= capital_used
-        print(f"[建倉紀錄] {symbol} 建倉於 {entry_price:.2f}｜投入資金 ${capital_used:.2f}")
+    capital_left -= capital_used
+    print(f"[建倉紀錄] {symbol} 建倉於 {entry_price:.2f}｜投入資金 ${capital_used:.2f}")
 
     if final_entry_signal_detected and symbol not in entry_price_dict and len(positions_held) < max_positions:
         allocated = total_capital * position_size_pct
