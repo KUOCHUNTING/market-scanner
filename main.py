@@ -633,7 +633,7 @@ def analyze_stock_data(symbol, bars):
             print(f"[ERROR] 技術分析錯誤：{e}")
             return None
 
-def evaluate_breakout_signal(df):
+def evaluate_breakout_signal(symbol, df):
     if df is None or len(df) < 30:
         return None
 
@@ -654,13 +654,18 @@ def evaluate_breakout_signal(df):
     price_sideways = price_range.iloc[-1] < close.iloc[-1] * 0.02
     bb_contracted = bb_width_sma.iloc[-1] < close.iloc[-1] * 0.03
 
-    signal = None
-
-    # 🔍 檢查 breakout 訊號
-    breakout_signal = None
-    if breakout_signal:
+    # 判斷是否為突破預警
+    if bb_contracted and price_sideways and obv_slope.iloc[-1] > 0:
+        breakout_signal = (
+            f"🚀 **[突破預警]** {symbol}\n"
+            f"📉 價格橫盤 + 布林收斂\n"
+            f"💰 OBV 斜率上升，可能準備啟動"
+        )
         print(f"[BREAKOUT] {symbol}: {breakout_signal}")
-        # push_to_discord(symbol, signal_note=breakout_signal)  # 如需推播
+        push_to_discord(symbol, breakout_signal)  # 需定義推播函數
+        return breakout_signal
+    
+    return None
 
     # ⚠️ 預警 - 多頭轉折（含 VWAP、OBV）
     elif (
