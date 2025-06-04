@@ -1100,11 +1100,13 @@ def auto_trade_and_monitor(symbol, latest_price, signal_note, direction,
         print(f"[自動進場] {symbol} @ {latest_price} 方向：{direction}")
         return
 
-    # ✅ 出場邏輯
-if symbol in positions:
+   # ✅ 出場邏輯
+for symbol in list(positions.keys()):
     entry_data = positions[symbol]
     entry_price = entry_data['entry_price']
-    holding_time_sec = int((now - entry_data['timestamp']).total_seconds())
+    direction = entry_data['direction']
+    entry_time = entry_data['timestamp']
+    holding_time_sec = int((now - entry_time).total_seconds())
     return_rate = (latest_price - entry_price) / entry_price if direction == "多" else (entry_price - latest_price) / entry_price
 
     if return_rate >= take_profit_rate or return_rate <= -stop_loss_rate:
