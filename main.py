@@ -7,6 +7,12 @@ from ta.volume import OnBalanceVolumeIndicator
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pytz import timezone
+from datetime import timedelta
+from datetime import datetime
+from pytz import timezone
+
+est = timezone("US/Eastern")
+now_est = datetime.now(est)
 # === 資料來源 ===
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
