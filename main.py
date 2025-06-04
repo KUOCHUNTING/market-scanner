@@ -581,8 +581,6 @@ def analyze_stock_data(symbol, bars):
         df = pd.DataFrame(bars)
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
         df.set_index('timestamp', inplace=True)
-    except Exception as e:
-        print(f"[ERROR] {e}")
 
         if len(df) < 20:
             print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
@@ -596,60 +594,69 @@ def analyze_stock_data(symbol, bars):
         latest_price = df['close'].iloc[-1]
         print(f"[DATA] {symbol} 最新收盤價：{latest_price:.2f}")
 
-        try:
-            # === 價格與量能基本資料 ===
-            latest_price = df['close'].iloc[-1]
-            latest_open = df['open'].iloc[-1]
-            latest_volume = df['volume'].iloc[-1]
-            avg_volume = df['volume'].rolling(20).mean().iloc[-1]
-            volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
-            candle_type = detect_candle_pattern(df)  # K棒型態（自訂函數）
-    except Exception as e:
-        print(f"[ERROR] {e}")
+        # === 價格與量能基本資料 ===
+        latest_open = df['open'].iloc[-1]
+        latest_volume = df['volume'].iloc[-1]
+        avg_volume = df['volume'].rolling(20).mean().iloc[-1]
+        volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
+        candle_type = detect_candle_pattern(df)  # K棒型態（自訂函數）
 
-            # === RSI ===
-            rsi = RSIIndicator(close=df['close'], window=14).rsi()
-            latest_rsi = rsi.iloc[-1]
+        # === RSI ===
+        rsi = RSIIndicator(close=df['close'], window=14).rsi()
+        latest_rsi = rsi.iloc[-1]
 
-            # === VWAP ===
-            typical_price = (df['high'] + df['low'] + df['close']) / 3
-            vwap = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
-            latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else 0
+        # === VWAP ===
+        typical_price = (df['high'] + df['low'] + df['close']) / 3
+        vwap = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else 0
 
-            # === TMO（你自訂的函數）===
-            tmo = calculate_tmo(df)
-            latest_tmo = tmo.iloc[-1]
-            tmo_slope = tmo.diff().iloc[-1]
+        # === TMO（你自訂的函數）===
+        tmo = calculate_tmo(df)
+        latest_tmo = tmo.iloc[-1]
+        tmo_slope = tmo.diff().iloc[-1]
 
-            # === OBV ===
-            obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
-            obv_direction = "上升" if obv.iloc[-1] > obv.iloc[-2] else "下降"
+        # === OBV ===
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+        obv_direction = "上升" if obv.iloc[-1] > obv.iloc[-2] else "下降"
 
-            # === EMA 均線 ===
-            ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
-            ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
-            ema_cross = "✅" if ema5.iloc[-1] > ema20.iloc[-1] else "❌"
+        # === EMA 均線 ===
+        ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
+        ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
+        ema_cross = "✅" if ema5.iloc[-1] > ema20.iloc[-1] else "❌"
 
-            # === KD 指標 ===
-            kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14)
-            k_value = kd.stoch().iloc[-1]
-            d_value = kd.stoch_signal().iloc[-1]
-            kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
+        # === KD 指標 ===
+        kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14)
+        k_value = kd.stoch().iloc[-1]
+        d_value = kd.stoch_signal().iloc[-1]
+        kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
 
-            # ✅ 半山腰過濾
-            if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
-                print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
-                return None
-
-            # === 顯示 Debug Log ===
-            print(f"[INFO] {symbol} 最新收盤：{latest_price:.2f}")
-            print(f"📊 RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）｜VWAP：{latest_vwap:.2f}")
-            print(f"📈 量能：{volume_ratio:.2f} 倍｜EMA5>EMA20：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}")
-
-        except Exception as e:
-            print(f"[ERROR] 技術分析錯誤：{e}")
+        # ✅ 半山腰過濾
+        if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
+            print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
             return None
 
+        # === 顯示 Debug Log ===
+        print(f"[INFO] {symbol} 最新收盤：{latest_price:.2f}")
+        print(f"📊 RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）｜VWAP：{latest_vwap:.2f}")
+        print(f"📈 量能：{volume_ratio:.2f} 倍｜EMA5>EMA20：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}")
+
+        # 如果需要回傳值，也可以在這裡整理成 dict
+        return {
+            "price": latest_price,
+            "rsi": latest_rsi,
+            "tmo": latest_tmo,
+            "tmo_slope": tmo_slope,
+            "vwap": latest_vwap,
+            "volume_ratio": volume_ratio,
+            "obv_direction": obv_direction,
+            "kd_status": kd_status,
+            "candle_type": candle_type,
+            "ema_cross": ema_cross
+        }
+
+    except Exception as e:
+        print(f"[ERROR] analyze_stock_data 發生錯誤：{e}")
+        return None
 
 def evaluate_breakout_signal(symbol, df):
     if df is None or len(df) < 30:
