@@ -665,19 +665,15 @@ def evaluate_breakout_signal(symbol, df):
     close = df['close']
     volume = df['volume']
 
-    # OBV
-    obv = OnBalanceVolumeIndicator(close=close, volume=volume).on_balance_volume()
-    obv_slope = obv.diff().rolling(3).mean()
-
-    # 布林帶
-    bb = BollingerBands(close=close, window=20, window_dev=2)
-    bb_width = bb.bollinger_hband() - bb.bollinger_lband()
-    bb_width_sma = bb_width.rolling(5).mean()
-
-    # 價格震盪範圍與判斷
-    price_range = close.rolling(5).max() - close.rolling(5).min()
-    price_sideways = price_range.iloc[-1] < close.iloc[-1] * 0.02
-    bb_contracted = bb_width_sma.iloc[-1] < close.iloc[-1] * 0.03
+    # 技術指標預設值（假設你前面有計算出這些）
+    latest_price = close.iloc[-1]
+    latest_vwap = ...  # ← 要補上 VWAP 計算
+    latest_rsi = ...   # ← RSI 值
+    latest_tmo = ...   # ← TMO 值
+    tmo_slope = ...    # ← TMO 斜率
+    volume_ratio = ... # ← 成交量倍數
+    candle_type = ...  # ← K棒型態
+    ema5_above_20 = ...# ← EMA5 > EMA20 布林條件
 
     # 判斷是否為突破預警
     if bb_contracted and price_sideways and obv_slope.iloc[-1] > 0:
@@ -687,7 +683,7 @@ def evaluate_breakout_signal(symbol, df):
             f"💰 OBV 斜率上升，可能準備啟動"
         )
         print(f"[BREAKOUT] {symbol}: {breakout_signal}")
-        push_to_discord(symbol, breakout_signal)  # 需定義推播函數
+        push_to_discord(symbol, breakout_signal)
         return breakout_signal
 
     # ✅ 條件不符就退出
@@ -695,47 +691,55 @@ def evaluate_breakout_signal(symbol, df):
         print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
         return None
 
-# ✅ 預警 - 多頭轉折（含 VWAP、OBV）
-elif (
-    latest_rsi < 35 and rsi.iloc[-2] < rsi.iloc[-1] and
-    tmo_slope > 0 and
-    latest_price > latest_vwap and
-    obv.iloc[-1] > obv.iloc[-3]
-):
-    signal_note = (
-        f"⚠️ 預警 - 多頭轉折\n"
-        f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️\n"
-        f"📈 VWAP：已上穿｜💰 OBV：上升｜🕯️ K棒：{candle_type}"
-    )
+    # ✅ 多空條件開始判斷
+    signal_note = None
 
-# ✅ 預警 - 空頭轉折（含 VWAP、OBV）
-elif (
-    latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
-    tmo_slope < 0 and
-    latest_price < latest_vwap and
-    obv.iloc[-1] < obv.iloc[-3]
-):
-    signal_note = (
-        f"⚠️ 預警 - 空頭轉折\n"
-        f"📊 RSI：{latest_rsi:.1f} ↘️｜⚡ TMO：{latest_tmo:.2f} ↘️\n"
-        f"📉 VWAP：已跌破｜💰 OBV：下滑｜🕯️ K棒：{candle_type}"
-    )
+    # 多頭轉折預警
+    if (
+        latest_rsi < 35 and rsi.iloc[-2] < rsi.iloc[-1] and
+        tmo_slope > 0 and
+        latest_price > latest_vwap and
+        obv.iloc[-1] > obv.iloc[-3]
+    ):
+        signal_note = (
+            f"⚠️ 預警 - 多頭轉折\n"
+            f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️\n"
+            f"📈 VWAP：已上穿｜💰 OBV：上升｜🕯️ K棒：{candle_type}"
+        )
 
-# ✅ 正式進場 - 多頭
-elif (
-    latest_rsi > 30 and rsi.iloc[-2] < rsi.iloc[-1] and
-    tmo.iloc[-2] < 0 and latest_tmo > 0 and tmo_slope > 0 and
-    latest_price > latest_vwap and
-    volume_ratio > 1.5 and
-    ema5_above_20 and
-    obv.iloc[-1] > obv.iloc[-3] and
-    candle_type in ['hammer', 'bullish_engulfing']
-):
-    signal_note = (
-        f"🐸 正式進場 - 多頭\n"
-        f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️｜💰 OBV：上升\n"
-        f"📈 VWAP：上穿｜📊 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}"
-    )
+    # 空頭轉折預警
+    elif (
+        latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
+        tmo_slope < 0 and
+        latest_price < latest_vwap and
+        obv.iloc[-1] < obv.iloc[-3]
+    ):
+        signal_note = (
+            f"⚠️ 預警 - 空頭轉折\n"
+            f"📊 RSI：{latest_rsi:.1f} ↘️｜⚡ TMO：{latest_tmo:.2f} ↘️\n"
+            f"📉 VWAP：已跌破｜💰 OBV：下滑｜🕯️ K棒：{candle_type}"
+        )
+
+    # 正式多頭進場
+    elif (
+        latest_rsi > 30 and rsi.iloc[-2] < rsi.iloc[-1] and
+        tmo.iloc[-2] < 0 and latest_tmo > 0 and tmo_slope > 0 and
+        latest_price > latest_vwap and
+        volume_ratio > 1.5 and
+        ema5_above_20 and
+        obv.iloc[-1] > obv.iloc[-3] and
+        candle_type in ['hammer', 'bullish_engulfing']
+    ):
+        signal_note = (
+            f"🐸 正式進場 - 多頭\n"
+            f"📊 RSI：{latest_rsi:.1f} ↗️｜⚡ TMO：{latest_tmo:.2f} ↗️｜💰 OBV：上升\n"
+            f"📈 VWAP：上穿｜📊 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}"
+        )
+
+    if signal_note:
+        push_to_discord(symbol, signal_note)
+        print(f"[SIGNAL] {symbol}: {signal_note}")
+        return signal_note
 
     final_entry_signal_detected = True
     direction = "多"
