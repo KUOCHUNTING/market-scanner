@@ -618,19 +618,20 @@ def analyze_stock_data(symbol, bars):
             d_value = kd.stoch_signal().iloc[-1]
             kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
 
-            # ✅ 半山腰過濾：VWAP 偏離過大
         try:
+            # ✅ 半山腰過濾
             if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
-                print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過。")
+                print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
                 return None
-        except Exception as e:
-            print(f"[ERROR] 技術分析錯誤：{e}")
-            return None
 
             # === 顯示 Debug Log ===
             print(f"[INFO] {symbol} 最新收盤：{latest_price:.2f}")
             print(f"📊 RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）｜VWAP：{latest_vwap:.2f}")
-            print(f"📈 量能：{volume_ratio:.2f} 倍 | EMA5>EMA20：{ema_cross} | OBV：{obv_direction} | KD：{kd_status} | K棒：{candle_type}")
+            print(f"📈 量能：{volume_ratio:.2f} 倍｜EMA5>EMA20：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}")
+
+        except Exception as e:
+            print(f"[ERROR] 技術分析錯誤：{e}")
+            return None
 
 def evaluate_breakout_signal(df):
     if df is None or len(df) < 30:
