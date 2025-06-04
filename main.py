@@ -1419,6 +1419,9 @@ success_count, fail_count = run_scanner(tick_series)
 # 印出統計結果
 print(f"\n[統計] 本輪成功 {success_count} 檔，失敗 {fail_count} 檔，有效率：{round(success_count / (success_count + fail_count + 1e-6) * 100, 2)}%")
 
+tick_series = get_tick_series()
+run_scanner(tick_series)
+
 # ✅ 主程式入口
 if __name__ == "__main__":
     init_sheets()  # 自動建立 Google Sheets 分頁與欄位
