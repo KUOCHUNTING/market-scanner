@@ -693,7 +693,7 @@ def evaluate_breakout_signal(symbol, df):
    # ✅ 條件不符就退出
 if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
     print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
-    return None
+        return None
 
 # ✅ 預警 - 多頭轉折（含 VWAP、OBV）
 elif (
