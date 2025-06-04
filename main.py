@@ -626,12 +626,7 @@ def analyze_stock_data(symbol, bars):
             # === 顯示 Debug Log ===
             print(f"[INFO] {symbol} 最新收盤：{latest_price:.2f}")
             print(f"📊 RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）｜VWAP：{latest_vwap:.2f}")
-            print(f"📈 量能：{volume_ratio:.2f} 倍｜EMA5>EMA20：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}")
-
-    except Exception as e:
-        print(f"[ERROR] {symbol} 技術分析失敗：{e}")
-        return None
-
+            print(f"📈 量能：{volume_ratio:.2f} 倍｜EMA5>EMA20：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}"
 
 def evaluate_breakout_signal(df):
     if df is None or len(df) < 30:
