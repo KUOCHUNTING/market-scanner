@@ -618,7 +618,7 @@ def analyze_stock_data(symbol, bars):
             d_value = kd.stoch_signal().iloc[-1]
             kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
 
-        try:
+        
             # ✅ 半山腰過濾
             if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
                 print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
