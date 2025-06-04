@@ -7,7 +7,7 @@ from ta.volume import OnBalanceVolumeIndicator
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
-from pytz import timezoneimport 
+from pytz import timezone
 import random
 import os
 import gspread
