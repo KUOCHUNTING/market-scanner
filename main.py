@@ -15,6 +15,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from pytz import timezone
 from datetime import timedelta
 from datetime import datetime
+from polygon import RESTClient
 
 def generate_daily_summary():
     try:
@@ -613,7 +614,8 @@ def fetch_stock_data(symbol):
         print(f"[ERROR] {e}")
 
         # ✅ 設定安全抓取時間（20～50 分鐘前）
-        end_time = now - timedelta(minutes=20)
+        now = datetime.now(timezone("US/Eastern"))
+        end_time = now - timedelta(minutes=15)
         start_time = end_time - timedelta(minutes=30)
         from_ts = int(start_time.timestamp())
         to_ts = int(end_time.timestamp())
@@ -1266,7 +1268,6 @@ def run_scanner(tick_series):
     # ✅ 初始化成功與失敗計數器
     success_count = 0
     fail_count = 0
-
     # ✅ 每次掃描前，先檢查持倉是否該出場
     for symbol in list(positions.keys()):
         latest_price = get_latest_price(symbol)
