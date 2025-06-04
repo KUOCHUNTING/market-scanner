@@ -1128,86 +1128,80 @@ def run_scanner(tick_series):
     # ✅ 股票清單
     stock_list = load_stock_list(STOCK_LIST_CSV)
 
-    for symbol in stock_list:
-        try:
-            print(f"[DEBUG] 嘗試抓資料：{symbol}")
-            df = fetch_stock_data(symbol)
-    except Exception as e:
-        print(f"[ERROR] {e}")
+for symbol in stock_list:
+    try:
+        print(f"[DEBUG] 嘗試抓資料：{symbol}")
+        df = fetch_stock_data(symbol)
 
-            if df is None or df.empty or 'close' not in df.columns or len(df) < 15:
-                print(f"[警告] {symbol} 無效或資料不足，跳過")
-                fail_count += 1
-                continue
-
-            print(f"[INFO] {symbol} K線筆數：{len(df)}")
-            print(f"[INFO] {symbol} K線取得成功，開始進行技術指標分析")
-            
-            # 技術指標
-            latest_price = df['close'].iloc[-1]
-            rsi = RSIIndicator(close=df['close']).rsi()
-            latest_rsi = rsi.iloc[-1]
-
-            # VWAP
-            vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
-            latest_vwap = vwap.iloc[-1]
-
-             # 成交量倍數
-            volume = df['volume']
-            volume_avg = volume.rolling(window=20).mean()
-            volume_ratio = volume.iloc[-1] / volume_avg.iloc[-1]
-
-            # K線形態（陽線 or 陰線）
-            latest_open = df['open'].iloc[-1]
-            candle_type = "陽線" if latest_price > latest_open else "陰線"
-
-            # 計算 OBV 指標
-            obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
-
-            # TMO 計算（簡化：以 5期的差分平均當作動能）
-            tmo = df['close'].diff().rolling(window=5).mean()
-            latest_tmo = tmo.iloc[-1]
-            prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
-            tmo_cross = latest_tmo > 0 and prev_tmo <= 0
-
-            # 潛伏訊號（預警推播）
-            signal_note, auto_entry, latent_direction = detect_latent_signal(
-                df, rsi, tmo, obv, latest_price, latest_vwap
-            )
-            if signal_note:
-                message = (
-                    f"{signal_note} {symbol}\n"
-                    f"收盤：{latest_price:.2f}｜RSI: {latest_rsi:.1f}｜TMO: {latest_tmo:.2f}｜"
-                    f"VWAP: {latest_vwap:.2f}｜量：{volume_ratio:.2f}x"
-                )
-                send_to_discord(message)
-
-            # 正式進場訊號條件
-            signal_note = None
-            direction = None
-
-            # 🐸 多頭進場條件
-            if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
-                signal_note = "🐸 正式進場 - 多頭"
-                direction = "long"
-
-            # 🐶 空頭進場條件
-            elif latest_rsi > 70 and latest_price < latest_vwap and latest_tmo < 0 and volume_ratio > 1.5 and candle_type == "陰線":
-                signal_note = "🐶 正式進場 - 空頭"
-                direction = "short"
-
-            # ✅ 補這段正式推播
-            if signal_note and direction:
-                send_to_discord(
-                    f"{signal_note} {symbol} @ {latest_price:.2f}｜方向：{direction.upper()}｜"
-                    f"RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}｜VWAP：{latest_vwap:.2f}｜成交量：{volume_ratio:.2f}x｜K線：{candle_type}"
-                )
-
-            success_count += 1  # ✅ 放在最後，表示這支股票處理成功
-
-        except Exception as e:
-            print(f"[ERROR] {symbol} 發生錯誤：{e}")
+        if df is None or df.empty or 'close' not in df.columns or len(df) < 15:
+            print(f"[警告] {symbol} 無效或資料不足，跳過")
             fail_count += 1
+            continue
+
+        print(f"[INFO] {symbol} K線筆數：{len(df)}")
+        print(f"[INFO] {symbol} K線取得成功，開始進行技術指標分析")
+
+        # 技術指標
+        latest_price = df['close'].iloc[-1]
+        rsi = RSIIndicator(close=df['close']).rsi()
+        latest_rsi = rsi.iloc[-1]
+
+        # VWAP
+        vwap = (df['volume'] * (df['high'] + df['low'] + df['close']) / 3).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap.iloc[-1]
+
+        # 成交量倍數
+        volume = df['volume']
+        volume_avg = volume.rolling(window=20).mean()
+        volume_ratio = volume.iloc[-1] / volume_avg.iloc[-1]
+
+        # K線形態（陽線 or 陰線）
+        latest_open = df['open'].iloc[-1]
+        candle_type = "陽線" if latest_price > latest_open else "陰線"
+
+        # OBV
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+
+        # TMO
+        tmo = df['close'].diff().rolling(window=5).mean()
+        latest_tmo = tmo.iloc[-1]
+        prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
+        tmo_cross = latest_tmo > 0 and prev_tmo <= 0
+
+        # 潛伏訊號（預警推播）
+        signal_note, auto_entry, latent_direction = detect_latent_signal(
+            df, rsi, tmo, obv, latest_price, latest_vwap
+        )
+        if signal_note:
+            message = (
+                f"{signal_note} {symbol}\n"
+                f"收盤：{latest_price:.2f}｜RSI: {latest_rsi:.1f}｜TMO: {latest_tmo:.2f}｜"
+                f"VWAP: {latest_vwap:.2f}｜量：{volume_ratio:.2f}x"
+            )
+            send_to_discord(message)
+
+        # 正式進場判斷
+        signal_note = None
+        direction = None
+
+        if latest_rsi < 30 and latest_price > latest_vwap and tmo_cross and volume_ratio > 1.5 and candle_type == "陽線":
+            signal_note = "🐸 正式進場 - 多頭"
+            direction = "long"
+        elif latest_rsi > 70 and latest_price < latest_vwap and latest_tmo < 0 and volume_ratio > 1.5 and candle_type == "陰線":
+            signal_note = "🐶 正式進場 - 空頭"
+            direction = "short"
+
+        if signal_note and direction:
+            send_to_discord(
+                f"{signal_note} {symbol} @ {latest_price:.2f}｜方向：{direction.upper()}｜"
+                f"RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}｜VWAP：{latest_vwap:.2f}｜成交量：{volume_ratio:.2f}x｜K線：{candle_type}"
+            )
+
+        success_count += 1
+
+    except Exception as e:
+        print(f"[ERROR] {symbol} 發生錯誤：{e}")
+        fail_count += 1
 
     # === Step 4: 模擬進場 ===
     check_exit_and_notify(symbol, latest_price)
