@@ -4,18 +4,16 @@ from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.volume import OnBalanceVolumeIndicator
 # === 自訂函數 ===
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+from pytz import timezoneimport random
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pytz import timezone
 from datetime import timedelta
 from datetime import datetime
-from pytz import timezone
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from pytz import timezone
-from datetime import datetime
-import pandas as pd
 
 def generate_daily_summary():
     try:
@@ -1216,9 +1214,26 @@ def should_push_signal(signal_note, entry_price_dict, symbol):
 
 # === 技術工具函數 ===
 
-# ✅ 模擬 TICK 系列
 def get_tick_series():
-    return pd.Series([random.randint(-1000, 1000) for _ in range(30)])
+    try:
+        end_time = datetime.now(timezone("US/Eastern"))
+        start_time = end_time - timedelta(minutes=5)
+
+        url = f"https://api.polygon.io/v2/aggs/ticker/TICK/range/10/second/{start_time.strftime('%Y-%m-%d')}/{end_time.strftime('%Y-%m-%d')}?adjusted=true&sort=asc&limit=1000&apiKey={POLYGON_API_KEY}"
+
+        response = requests.get(url, timeout=5)
+        data = response.json()
+
+        if "results" in data:
+            series = [item["c"] for item in data["results"]][-30:]  # 取最後 30 筆收盤值
+            return pd.Series(series)
+        else:
+            print("[警告] 無法取得 TICK 資料，返回空序列")
+            return pd.Series(dtype=float)
+
+    except Exception as e:
+        print(f"[錯誤] 無法取得 TICK 資料：{e}")
+        return pd.Series(dtype=float)
 
 # ✅ TICK 百分位
 def get_tick_percentile(tick_series):
