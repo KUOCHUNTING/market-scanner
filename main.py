@@ -1272,7 +1272,7 @@ def run_scanner(tick_series):
     # ✅ 股票清單
     stock_list = load_stock_list(STOCK_LIST_CSV)
 
-tick_value = get_latest_tick()
+tick_value = get_tick_value()
 trin_value = get_trin_value() 
 
 for symbol in stock_list:
