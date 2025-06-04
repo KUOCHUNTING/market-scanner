@@ -633,7 +633,7 @@ def analyze_stock_data(symbol, bars):
             print(f"[ERROR] 技術分析錯誤：{e}")
             return None
 
-def evaluate_breakout_signal(symbol, df):
+def evaluate_breakout_signal(symbol,　df):
     if df is None or len(df) < 30:
         return None
 
