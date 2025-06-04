@@ -4,6 +4,7 @@ from ta.volatility import BollingerBands, AverageTrueRange
 from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.volume import OnBalanceVolumeIndicator
 # === 自訂函數 ===
+import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pytz import timezone
