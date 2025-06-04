@@ -689,11 +689,11 @@ def evaluate_breakout_signal(symbol, df):
         print(f"[BREAKOUT] {symbol}: {breakout_signal}")
         push_to_discord(symbol, breakout_signal)  # 需定義推播函數
         return breakout_signal
-    
-   # ✅ 條件不符就退出
-if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
-    print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
-    return None
+
+    # ✅ 條件不符就退出
+    if latest_price > latest_vwap * 1.08 or latest_price < latest_vwap * 0.92:
+        print(f"[WARNING] {symbol} 價格偏離 VWAP 過大，跳過")
+        return None
 
 # ✅ 預警 - 多頭轉折（含 VWAP、OBV）
 elif (
