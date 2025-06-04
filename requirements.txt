@@ -13,3 +13,4 @@ google-api-python-client
 polygon-api-client>=1.6.0
 python-dotenv
 alpaca-trade-api
+alpaca-trade-api>=1.6.0
