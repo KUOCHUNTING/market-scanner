@@ -1272,8 +1272,8 @@ def run_scanner(tick_series):
     # ✅ 股票清單
     stock_list = load_stock_list(STOCK_LIST_CSV)
 
-tick_value = get_tick_value()
-trin_value = get_trin_value() 
+tick_series = get_tick_series()
+tick_value = tick_series[-1] if len(tick_series) > 0 else None 
 
 for symbol in stock_list:
     try:
