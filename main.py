@@ -784,7 +784,7 @@ def fetch_stock_data(symbol, limit=100):
         end_time_str = end_time.isoformat()
 
         # ✅ 呼叫 Alpaca API 抓取資料
-        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex').df
+        bars = api.get_bars("ASUR", "5Min", start="2024-06-01T00:00:00Z", end="2024-06-03T00:00:00Z", feed='iex').dfprint(bars)
 
         time.sleep(0.25)
         
