@@ -28,9 +28,9 @@ from alpaca.data.timeframe import TimeFrame
 
 
 # ✅ 正確用法（字串方式）
-timeframe = TimeFrame(unit="1Min")      # 1 分鐘
-timeframe = TimeFrame(unit="5Min")      # ✅ 5 分鐘
-timeframe = TimeFrame("1Day")      # 日線
+timeframe = TimeFrame(amount=1, unit="Min")  # ✅ 表示 1 分鐘
+timeframe = TimeFrame(amount=5, unit="Min")  # ✅ 表示 5 分鐘
+timeframe = TimeFrame(amount=1, unit="Day")  # ✅ 表示 1 日
 # Alpaca（抓個股＋下單）
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
@@ -782,7 +782,7 @@ def fetch_stock_data(symbol):
         # ✅ 設定請求物件（新版 SDK 用 enum 寫法）
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=TimeFrame(unit="5Min"),  # ✅ 傳入字串
+            timeframe=TimeFrame(amount=5, unit="Min"),  # ✅ 使用正確格式
             start=start_time,
             end=now_utc
         )
