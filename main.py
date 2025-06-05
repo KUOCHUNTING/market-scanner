@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 # Alpaca API
 from alpaca_trade_api.rest import REST, TimeFrame
-from alpaca.data.timeframe import TimeFrame  # ✅ 正確匯入
+from alpaca.data.timeframe import TimeFrame
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 class TimeFrame:
     Minute = "1Min"
