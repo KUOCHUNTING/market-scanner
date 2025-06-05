@@ -24,7 +24,8 @@ import os
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
-
+from dotenv import load_dotenv
+load_dotenv()
 
 # ✅ 正確用法（字串方式）
 TIMEFRAME_1MIN = TimeFrame(1, "Min")
@@ -32,8 +33,8 @@ TIMEFRAME_5MIN = TimeFrame(5, "Min")
 TIMEFRAME_1DAY = TimeFrame(1, "Day")
 # Alpaca（抓個股＋下單）
 load_dotenv()  # ✅ 讀取 .env 檔
-API_KEY = os.getenv("AK1OZ6UJMMDD0MQ1ZJ76")
-SECRET_KEY = os.getenv("2ieUy3dxoSoD4PmzzKRy6fmunMb7H9VGdN1a2Kr3")
+API_KEY = "AK1OZ6UJMMDD0MQ1ZJ76"
+SECRET_KEY = "2ieUy3dxoSoD4PmzzKRy6fmunMb7H9VGdN1a2Kr3"
 client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
