@@ -775,24 +775,27 @@ from datetime import datetime, timedelta, timezone
 
 def fetch_stock_data(symbol):
     try:
+        # ✅ 設定 UTC 時區時間範圍
         now_utc = datetime.now(dt_timezone.utc)
         start_time = now_utc - timedelta(minutes=500)
 
-        print(f"[DEBUG] 時間框架物件：{TimeFrame('5Min')}")
-        
+        # ✅ 設定請求物件（新版 SDK 用 enum 寫法）
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe = TimeFrame("5Min"),  # ✅ 用 enum 或字串初始化
+            timeframe=TimeFrame.FIVE_MINUTE,  # ✅ 正確 enum 寫法
             start=start_time,
-            end=end_time
+            end=now_utc
         )
 
+        # ✅ 抓資料並轉換為 dataframe
         bars = client.get_stock_bars(request).df
 
+        # ✅ 檢查資料是否有效
         if bars.empty or 'close' not in bars.columns:
             print(f"[警告] {symbol} 無效或資料不足，跳過")
             return None
 
+        # ✅ 整理 dataframe 格式
         bars.reset_index(inplace=True)
         bars['symbol'] = symbol
         return bars
