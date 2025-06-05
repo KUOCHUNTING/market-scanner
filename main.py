@@ -32,7 +32,6 @@ timeframe = TimeFrame(amount=5, unit="Min")  # ✅ 表示 5 分鐘
 timeframe = TimeFrame(amount=1, unit="Day")  # ✅ 表示 1 日
 # Alpaca（抓個股＋下單）
 load_dotenv()  # ✅ 讀取 .env 檔
-
 API_KEY = os.getenv("APCA_API_KEY")
 SECRET_KEY = os.getenv("APCA_API_SECRET_KEY")
 client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
