@@ -22,7 +22,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 
 # Alpaca API
-from alpaca_trade_api.rest import REST, TimeFrame
+from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.timeframe import TimeFrame
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 class TimeFrame:
