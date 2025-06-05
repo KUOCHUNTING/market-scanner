@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 
 # Alpaca API
 from alpaca.data.historical import StockHistoricalDataClient
+from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 class TimeFrame:
@@ -33,10 +34,9 @@ class TimeFrame:
     Day = "1Day"
 
 # Alpaca（抓個股＋下單）
-ALPACA_API_KEY = "AK1OZ6UJMMDD0MQ1ZJ76"
-ALPACA_SECRET_KEY = "2ieUy3dxoSoD4PmzzKRy6fmunMb7H9VGdN1a2Kr3"
-ALPACA_BASE_URL = "https://api.alpaca.markets"
-api = REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL)
+ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
+api = StockHistoricalDataClient(ALPACA_API_KEY, ALPACA_SECRET_KEY)
 
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
