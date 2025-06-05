@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from alpaca_trade_api.rest import REST, TimeFrame
 from alpaca_trade_api.stream import Stream
 import alpaca_trade_api
-print(alpaca_trade_api.__version__)
+print("[DEBUG] Alpaca 版本：", alpaca_trade_api.__version__)
 
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 class TimeFrame:
@@ -783,7 +783,7 @@ def fetch_stock_data(symbol, limit=100):
         end_time_str = end_time.isoformat()
 
         # ✅ 呼叫 Alpaca API 抓取資料
-        bars = api.get_bars(symbol, TimeFrame("5Min"), start=start_time_str, end=end_time_str).df
+        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str).df
 
         if bars.empty:
             print(f"[WARNING] 無資料：{symbol}")
