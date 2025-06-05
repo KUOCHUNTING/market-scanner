@@ -802,6 +802,9 @@ def fetch_stock_data(symbol, limit=100):
             "close": "Close",
             "volume": "Volume"
         })
+    except Exception as e:
+        print(f"[ERROR] 無法抓取 {symbol}：{e}")
+        return None
         
 def analyze_stock_data(symbol, bars, tick_value, trin_value):
     try:
