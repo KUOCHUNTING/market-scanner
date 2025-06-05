@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone  # ✅ 正確匯入整個 tim
 import random
 import os
 import gspread
+import time
 from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 # === Alpaca 套件導入 ===
