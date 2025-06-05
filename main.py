@@ -783,7 +783,7 @@ def fetch_stock_data(symbol, limit=100):
         end_time_str = end_time.isoformat()
 
         # ✅ 呼叫 Alpaca API 抓取資料
-        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str).df
+        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex').df
 
         if bars.empty:
             print(f"[WARNING] 無資料：{symbol}")
