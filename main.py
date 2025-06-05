@@ -8,13 +8,10 @@ from ta.volume import MFIIndicator
 import requests
 import pandas as pd
 from datetime import datetime, timedelta, timezone  # ✅ 正確匯入整個 timezone 模組
-from pytz import timezone
 import random
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from pytz import timezone
-from datetime import datetime
 from dotenv import load_dotenv
 # === Alpaca 套件導入 ===
 from alpaca_trade_api.rest import REST, TimeFrame
