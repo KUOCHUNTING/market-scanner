@@ -7,7 +7,7 @@ from ta.volume import MFIIndicator
 # === 自訂函數 ===
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone  # ✅ 正確匯入整個 timezone 模組
 from pytz import timezone
 import random
 import os
@@ -775,7 +775,7 @@ stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 def fetch_stock_data(symbol, limit=100):
     try:
         # ✅ 使用 UTC 時區，符合 Alpaca API 要求格式
-        now = datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)  # ✅ 正確使用 timezone.utc
         end_time = now - timedelta(minutes=5)
         start_time = end_time - timedelta(days=3)
 
