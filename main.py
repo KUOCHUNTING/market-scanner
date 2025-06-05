@@ -785,9 +785,9 @@ def fetch_stock_data(symbol, limit=100):
         # ✅ 呼叫 Alpaca API 抓取資料
         bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex').df
 
-        if bars.empty:
-            print(f"[WARNING] 無資料：{symbol}")
-            return None
+    except Exception as e:
+        print(f"[ERROR] 無法抓取 {symbol}：{e}")
+    time.sleep(0.25)  # ✅ 每次間隔 250 毫秒（保護 API 不超速）
 
         # 只保留最近 limit 根K棒
         bars = bars.tail(limit)
