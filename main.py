@@ -782,7 +782,7 @@ def fetch_stock_data(symbol, limit=100):
         end_time_str = end_time.isoformat()
 
         # ✅ 呼叫 Alpaca API，取得 BarsV2 資料
-        bars_v2 = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex')
+        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='sip').df
         time.sleep(0.25)
 
         # ✅ 確保 bars_v2 有 df 屬性再轉換
