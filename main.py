@@ -14,7 +14,6 @@ import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pytz import timezone
-from datetime import timedelta
 from datetime import datetime
 from dotenv import load_dotenv
 # === Alpaca 套件導入 ===
