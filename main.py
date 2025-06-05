@@ -1421,63 +1421,60 @@ for symbol, info in list(observed_candidates.items()):
         continue
 
     # ✅ 僅針對爆量觀察來源才執行
+try:
     if "爆量" in info['reason'] or info['reason'] == "異常爆量觀察":
-        try:
-            df = fetch_stock_data(symbol)
-            avg_volume_20 = df['volume'].iloc[-21:-1].mean()
+        df = fetch_stock_data(symbol)
+        avg_volume_20 = df['volume'].iloc[-21:-1].mean()
 
-            latest_rsi = RSIIndicator(df['close']).rsi().iloc[-1]
-            rsi = RSIIndicator(df['close']).rsi()
-            tmo = df['close'].diff(2)
-            tmo_slope = tmo.iloc[-1] - tmo.iloc[-2]
-            candle_type = detect_candle_type(df)
-            obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
-            mfi = MFIIndicator(high=df['high'], low=df['low'], close=df['close'], volume=df['volume']).money_flow_index()
+        latest_rsi = RSIIndicator(df['close']).rsi().iloc[-1]
+        rsi = RSIIndicator(df['close']).rsi()
+        tmo = df['close'].diff(2)
+        tmo_slope = tmo.iloc[-1] - tmo.iloc[-2]
+        candle_type = detect_candle_type(df)
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+        mfi = MFIIndicator(high=df['high'], low=df['low'], close=df['close'], volume=df['volume']).money_flow_index()
 
-            if (
-                latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
-                tmo.iloc[-2] > 0 and tmo.iloc[-1] < 0 and
-                mfi.iloc[-2] > mfi.iloc[-1] and mfi.iloc[-2] > 60 and
-                obv.iloc[-1] < obv.iloc[-3] and
-                candle_type in ['shooting_star', 'bearish_engulfing']
-            ):
-                 # ✅ 計算進場資訊
-                latest_price = df['close'].iloc[-1]
-                capital_to_use = min(capital_left, 6000)
-                shares = int(capital_to_use / latest_price)
+        if (
+            latest_rsi > 65 and rsi.iloc[-2] > rsi.iloc[-1] and
+            tmo.iloc[-2] > 0 and tmo.iloc[-1] < 0 and
+            mfi.iloc[-2] > mfi.iloc[-1] and mfi.iloc[-2] > 60 and
+            obv.iloc[-1] < obv.iloc[-3] and
+            candle_type in ['shooting_star', 'bearish_engulfing']
+        ):
+            latest_price = df['close'].iloc[-1]
+            capital_to_use = min(capital_left, 6000)
+            shares = int(capital_to_use / latest_price)
 
-                if shares > 0:
-                    # ✅ 記錄持倉
-                    positions[symbol] = {
-                        "entry_price": latest_price,
-                        "entry_time": datetime.now(),
-                        "direction": "空",
-                        "capital_used": capital_to_use
-                    }
+            if shares > 0:
+                positions[symbol] = {
+                    "entry_price": latest_price,
+                    "entry_time": datetime.now(),
+                    "direction": "空",
+                    "capital_used": capital_to_use
+                }
 
-                    # ✅ 推播正式空單訊號
-                    message = (
-                        f"🐻 **[正式進場 - 爆量多轉空]** 🐻 {symbol}\n"
-                        f"📉 價格：${latest_price:.2f}｜疑似高檔見頂\n"
-                        f"📊 RSI：{latest_rsi:.1f}｜TMO：{tmo.iloc[-1]:.2f}｜MFI：{mfi.iloc[-1]:.1f}\n"
-                        f"📉 OBV：下滑｜K棒：{candle_type}\n"
-                        f"📦 成交量：{df['volume'].iloc[-1] / avg_volume_20:.1f}x\n"
-                        f"🕒 時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-                    )
-                    push_to_discord(symbol, message)
+                message = (
+                    f"🐻 **[正式進場 - 爆量多轉空]** 🐻 {symbol}\n"
+                    f"📉 價格：${latest_price:.2f}｜疑似高檔見頂\n"
+                    f"📊 RSI：{latest_rsi:.1f}｜TMO：{tmo.iloc[-1]:.2f}｜MFI：{mfi.iloc[-1]:.1f}\n"
+                    f"📉 OBV：下滑｜K棒：{candle_type}\n"
+                    f"📦 成交量：{df['volume'].iloc[-1] / avg_volume_20:.1f}x\n"
+                    f"🕒 時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+                push_to_discord(symbol, message)
 
-                    # ✅ 寫入 Google Sheets
-                    write_trade_to_sheets(
-                        symbol=symbol,
-                        entry_price=latest_price,
-                        direction="空",
-                        signal_type="爆量多轉空進場",
-                        capital_used=capital_to_use
-                    )
+                write_trade_to_sheets(
+                    symbol=symbol,
+                    entry_price=latest_price,
+                    direction="空",
+                    signal_type="爆量多轉空進場",
+                    capital_used=capital_to_use
+                )
 
-                    # ✅ 移除觀察名單 + 扣資金
-                    del observed_candidates[symbol]
-                    capital_left -= capital_to_use
+                del observed_candidates[symbol]
+                capital_left -= capital_to_use
+except Exception as e:
+    print(f"[ERROR] 爆量觀察檢查失敗：{e}")
 
         if since_last_push > 5 * 60:
             message = f"""🔁**[觀察中 - 尚未建倉]** {symbol}
