@@ -479,10 +479,12 @@ def check_abnormal_volume(symbol, df):
         print(f"[ERROR] 檢查 {symbol} 異常爆量時出錯：{e}")
 
 # 範例：在主程式的迴圈中，每次抓完 df 之後呼叫這個函數
-for symbol in stock_list:
-    df = fetch_stock_data(symbol)  # 假設這是你抓資料的函數
-    if df is None or df.empty:
-        continue
+try:
+    df_list = pd.read_csv("filtered_us_stocks_common_only.csv")
+    stock_list = df_list['symbol'].tolist()
+except Exception as e:
+    print(f"[ERROR] 無法載入股票清單：{e}")
+    stock_list = []
 
     check_abnormal_volume(symbol, df)   
 
