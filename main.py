@@ -11,6 +11,7 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 from pytz import timezone
 from datetime import datetime, timedelta, timezone as dt_timezone
+from datetime import timezone as dt_timezone
 import os
 import random
 
@@ -777,17 +778,17 @@ from datetime import datetime, timedelta, timezone
 
 def fetch_stock_data(symbol):
     try:
-        # ✅ 設定抓取時間：最近 100 根 5 分鐘 K 線
-        end_time = datetime.now(timezone.utc)
-        start_time = end_time - timedelta(minutes=500)
+        now_utc = datetime.now(dt_timezone.utc)
+        start_time = now_utc - timedelta(minutes=500)
 
-        bars = api.get_bars(
-            symbol,
-            timeframe=TimeFrame("5Min"),  # ✅ 正確用法
-            start=start_time.isoformat(),
-            end=end_time.isoformat(),
-            adjustment='raw'
-        ).df
+        request = StockBarsRequest(
+            symbol_or_symbols=symbol,
+            timeframe=TimeFrame("5Min"),
+            start=start_time,
+            end=now_utc
+        )
+
+        bars = client.get_stock_bars(request).df
 
         if bars.empty or 'close' not in bars.columns:
             print(f"[警告] {symbol} 無效或資料不足，跳過")
