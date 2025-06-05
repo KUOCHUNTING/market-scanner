@@ -774,33 +774,29 @@ stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 
 def fetch_stock_data(symbol, limit=100):
     try:
-        # ✅ 使用 UTC 時區，符合 Alpaca API 要求格式
-        now = datetime.now(timezone.utc)  # ✅ 正確使用 timezone.utc
+        # ✅ 時間設定（UTC，符合 Alpaca 要求）
+        now = datetime.now(timezone.utc)
         end_time = now - timedelta(minutes=5)
         start_time = end_time - timedelta(days=3)
-
-        # ✅ 轉成 RFC3339 格式字串
         start_time_str = start_time.isoformat()
         end_time_str = end_time.isoformat()
 
-        # ✅ 呼叫 Alpaca API 抓取資料
+        # ✅ 呼叫 Alpaca API，取得 BarsV2 資料
         bars_v2 = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex')
         time.sleep(0.25)
 
-        # ✅ 確保有 df 屬性，並轉為 DataFrame
+        # ✅ 確保 bars_v2 有 df 屬性再轉換
         if hasattr(bars_v2, "df"):
             bars = bars_v2.df
             if bars.empty:
                 print(f"[WARNING] 無資料：{symbol}")
                 return None
         else:
-            print(f"[WARNING] {symbol} 無法轉換為 DataFrame，跳過")
-            return None 
+            print(f"[WARNING] {symbol} 無法轉為 DataFrame，跳過")
+            return None
 
-        # 只保留最近 limit 根K棒
+        # ✅ 裁切、重新命名欄位
         bars = bars.tail(limit)
-
-        # 統一欄位名稱
         bars = bars.rename(columns={
             "open": "Open",
             "high": "High",
@@ -808,6 +804,10 @@ def fetch_stock_data(symbol, limit=100):
             "close": "Close",
             "volume": "Volume"
         })
+        bars["timestamp"] = bars.index
+
+        return bars
+
     except Exception as e:
         print(f"[ERROR] 無法抓取 {symbol}：{e}")
         return None
