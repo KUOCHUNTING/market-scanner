@@ -697,8 +697,8 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
 
 
 # 設定美東時間
-now_utc = datetime.now(timezone.utc)
-now_est = datetime.now(pytz_timezone("US/Eastern"))
+now_utc = datetime.now(dt_timezone.utc)  # ✅ 使用標準庫 timezone.utc
+now_est = datetime.now(timezone("US/Eastern"))  # ✅ 使用 pytz 處理美東時間
 market_open = now_est.replace(hour=9, minute=30, second=0, microsecond=0)
 market_close = now_est.replace(hour=16, minute=0, second=0, microsecond=0)
 
