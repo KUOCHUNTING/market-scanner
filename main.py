@@ -1428,9 +1428,11 @@ def run_scanner(tick_series):
             continue
 
         try:
-            if "爆量" in info['reason'] or info['reason'] == '異常爆量觀察來源':
-                df = fetch_stock_data(symbol)
-        avg_volume_20 = df['volume'].iloc[-21:-1].mean()
+            df = fetch_stock_data(symbol)
+            avg_volume_20 = df['volume'].iloc[-21:-1].mean()
+        except Exception as e:
+            print(f"[ERROR] 無法處理 {symbol}：{e}")
+            continue  # 或者 pass，看你後面要怎麼處理
 
         latest_rsi = RSIIndicator(df['close']).rsi().iloc[-1]
         rsi = RSIIndicator(df['close']).rsi()
