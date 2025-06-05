@@ -9,7 +9,7 @@ from ta.momentum import RSIIndicator  # 使用 RSI
 import requests
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from pytz import timezone as pytz_timezone  # 如果你用 pytz，就改名避免衝突
+from pytz import timezone
 import os
 import random
 
