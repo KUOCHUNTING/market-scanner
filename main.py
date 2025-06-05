@@ -782,7 +782,7 @@ def fetch_stock_data(symbol):
 
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=TimeFrame("5Min"),
+            timeframe=TimeFrame("5Min"),  # ✅ 這是關鍵
             start=start_time,
             end=now_utc
         )
