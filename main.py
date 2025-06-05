@@ -772,6 +772,8 @@ def load_stock_list(filepath):
         return []
 stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 
+from datetime import datetime, timedelta, timezone
+
 def fetch_stock_data(symbol):
     try:
         # ✅ 設定抓取時間：最近 100 根 5 分鐘 K 線
