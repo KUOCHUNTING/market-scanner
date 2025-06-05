@@ -1581,7 +1581,6 @@ for symbol in stock_list:
 
         # 技術指標
         rsi = RSIIndicator(close=df['close']).rsi()
-        macd = MACD(df['close']).macd_diff()
         atr = AverageTrueRange(high=df['high'], low=df['low'], close=df['close']).average_true_range()
         latest_price = df['close'].iloc[-1]
         rsi = RSIIndicator(close=df['close']).rsi()
