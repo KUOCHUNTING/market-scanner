@@ -1476,26 +1476,27 @@ try:
 except Exception as e:
     print(f"[ERROR] 爆量觀察檢查失敗：{e}")
 
-        if since_last_push > 5 * 60:
-            message = f"""🔁**[觀察中 - 尚未建倉]** {symbol}
+if since_last_push > 5 * 60:
+    message = f"""🔁**[觀察中 - 尚未建倉]** {symbol}
 ⏱️ 已觀察：{int(duration // 60)} 分鐘
 📉 初始價格：${info['entry_price']:.2f}
 📌 原因：{info['reason']}
 🔍 尚未達成正式進場條件"""
-            push_to_discord(symbol, message)
-            observed_candidates[symbol]['last_push_time'] = now
+     push_to_discord(symbol, message)
+     observed_candidates[symbol]['last_push_time'] = now
 
-        # ✅ 第 29 分鐘提醒即將結束
-        if 1740 <= duration <= 1800 and not info.get("notified_expiring", False):
-            message = f"""⏰**[提醒 - 觀察即將結束]** {symbol}
+# ✅ 第 29 分鐘提醒即將結束
+if 1740 <= duration <= 1800 and not info.get("notified_expiring", False):
+    message = f"""⏰**[提醒 - 觀察即將結束]** {symbol}
 📉 初始價格：${info['entry_price']:.2f}｜觀察時間已達 29 分鐘
 ⚠️ 尚未出現正式訊號，預計 1 分鐘後自動移除"""
-            push_to_discord(symbol, message)
-            observed_candidates[symbol]["notified_expiring"] = True
+     push_to_discord(symbol, message)
+     observed_candidates[symbol]["notified_expiring"] = True
             
-    success_count = 0
-    fail_count = 0
-    # ✅ 每次掃描前，先檢查持倉是否該出場
+        success_count = 0
+        fail_count = 0
+        # ✅ 每次掃描前，先檢查持倉是否該出場
+
     for symbol in list(positions.keys()):
         latest_price = get_latest_price(symbol)
         check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
