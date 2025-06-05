@@ -1599,7 +1599,7 @@ for symbol in stock_list:
         tmo = df['close'].diff().rolling(window=5).mean()
         latest_tmo = tmo.iloc[-1]
         prev_tmo = tmo.iloc[-2] if len(tmo) >= 2 else 0
-        tmo_cross = l
+        tmo_cross = tmo.iloc[-2] < 0 and tmo.iloc[-1] > 0  # 例如 TMO 黃金交叉條件
         
         # MFI
         mfi = MFIIndicator(
