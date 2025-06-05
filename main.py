@@ -1481,9 +1481,7 @@ def run_scanner(tick_series):
 
                 del observed_candidates[symbol]
                 capital_left -= capital_to_use
-    except Exception as e:
-        print(f"[ERROR] 爆量觀察檢查失敗：{e}")
-
+    
 for symbol, info in list(observed_candidates.items()):
     now = datetime.now()
     duration = (now - info['start_time']).total_seconds()
