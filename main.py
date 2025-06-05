@@ -780,6 +780,8 @@ def fetch_stock_data(symbol):
         now_utc = datetime.now(dt_timezone.utc)
         start_time = now_utc - timedelta(minutes=500)
 
+        print(f"[DEBUG] 時間框架物件：{TimeFrame('5Min')}")
+        
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
             timeframe=TimeFrame("5Min"),  # ✅ 這是關鍵
