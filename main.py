@@ -1499,9 +1499,9 @@ success_count = 0
 fail_count = 0
          # ✅ 每次掃描前，先檢查持倉是否該出場
 
-    for symbol in list(positions.keys()):
-        latest_price = get_latest_price(symbol)
-        check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
+for symbol in list(positions.keys()):
+    latest_price = get_latest_price(symbol)
+    check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
 
     # ✅ 抓大盤指標
     tick_percentile = get_tick_percentile(tick_series)
