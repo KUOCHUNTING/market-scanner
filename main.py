@@ -774,25 +774,22 @@ stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 
 def fetch_stock_data(symbol):
     try:
-        # ✅ 設定抓取時間範圍（近 2 小時內的 5 分鐘線）
+        # ✅ 設定抓取時間：最近 100 根 5 分鐘 K 線
         end_time = datetime.now(timezone.utc)
-        start_time = end_time - timedelta(hours=2)
+        start_time = end_time - timedelta(minutes=500)
 
         bars = api.get_bars(
             symbol,
-            timeframe=TimeFrame.Minute,
+            timeframe=TimeFrame(5, TimeFrame.Unit.Minute),  # 5 分線
             start=start_time.isoformat(),
             end=end_time.isoformat(),
-            adjustment='raw',
-            limit=100
+            adjustment='raw'
         ).df
 
-        # ✅ 檢查資料是否有效
         if bars.empty or 'close' not in bars.columns:
             print(f"[警告] {symbol} 無效或資料不足，跳過")
             return None
 
-        # ✅ 回傳資料表
         bars.reset_index(inplace=True)
         bars['symbol'] = symbol
         return bars
