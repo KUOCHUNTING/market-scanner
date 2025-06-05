@@ -25,8 +25,12 @@ from dotenv import load_dotenv
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
-# 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 
+# ✅ 不再寫 TimeFrame("5Min")
+# 改成這樣使用枚舉物件：
+timeframe = TimeFrame.Minute  # 1 分鐘
+timeframe = TimeFrame.FiveMinutes  # ✅ 5 分鐘
+timeframe = TimeFrame.Day  # 日線
 # Alpaca（抓個股＋下單）
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
@@ -778,9 +782,9 @@ def fetch_stock_data(symbol):
         
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=TimeFrame("5Min"),  # ✅ 這是關鍵
+            timeframe=TimeFrame.FiveMinutes,  # ✅ 用 enum 不是字串
             start=start_time,
-            end=now_utc
+            end=end_time
         )
 
         bars = client.get_stock_bars(request).df
