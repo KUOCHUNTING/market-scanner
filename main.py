@@ -8,7 +8,8 @@ from ta.momentum import RSIIndicator  # 使用 RSI
 # 基本函數
 import requests
 import pandas as pd
-from pytz import timezone
+from datetime import datetime, timedelta, timezone
+from pytz import timezone as pytz_timezone  # 如果你用 pytz，就改名避免衝突
 import os
 import random
 
@@ -696,8 +697,8 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
 
 
 # 設定美東時間
-est = timezone("US/Eastern")
-now_est = datetime.now(est)
+now_utc = datetime.now(timezone.utc)
+now_est = datetime.now(pytz_timezone("US/Eastern"))
 market_open = now_est.replace(hour=9, minute=30, second=0, microsecond=0)
 market_close = now_est.replace(hour=16, minute=0, second=0, microsecond=0)
 
