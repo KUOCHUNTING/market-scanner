@@ -1429,7 +1429,7 @@ def run_scanner(tick_series):
 
         try:
             if "爆量" in info['reason'] or info['reason'] == '異常爆量觀察來源':
-            df = fetch_stock_data(symbol)
+                df = fetch_stock_data(symbol)
         avg_volume_20 = df['volume'].iloc[-21:-1].mean()
 
         latest_rsi = RSIIndicator(df['close']).rsi().iloc[-1]
