@@ -34,7 +34,7 @@ timeframe = TimeFrame(amount=1, unit="Day")  # ✅ 表示 1 日
 # Alpaca（抓個股＋下單）
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-api = StockHistoricalDataClient(ALPACA_API_KEY, ALPACA_SECRET_KEY)
+client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
 
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
@@ -110,7 +110,7 @@ def init_sheets():
         print(f"[ERROR] 初始化 Sheets 時失敗：{e}")   
 
 now_utc = datetime.now(dt_timezone.utc)
-now_est = datetime.now(timezone("US/Eastern"))  # ✅ OK
+now_est = datetime.now(timezone("US/Eastern"))
 # === 資料來源 ===
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
