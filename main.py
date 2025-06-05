@@ -1,27 +1,27 @@
 # === 技術指標 ===
-from ta.volume import OnBalanceVolumeIndicator
-from ta.volatility import BollingerBands, AverageTrueRange
-from ta.momentum import RSIIndicator, StochasticOscillator
-from ta.volume import OnBalanceVolumeIndicator
-from ta.volume import MFIIndicator
-# === 自訂函數 ===
+# 技術指標（你有用 RSI、OBV、MFI）
+from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
+from ta.volatility import AverageTrueRange  # 若有用 ATR 就保留
+from ta.momentum import RSIIndicator  # 使用 RSI
+# （若你用 KD 才需要 StochasticOscillator，否則可刪）
+
+# 基本函數
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
-import random
 import os
+import random
+
+# Google Sheets 套件
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from pytz import timezone
-from datetime import timedelta
-from datetime import datetime
+
+# .env 環境變數
 from dotenv import load_dotenv
-# === Alpaca 套件導入 ===
+
+# Alpaca API
 from alpaca_trade_api.rest import REST, TimeFrame
-from alpaca_trade_api.stream import Stream
-import alpaca_trade_api
-print(alpaca_trade_api.__version__)
 
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
 class TimeFrame:
