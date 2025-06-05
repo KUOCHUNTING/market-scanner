@@ -800,15 +800,6 @@ def fetch_stock_data(symbol, limit=100):
             "close": "Close",
             "volume": "Volume"
         })
-
-        # 加上 timestamp 欄位（若下游邏輯會用）
-        bars["timestamp"] = bars.index
-
-        return bars
-
-    except Exception as e:
-        print(f"[ERROR] 無法取得 {symbol} 的資料：{e}")
-        return None
         
 def analyze_stock_data(symbol, bars, tick_value, trin_value):
     try:
