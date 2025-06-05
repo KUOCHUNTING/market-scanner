@@ -26,12 +26,6 @@ from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 # 模擬新版 TimeFrame 的定義（支援 1Min / 5Min / 15Min / Day）
-class TimeFrame:
-    Minute = "1Min"
-    FiveMinutes = "5Min"
-    FifteenMinutes = "15Min"
-    Hour = "1Hour"
-    Day = "1Day"
 
 # Alpaca（抓個股＋下單）
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
