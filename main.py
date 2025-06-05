@@ -1661,7 +1661,7 @@ for symbol in stock_list:
         fail_count += 1
 
     # === Step 4: 模擬進場 ===
-    check_exit_and_notify(symbol, latest_price)
+    check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
 
     # 如果沒有任何訊號，照樣顯示資訊
     if not signal_note:
