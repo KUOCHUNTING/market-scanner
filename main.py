@@ -5,6 +5,7 @@ from ta.momentum import RSIIndicator, StochasticOscillator
 from ta.volume import OnBalanceVolumeIndicator
 from ta.volume import MFIIndicator
 # === 自訂函數 ===
+import pytz
 import requests
 import pandas as pd
 from datetime import datetime, timedelta, timezone  # ✅ 正確匯入整個 timezone 模組
@@ -106,8 +107,6 @@ def init_sheets():
     except Exception as e:
         print(f"[ERROR] 初始化 Sheets 時失敗：{e}")   
 
-est = timezone("US/Eastern")
-now_est = datetime.now(est)
 # === 資料來源 ===
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
