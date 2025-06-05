@@ -3,6 +3,7 @@
 from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
 from ta.volatility import AverageTrueRange  # 若有用 ATR 就保留
 from ta.momentum import RSIIndicator  # 使用 RSI
+rsi = RSIIndicator(close=df['close']).rsi()
 # （若你用 KD 才需要 StochasticOscillator，否則可刪）
 
 # 基本函數
@@ -1580,6 +1581,9 @@ for symbol in stock_list:
         print(f"[INFO] {symbol} K線取得成功，開始進行技術指標分析")
 
         # 技術指標
+        rsi = RSIIndicator(close=df['close']).rsi()
+        macd = MACD(df['close']).macd_diff()
+        atr = AverageTrueRange(high=df['high'], low=df['low'], close=df['close']).average_true_range()
         latest_price = df['close'].iloc[-1]
         rsi = RSIIndicator(close=df['close']).rsi()
         latest_rsi = rsi.iloc[-1]
