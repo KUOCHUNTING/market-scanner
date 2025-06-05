@@ -8,7 +8,6 @@ from ta.momentum import RSIIndicator  # 使用 RSI
 # 基本函數
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
 from pytz import timezone
 import os
 import random
