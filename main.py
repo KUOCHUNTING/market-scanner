@@ -1564,7 +1564,7 @@ for symbol in stock_list:
             low=df['low'],
             close=df['close'],
             volume=df['volume']
-        ).money_flow_index()atest_tmo > 0 and prev_tmo <= 0
+        ).money_flow_index()
 
         
 
