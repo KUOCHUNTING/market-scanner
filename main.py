@@ -114,10 +114,13 @@ est = timezone("US/Eastern")
 now_est = datetime.now(est)
 # === 資料來源 ===
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
+
 capital_left = 1000000  # 初始資金
 report_sent = False     # 今日績效報告是否已推播
 positions = {}          # 全部持倉記錄
 entered_positions = {}  # 全域變數記錄進場股票
+# ✅ 建立觀察名單的容器（追蹤潛伏預警股票）
+observed_candidates = {}
 
 def send_to_discord(message):  # ✅ 安全不會衝突
     try:
