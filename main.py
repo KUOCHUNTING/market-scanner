@@ -1566,7 +1566,10 @@ for symbol in stock_list:
             volume=df['volume']
         ).money_flow_index()
 
-        
+        latest_mfi = mfi.iloc[-1]
+        prev_mfi = mfi.iloc[-2]
+
+        mfi_down = prev_mfi > latest_mfi and prev_mfi > 60  # ✅ MFI 從高檔轉弱
 
         # === 小資過濾條件判斷區 ===
         market_cap = get_market_cap(symbol)
