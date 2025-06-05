@@ -8,7 +8,6 @@ from ta.momentum import RSIIndicator  # 使用 RSI
 # 基本函數
 import requests
 import pandas as pd
-from datetime import datetime, timedelta, timezone
 from pytz import timezone
 from datetime import datetime, timedelta, timezone as dt_timezone
 from datetime import timezone as dt_timezone
@@ -112,8 +111,8 @@ def init_sheets():
     except Exception as e:
         print(f"[ERROR] 初始化 Sheets 時失敗：{e}")   
 
-est = timezone("US/Eastern")
-now_est = datetime.now(est)
+now_utc = datetime.now(dt_timezone.utc)
+now_est = datetime.now(timezone("US/Eastern"))  # ✅ OK
 # === 資料來源 ===
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"  # 記得換成自己的
 
