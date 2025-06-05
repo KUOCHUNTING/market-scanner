@@ -1482,16 +1482,16 @@ if since_last_push > 5 * 60:
 📉 初始價格：${info['entry_price']:.2f}
 📌 原因：{info['reason']}
 🔍 尚未達成正式進場條件"""
-     push_to_discord(symbol, message)
-     observed_candidates[symbol]['last_push_time'] = now
+         push_to_discord(symbol, message)
+         observed_candidates[symbol]['last_push_time'] = now
 
-# ✅ 第 29 分鐘提醒即將結束
-if 1740 <= duration <= 1800 and not info.get("notified_expiring", False):
-    message = f"""⏰**[提醒 - 觀察即將結束]** {symbol}
+    # ✅ 第 29 分鐘提醒即將結束
+    if 1740 <= duration <= 1800 and not info.get("notified_expiring", False):
+        message = f"""⏰**[提醒 - 觀察即將結束]** {symbol}
 📉 初始價格：${info['entry_price']:.2f}｜觀察時間已達 29 分鐘
 ⚠️ 尚未出現正式訊號，預計 1 分鐘後自動移除"""
-     push_to_discord(symbol, message)
-     observed_candidates[symbol]["notified_expiring"] = True
+        push_to_discord(symbol, message)
+        observed_candidates[symbol]["notified_expiring"] = True
             
         success_count = 0
         fail_count = 0
