@@ -789,7 +789,7 @@ def fetch_stock_data(symbol, limit=100):
         
         if bars.empty:
             print(f"[WARNING] 無資料：{symbol}")
-            return None）
+            return None 
 
         # 只保留最近 limit 根K棒
         bars = bars.tail(limit)
