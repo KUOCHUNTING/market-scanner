@@ -782,7 +782,7 @@ def fetch_stock_data(symbol):
         
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=TimeFrame.FiveMinutes,  # ✅ 用 enum 不是字串
+            timeframe = TimeFrame("5Min")  # ✅ 用 enum 不是字串
             start=start_time,
             end=end_time
         )
