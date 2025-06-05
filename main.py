@@ -32,8 +32,8 @@ TIMEFRAME_5MIN = TimeFrame(5, "Min")
 TIMEFRAME_1DAY = TimeFrame(1, "Day")
 # Alpaca（抓個股＋下單）
 load_dotenv()  # ✅ 讀取 .env 檔
-API_KEY = os.getenv("APCA_API_KEY")
-SECRET_KEY = os.getenv("APCA_API_SECRET_KEY")
+API_KEY = os.getenv("AK1OZ6UJMMDD0MQ1ZJ76")
+SECRET_KEY = os.getenv("2ieUy3dxoSoD4PmzzKRy6fmunMb7H9VGdN1a2Kr3")
 client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
