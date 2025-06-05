@@ -11,7 +11,6 @@ import pandas as pd
 from pytz import timezone
 from datetime import datetime, timedelta, timezone as dt_timezone
 from datetime import timezone as dt_timezone
-import os
 import random
 
 # Google Sheets 套件
@@ -20,7 +19,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # .env 環境變數
 from dotenv import load_dotenv
-
+import os
 # Alpaca API
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
@@ -32,10 +31,11 @@ timeframe = TimeFrame(amount=1, unit="Min")  # ✅ 表示 1 分鐘
 timeframe = TimeFrame(amount=5, unit="Min")  # ✅ 表示 5 分鐘
 timeframe = TimeFrame(amount=1, unit="Day")  # ✅ 表示 1 日
 # Alpaca（抓個股＋下單）
-ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
-ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
+load_dotenv()  # ✅ 讀取 .env 檔
 
+API_KEY = os.getenv("APCA_API_KEY")
+SECRET_KEY = os.getenv("APCA_API_SECRET_KEY")
+client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 from polygon import RESTClient
