@@ -26,11 +26,11 @@ from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 
-# ✅ 不再寫 TimeFrame("5Min")
-# 改成這樣使用枚舉物件：
-timeframe = TimeFrame.Minute  # 1 分鐘
-timeframe = TimeFrame.FiveMinutes  # ✅ 5 分鐘
-timeframe = TimeFrame.Day  # 日線
+
+# ✅ 正確用法（字串方式）
+timeframe = TimeFrame("1Min")      # 1 分鐘
+timeframe = TimeFrame("5Min")      # ✅ 5 分鐘
+timeframe = TimeFrame("1Day")      # 日線
 # Alpaca（抓個股＋下單）
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
@@ -782,7 +782,7 @@ def fetch_stock_data(symbol):
         # ✅ 設定請求物件（新版 SDK 用 enum 寫法）
         request = StockBarsRequest(
             symbol_or_symbols=symbol,
-            timeframe=TimeFrame.FIVE_MINUTE,  # ✅ 正確 enum 寫法
+            timeframe=TimeFrame("5Min"),  # ✅ 傳入字串
             start=start_time,
             end=now_utc
         )
