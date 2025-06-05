@@ -784,12 +784,17 @@ def fetch_stock_data(symbol, limit=100):
         end_time_str = end_time.isoformat()
 
         # ✅ 呼叫 Alpaca API 抓取資料
-        bars = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex')
-
+        bars_v2 = api.get_bars(symbol, "5Min", start=start_time_str, end=end_time_str, feed='iex')
         time.sleep(0.25)
-        
-        if bars.empty:
-            print(f"[WARNING] 無資料：{symbol}")
+
+        # ✅ 確保有 df 屬性，並轉為 DataFrame
+        if hasattr(bars_v2, "df"):
+            bars = bars_v2.df
+            if bars.empty:
+                print(f"[WARNING] 無資料：{symbol}")
+                return None
+        else:
+            print(f"[WARNING] {symbol} 無法轉換為 DataFrame，跳過")
             return None 
 
         # 只保留最近 limit 根K棒
