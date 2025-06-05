@@ -13,6 +13,11 @@ from datetime import datetime, timedelta, timezone as dt_timezone
 from datetime import timezone as dt_timezone
 import random
 
+# === 輔助資訊函數 ===
+def get_market_cap(symbol):
+    # ✅ 模擬值：預設回傳 3 億市值
+    return 300_000_000
+
 # Google Sheets 套件
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -1663,7 +1668,8 @@ for symbol in stock_list:
     # === Step 4: 模擬進場 ===
     check_exit_and_notify_dynamic(symbol, latest_price, datetime.now())
 
-    # 如果沒有任何訊號，照樣顯示資訊
+    signal_note = None  # ✅ 先預設為 None，避免未定義
+    
     if not signal_note:
         print(
             f"📌 {symbol}｜收盤：${latest_price:.2f}｜RSI：{latest_rsi:.1f}｜"
