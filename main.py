@@ -1118,42 +1118,56 @@ def evaluate_breakout_signal(symbol, df):
         
     # 🐶 空頭正式進場
     elif (
-        latest_rsi > 60 and rsi.iloc[-2] > rsi.iloc[-1] and              # 1️⃣ RSI 高檔轉弱
-        tmo.iloc[-2] > 0 and latest_tmo > 0 and latest_tmo < tmo.iloc[-2] and  # 2️⃣ TMO 正值內部轉弱（尚未翻負）
-        abs(latest_price - latest_vwap) / latest_vwap < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and  # 3️⃣ VWAP 上方但已貼近＋斜率轉弱
-        volume_ratio > 1.5 and                                            # 4️⃣ 異常放量
-        obv.iloc[-1] < obv.iloc[-3] and                                   # 5️⃣ OBV 資金流出
-        candle_type in ['shooting_star', 'bearish_engulfing']            # 6️⃣ 空頭反轉K棒
-    ):
-        signal_note = (
-            f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
-            f"📉 價格:${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
-            f"📊 RSI:{latest_rsi:.1f} ↘️｜TMO:{latest_tmo:.2f} ↘️｜OBV:下滑\n"
-            f"💥 VWAP 尚未跌破但貼近｜📈 Volume:{volume_ratio:.2f}x｜🕯️ K棒:{candle_type}\n"
-            f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
+    latest_rsi > 60 and rsi.iloc[-2] > rsi.iloc[-1] and
+    tmo.iloc[-2] > 0 and latest_tmo > 0 and latest_tmo < tmo.iloc[-2] and
+    abs(latest_price - latest_vwap) / latest_vwap < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and
+    volume_ratio > 1.5 and
+    obv.iloc[-1] < obv.iloc[-3] and
+    candle_type in ['shooting_star', 'bearish_engulfing']
+):
+    signal_note = (
+        f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
+        f"📉 價格:${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
+        f"📊 RSI:{latest_rsi:.1f} ↘️｜TMO:{latest_tmo:.2f} ↘️｜OBV:下滑\n"
+        f"💥 VWAP 尚未跌破但貼近｜📈 Volume:{volume_ratio:.2f}x｜🕯️ K棒:{candle_type}\n"
+        f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
+    )
+
+    # ✅ 安全檢查
+    if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="short", symbol=symbol):
+        return
+
+    # ✅ 檢查 30 分鐘共振
+    df_30m = fetch_30min_data(symbol)
+    has_confluence_30m = check_30min_confluence(df_30m, direction="short")
+
+    if not has_confluence_30m:
+        signal_note += "\n📈 技術共振:⚠️ 無 30M 共振"
+        print(f"[INFO] {symbol} 無 30M 共振，跳過正式空頭進場")
+        push_to_discord(
+            symbol=symbol,
+            price=latest_price,
+            rsi=latest_rsi,
+            tmo=latest_tmo,
+            tmo_slope=tmo_slope,
+            vwap=latest_vwap,
+            volume_ratio=volume_ratio,
+            ema_cross=ema_cross,
+            kd_status=kd_status,
+            candle_type=candle_type,
+            plus_di=latest_plus_di,
+            minus_di=latest_minus_di,
+            signal_note=signal_note,
         )
+        return
+    else:
+        signal_note += "\n📈 技術共振:✅ 30M 共振"
 
-        if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="short", symbol=symbol):
-            return
+    final_entry_signal_detected = True
+    direction = "空"
 
-        # ✅ 檢查 30 分鐘共振（空頭版本）
-        df_30m = fetch_30min_data(symbol)
-        has_confluence_30m = check_30min_confluence(df_30m, direction="short")
-
-        if not has_confluence_30m:
-            signal_note += "\n📈 技術共振:⚠️ 無 30M 共振"
-            print(f"[INFO] {symbol} 無 30M 共振，跳過正式空頭進場")
-        push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-            
-        return  # ✅ 中止正式進場流程
-        else:
-            signal_note += "\n📈 技術共振:✅ 30M 共振"
-
-        final_entry_signal_detected = True
-        direction = "空"
-
-    # ✅ 空頭建倉（需觸發 flag）
-    if final_entry_signal_detected and symbol not in entry_price_dict and len(positions_held) < max_positions:
+# ✅ 空頭建倉邏輯（如果共振通過）
+if final_entry_signal_detected and symbol not in entry_price_dict and len(positions_held) < max_positions:
     allocated = total_capital * position_size_pct
 
     if capital_left < allocated:
@@ -1171,6 +1185,34 @@ def evaluate_breakout_signal(symbol, df):
                     "direction": "short",
                     "entry_time": datetime.now()
                 }
+
+            entry_price_dict[symbol] = latest_price
+            positions_held[symbol] = actual_cost
+            capital_left -= actual_cost
+            entry_direction_dict[symbol] = 'short'
+            entry_shares_dict[symbol] = shares
+            entry_time_dict[symbol] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            positions[symbol] = {
+                'entry_price': latest_price,
+                'capital_used': actual_cost,
+                'entry_time': datetime.now(),
+                'direction': "short",
+                'holding_ratio': 1.0,
+                'sell_stage': 0,
+                'max_gain': 0,
+                'volume_ratio': volume_ratio,
+                'obv': obv.iloc[-1],
+                'rsi': latest_rsi,
+                'tmo': latest_tmo,
+                'vwap': latest_vwap,
+                'ema_cross': ema_cross,
+                'kd_status': kd_status,
+                'tick_percentile': tick_percentile,
+                'tick_slope': tick_slope,
+                'trin_value': trin_value,
+                'confidence_score': confidence_score,
+            }
 
             # 記錄進場資訊
             entry_price_dict[symbol] = latest_price
