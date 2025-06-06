@@ -4,7 +4,7 @@ from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
 from ta.volatility import AverageTrueRange  # 若有用 ATR 就保留
 from ta.momentum import RSIIndicator  # 使用 RSI
 # （若你用 KD 才需要 StochasticOscillator，否則可刪）
-
+import ta
 # 基本函數
 import requests
 import pandas as pd
