@@ -707,7 +707,8 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
                     signal_note += "\n📈 技術共振：⚠️ 無 30M 共振"
                     print(f"[INFO] 潛伏空頭無共振，僅推播觀察：{symbol}")
         push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-                    return  # ❗ 停止潛伏空頭建倉
+                    
+        return  # ❗ 停止潛伏空頭建倉
 
                 if symbol not in entered_positions:
                     entered_positions[symbol] = {
