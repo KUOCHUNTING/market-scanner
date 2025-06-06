@@ -1235,7 +1235,7 @@ def evaluate_breakout_signal(symbol, df):
             candle_type=candle_type,
             plus_di=latest_plus_di,
             minus_di=latest_minus_di,
-            signal_note=signal_note
+            signal_note=signal_note,
         )
 
 
