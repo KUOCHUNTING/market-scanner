@@ -679,8 +679,8 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
 
     return signal_note, auto_entry, direction
 
-
-from datetime import timezone
+from pytz import timezone
+from datetime import datetime, timezone as dt_timezone
 # 設定美東時間
 now_utc = datetime.now(timezone.utc)
 now_est = datetime.now(timezone("US/Eastern"))  # ✅ 使用 pytz 處理美東時間
