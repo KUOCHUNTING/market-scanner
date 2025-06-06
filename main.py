@@ -1154,51 +1154,53 @@ def evaluate_breakout_signal(symbol, df):
 
     # ✅ 空頭建倉（需觸發 flag）
     if final_entry_signal_detected and symbol not in entry_price_dict and len(positions_held) < max_positions:
-        allocated = total_capital * position_size_pct
+    allocated = total_capital * position_size_pct
 
-        if capital_left < allocated:
-            print(f"[SKIP] 資金不足，無法進場:{symbol}")
+    if capital_left < allocated:
+        print(f"[SKIP] 資金不足，無法進場: {symbol}")
+    else:
+        shares = int(allocated / latest_price)
+        actual_cost = shares * latest_price
+
+        if shares == 0:
+            print(f"[SKIP] 價格過高，無法整股放空: {symbol}")
         else:
-            shares = int(allocated / latest_price)
-            actual_cost = shares * latest_price
-
-            if shares == 0:
-                print(f"[SKIP] 價格過高，無法整股放空:{symbol}")
-            else:
-                if symbol not in entered_positions:
-                    entered_positions[symbol] = {
-                        "price": latest_price,
-                        "direction": "short",
-                        "entry_time": datetime.now()
-                    }
-
-                entry_price_dict[symbol] = latest_price
-                positions_held[symbol] = actual_cost
-                capital_left -= actual_cost
-                entry_direction_dict[symbol] = 'short'
-                entry_shares_dict[symbol] = shares
-                entry_time_dict[symbol] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-                positions[symbol] = {
-                    'entry_price': latest_price,
-                    'capital_used': actual_cost,
-                    'entry_time': datetime.now(),
-                    'direction': "short",
-                    'holding_ratio': 1.0,
-                    'sell_stage': 0,
-                    'max_gain': 0,
-                    'volume_ratio': volume_ratio,
-                    'obv': obv.iloc[-1],
-                    'rsi': latest_rsi,
-                    'tmo': latest_tmo,
-                    'vwap': latest_vwap,
-                    'ema_cross': ema_cross,
-                    'kd_status': kd_status,
-                    'tick_percentile': tick_percentile,
-                    'tick_slope': tick_slope,
-                    'trin_value': trin_value,
-                    'confidence_score': confidence_score,
+            if symbol not in entered_positions:
+                entered_positions[symbol] = {
+                    "price": latest_price,
+                    "direction": "short",
+                    "entry_time": datetime.now()
                 }
+
+            # 記錄進場資訊
+            entry_price_dict[symbol] = latest_price
+            positions_held[symbol] = actual_cost
+            capital_left -= actual_cost
+            entry_direction_dict[symbol] = 'short'
+            entry_shares_dict[symbol] = shares
+            entry_time_dict[symbol] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # 建倉資料寫入 positions
+            positions[symbol] = {
+                'entry_price': latest_price,
+                'capital_used': actual_cost,
+                'entry_time': datetime.now(),
+                'direction': "short",
+                'holding_ratio': 1.0,
+                'sell_stage': 0,
+                'max_gain': 0,
+                'volume_ratio': volume_ratio,
+                'obv': obv.iloc[-1],
+                'rsi': latest_rsi,
+                'tmo': latest_tmo,
+                'vwap': latest_vwap,
+                'ema_cross': ema_cross,
+                'kd_status': kd_status,
+                'tick_percentile': tick_percentile,
+                'tick_slope': tick_slope,
+                'trin_value': trin_value,
+                'confidence_score': confidence_score,
+            }
                 
                 # 推播通知
                 send_to_discord(
