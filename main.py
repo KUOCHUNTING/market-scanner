@@ -25,12 +25,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 # .env 環境變數
 from dotenv import load_dotenv
 import os
-# Alpaca API
-from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.requests import StockBarsRequest
-from alpaca.data.timeframe import 
-from dotenv import load_dotenv
-load_dotenv()
+
+from alpaca.data.timeframe import TimeFrame
 
 # ✅ 正確用法（字串方式）
 TIMEFRAME_1MIN = (1, "Min")
