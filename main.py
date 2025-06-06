@@ -1144,7 +1144,8 @@ def evaluate_breakout_signal(symbol, df):
             signal_note += "\n📈 技術共振:⚠️ 無 30M 共振"
             print(f"[INFO] {symbol} 無 30M 共振，跳過正式空頭進場")
         push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-            return  # ✅ 中止正式進場流程
+            
+        return  # ✅ 中止正式進場流程
         else:
             signal_note += "\n📈 技術共振:✅ 30M 共振"
 
