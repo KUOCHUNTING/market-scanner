@@ -1222,22 +1222,22 @@ def evaluate_breakout_signal(symbol, df):
         print("-" * 60)
 
         # ✅ 主訊號推播到 Discord）
-        push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-            symbol=symbol,
-            price=latest_price,
-            rsi=latest_rsi,
-            tmo=latest_tmo,
-            tmo_slope=tmo_slope,
-            vwap=latest_vwap,
-            volume_ratio=volume_ratio,
-            ema_cross=ema_cross,
-            kd_status=kd_status,
-            candle_type=candle_type,
-            plus_di=latest_plus_di,
-            minus_di=latest_minus_di,
-            signal_note=signal_note,
-        )
-
+       # ✅ 正確寫法（全部使用關鍵字參數）
+push_to_discord(
+    symbol=symbol,
+    price=latest_price,
+    rsi=latest_rsi,
+    tmo=latest_tmo,
+    tmo_slope=tmo_slope,
+    vwap=latest_vwap,
+    volume_ratio=volume_ratio,
+    ema_cross=ema_cross,
+    kd_status=kd_status,
+    candle_type=candle_type,
+    plus_di=latest_plus_di,
+    minus_di=latest_minus_di,
+    signal_note=signal_note,
+)
 
 entry_price_dict = {}
 positions = {}  # 持倉記錄:{symbol: {...}}
