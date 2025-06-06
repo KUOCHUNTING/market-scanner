@@ -903,7 +903,8 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
                   f"📊 TRIN:{trin_value:.2f}（偏空）｜TICK:{tick_value}（極端空頭）\n" \
                   f"🔒 市場共振風險過高，多單策略封鎖進場"
         push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-            return None
+            
+        return None
 
         if direction == "空" and trin_value <= 0.8 and tick_value > 1000:
             msg = f"⛔ **[風控 - 禁止空單進場]** ⛔ {symbol}\n" \
