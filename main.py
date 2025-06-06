@@ -710,32 +710,32 @@ def detect_latent_signal(df, rsi, tmo, obv, latest_price, latest_vwap):
                     
         return  # ❗ 停止潛伏空頭建倉
 
-                if symbol not in entered_positions:
-                    entered_positions[symbol] = {
-                        "price": price,
-                        "direction": direction,
-                        "entry_time": now
-                    }
+    if symbol not in entered_positions:
+        entered_positions[symbol] = {
+            "price": price,
+            "direction": direction,
+            "entry_time": now
+        }
 
-                    positions[symbol] = {
-                        'entry_price': price,
-                        'capital_used': 10000,  # ✅ 尚未資金控管情境
-                        'entry_time': now,
-                        'direction': direction,
-                        'max_gain': 0,
-                        'holding_ratio': 1.0,
-                        'sell_stage': 0
-                    }
+        positions[symbol] = {
+            'entry_price': price,
+            'capital_used': 10000,  # ✅ 尚未資金控管情境
+            'entry_time': now,
+            'direction': direction,
+            'max_gain': 0,
+            'holding_ratio': 1.0,
+            'sell_stage': 0
+        }
 
-                    message = (
-                        f"🐻**[潛伏 - 空頭進場]** 🐻{symbol}\n"
-                        f"📉 價格:${latest_price:.2f}｜已滿足全部建倉條件\n"
-                        f"📊 RSI:{rsi:.1f} {arrow_rsi}｜TMO:{tmo:.2f} {arrow_tmo}｜OBV:{obv_status}｜VWAP:{vwap_status_text}｜🕯️ {candle_type}\n"
-                        f"📈 技術共振:{confluence_note}\n"
-                        f"💰 資金投入:${capital_used:.0f}｜股數:{shares}｜剩餘資金:${capital_left:.0f}\n"
-                        f"🕒 時間:{now.strftime('%Y-%m-%d %H:%M:%S')}"
-                    )
-                    send_to_discord(message)
+        message = (
+            f"🐻**[潛伏 - 空頭進場]** 🐻{symbol}\n"
+            f"📉 價格:${latest_price:.2f}｜已滿足全部建倉條件\n"
+            f"📊 RSI:{rsi:.1f} {arrow_rsi}｜TMO:{tmo:.2f} {arrow_tmo}｜OBV:{obv_status}｜VWAP:{vwap_status_text}｜🕯️ {candle_type}\n"
+            f"📈 技術共振:{confluence_note}\n"
+            f"💰 資金投入:${capital_used:.0f}｜股數:{shares}｜剩餘資金:${capital_left:.0f}\n"
+            f"🕒 時間:{now.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+        send_to_discord(message)
 
 
     return signal_note, auto_entry, direction
