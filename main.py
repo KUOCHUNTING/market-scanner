@@ -819,17 +819,17 @@ def fetch_stock_data(symbol):
     )
 
         # ✅ 抓資料並轉換為 dataframe
-        bars = client.get_stock_bars(request).df
+    bars = client.get_stock_bars(request).df
 
-        # ✅ 檢查資料是否有效
-        if bars.empty or 'close' not in bars.columns:
-            print(f"[警告] {symbol} 無效或資料不足，跳過")
-            return None
+    # ✅ 檢查資料是否有效
+    if bars.empty or 'close' not in bars.columns:
+        print(f"[警告] {symbol} 無效或資料不足，跳過")
+        return None
 
-        # ✅ 整理 dataframe 格式
-        bars.reset_index(inplace=True)
-        bars['symbol'] = symbol
-        return bars
+    # ✅ 整理 dataframe 格式
+    bars.reset_index(inplace=True)
+    bars['symbol'] = symbol
+    return bars
 
     except Exception as e:
         print(f"[ERROR] 無法抓取 {symbol}：{e}")
