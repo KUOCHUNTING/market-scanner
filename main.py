@@ -809,14 +809,14 @@ def fetch_stock_data(symbol):
 
 
         # ✅ 設定請求物件（新版 SDK 用 enum 寫法）
-       client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=start_time.strftime('%Y-%m-%d'),
-            to=end_time.strftime('%Y-%m-%d'),
-            limit=500
-        )
+    client.get_aggs(
+        ticker=symbol,
+        multiplier=5,
+        timespan="minute",
+        from_=start_time.strftime('%Y-%m-%d'),
+        to=end_time.strftime('%Y-%m-%d'),
+        limit=500
+    )
 
         # ✅ 抓資料並轉換為 dataframe
         bars = client.get_stock_bars(request).df
