@@ -1826,29 +1826,53 @@ if __name__ == "__main__":
 
 
 # ✅ 抓取 30 分鐘 K 線資料
-def fetch_30min_data(symbol):
+def fetch_30min_delayed_data(symbol):
+    from polygon import RESTClient
+    from datetime import datetime, timedelta
+    import pandas as pd
+    import pytz
+
+    client = RESTClient(api_key=POLYGON_API_KEY)
+
     try:
-        # ✅ 使用 UTC，符合 RFC3339 格式要求
-        now = datetime.now(pytz.utc)
+        # 🕒 延遲 15 分鐘
+        now = datetime.now(pytz.timezone("US/Eastern"))
         end_time = now - timedelta(minutes=15)
-        start_time = end_time - timedelta(days=3)
+        start_time = end_time - timedelta(hours=5)  # 抓 5 小時內的 30 分K，共約10根
 
-        df = api.get_bars(
-            symbol,
-            .Hour,
-            start=start_time.isoformat(),
-            end=end_time.isoformat()
-        ).df
+        # 🗓️ 轉換日期格式給 Polygon API
+        from_date = start_time.strftime('%Y-%m-%d')
+        to_date = end_time.strftime('%Y-%m-%d')
 
-        # ✅ 過濾只保留交易所 Q（NASDAQ）
-        df = df[df['exchange'] == 'Q']
-        df = df.reset_index()
-        df['time'] = pd.to_datetime(df['timestamp']).dt.tz_convert('US/Eastern')
-        df = df.set_index('time')
+        # 📊 抓取 30 分K 線
+        bars = client.get_aggs(
+            ticker=symbol,
+            multiplier=30,
+            timespan="minute",
+            from_=from_date,
+            to=to_date,
+            limit=500
+        )
+
+        if not bars:
+            print(f"[警告] {symbol} 沒有 30 分K 資料")
+            return None
+
+        # 🧹 過濾掉晚於 end_time 的資料
+        df = pd.DataFrame([{
+            "timestamp": datetime.fromtimestamp(bar['t'] / 1000),
+            "open": bar['o'],
+            "high": bar['h'],
+            "low": bar['l'],
+            "close": bar['c'],
+            "volume": bar['v']
+        } for bar in bars if datetime.fromtimestamp(bar['t'] / 1000) <= end_time])
+
+        df['symbol'] = symbol
         return df
 
     except Exception as e:
-        print(f"[ERROR] 無法取得 {symbol} 的 30 分鐘資料：{e}")
+        print(f"[ERROR] 抓取 {symbol} 30 分K 資料失敗：{e}")
         return None
 
 def check_30min_confluence(df_30m, direction="long"):
