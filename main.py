@@ -1,30 +1,22 @@
 # === 技術指標 ===
-# 技術指標（你有用 RSI、OBV、MFI）
 from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
-from ta.volatility import AverageTrueRange  # 若有用 ATR 就保留
-from ta.momentum import RSIIndicator  # 使用 RSI
-# （若你用 KD 才需要 StochasticOscillator，否則可刪）
+from ta.volatility import AverageTrueRange
+from ta.momentum import RSIIndicator
 
-# 基本函數
+# === 基本功能套件 ===
 import requests
 import pandas as pd
-from pytz import timezone
-from datetime import datetime, timedelta, timezone as dt_timezone
-from datetime import timezone as dt_timezone
 import random
+import os
+from datetime import datetime, timedelta
+from pytz import timezone  # ✅ 正確引入 pytz
 
-# === 輔助資訊函數 ===
-def get_market_cap(symbol):
-    # ✅ 模擬值：預設回傳 3 億市值
-    return 300_000_000
-
-# Google Sheets 套件
+# === Google Sheets 套件 ===
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# .env 環境變數
+# === API / SDK ===
 from dotenv import load_dotenv
-import os
 from alpaca.data.timeframe import TimeFrame
 from polygon import RESTClient
 # Polygon（抓 TICK）
