@@ -8,8 +8,6 @@ import requests
 import pandas as pd
 import random
 import os
-from datetime import datetime, timedelta
-from pytz import timezone  # ✅ 正確引入 pytz
 
 # === Google Sheets 套件 ===
 import gspread
