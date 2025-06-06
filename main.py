@@ -26,10 +26,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 import os
 from alpaca.data.timeframe import TimeFrame
-
+from polygon import RESTClient
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
-from polygon import RESTClient
+client = RESTClient(api_key=POLYGON_API_KEY)
 
 def generate_daily_summary():
     try:
