@@ -1125,6 +1125,7 @@ def evaluate_breakout_signal(symbol, df):
     obv.iloc[-1] < obv.iloc[-3] and
     candle_type in ['shooting_star', 'bearish_engulfing']
 ):
+    
     signal_note = (
         f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
         f"📉 價格:${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
