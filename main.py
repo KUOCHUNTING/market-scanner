@@ -911,7 +911,8 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
                   f"📊 TRIN:{trin_value:.2f}（偏多）｜TICK:{tick_value}（極端多頭）\n" \
                   f"🔒 市場強勢共振，空單策略封鎖進場"
         push_to_discord(symbol, latest_price, rsi_value, macd_status, vwap_deviation, volume_ratio, ema5, candle_type, direction, signal_note)
-            return None
+            
+        return None
 
         # 如果需要回傳值，也可以在這裡整理成 dict
         return {
