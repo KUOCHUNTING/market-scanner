@@ -831,9 +831,9 @@ def fetch_stock_data(symbol):
     bars['symbol'] = symbol
     return bars
 
-    except Exception as e:
-        print(f"[ERROR] 無法抓取 {symbol}：{e}")
-        return None
+except Exception as e:
+    print(f"[ERROR] 無法抓取 {symbol}：{e}")
+    return None
         
 def analyze_stock_data(symbol, bars, tick_value, trin_value):
     try:
