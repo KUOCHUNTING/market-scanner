@@ -780,18 +780,29 @@ def fetch_stock_data(symbol):
     from datetime import datetime, timedelta
     import pandas as pd
     import pytz
-    import time
 
     client = RESTClient(api_key=POLYGON_API_KEY)
-    now = datetime.now(pytz.timezone("US/Eastern"))
-    to_time = now - timedelta(minutes=5)
-    from_time = to_time - timedelta(minutes=150)
 
     try:
-        bars = client.get_aggs(symbol, 5, "minute", from_time.strftime('%Y-%m-%d'), to_time.strftime('%Y-%m-%d'), limit=500)
+        # ✅ 設定抓取時間範圍（過去 150 分鐘的 5 分K）
+        now = datetime.now(pytz.timezone("US/Eastern"))
+        to_date = now.strftime('%Y-%m-%d')
+        from_date = (now - timedelta(minutes=150)).strftime('%Y-%m-%d')
+
+        bars = client.get_aggs(
+            ticker=symbol,
+            multiplier=5,
+            timespan="minute",
+            from_=from_date,
+            to=to_date,
+            limit=500
+        )
+
         if not bars:
+            print(f"[警告] {symbol} 無法取得 K 線資料")
             return None
 
+        # ✅ 整理成 DataFrame
         df = pd.DataFrame([{
             "timestamp": datetime.fromtimestamp(bar['t'] / 1000),
             "open": bar['o'],
@@ -800,40 +811,13 @@ def fetch_stock_data(symbol):
             "close": bar['c'],
             "volume": bar['v']
         } for bar in bars])
+
         df['symbol'] = symbol
         return df
 
     except Exception as e:
         print(f"[ERROR] 抓取 {symbol} 失敗：{e}")
         return None
-
-
-        # ✅ 設定請求物件（新版 SDK 用 enum 寫法）
-    client.get_aggs(
-        ticker=symbol,
-        multiplier=5,
-        timespan="minute",
-        from_=start_time.strftime('%Y-%m-%d'),
-        to=end_time.strftime('%Y-%m-%d'),
-        limit=500
-    )
-
-        # ✅ 抓資料並轉換為 dataframe
-    bars = client.get_stock_bars(request).df
-
-    # ✅ 檢查資料是否有效
-    if bars.empty or 'close' not in bars.columns:
-        print(f"[警告] {symbol} 無效或資料不足，跳過")
-        return None
-
-    # ✅ 整理 dataframe 格式
-    bars.reset_index(inplace=True)
-    bars['symbol'] = symbol
-    return bars
-
-except Exception as e:
-    print(f"[ERROR] 無法抓取 {symbol}：{e}")
-    return None
         
 def analyze_stock_data(symbol, bars, tick_value, trin_value):
     try:
