@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
 from dotenv import load_dotenv
+# === 載入 .env 檔案 ===
 load_dotenv()
 # === 技術指標相關套件 ===
 from ta.momentum import RSIIndicator
