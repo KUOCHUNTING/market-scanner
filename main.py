@@ -3,6 +3,7 @@ import os
 import time
 import pandas as pd
 from datetime import datetime, timedelta
+import pytz
 from pytz import timezone
 from dotenv import load_dotenv
 # === 載入 .env 檔案 ===
