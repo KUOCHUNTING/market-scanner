@@ -1131,6 +1131,7 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
 
 if __name__ == "__main__":
     init_sheets()  # ⬅️ 自動建立 Google Sheets 所需欄位
+    un_scanner()  # ✅ 執行主程式
 
     while True:
         now_est = datetime.now(timezone("US/Eastern"))
