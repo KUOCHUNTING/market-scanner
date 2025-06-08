@@ -39,6 +39,35 @@ def get_tick_slope(series, window=5):
         print(f"[錯誤] 計算 TICK 斜率失敗：{e}")
         return 0
 
+def get_trin_value():
+    try:
+        est = pytz.timezone("US/Eastern")
+        now = datetime.now(est)
+        start_time = now - timedelta(minutes=30)
+
+        client = RESTClient(api_key=POLYGON_API_KEY)
+        aggs = client.get_aggs(
+            ticker="TRIN",  # 或 "TRIN-NY"
+            multiplier=1,
+            timespan="minute",
+            from_=int(start_time.timestamp()),
+            to=int(now.timestamp()),
+            limit=30,
+            adjusted=True
+        )
+
+        bars = aggs.results if hasattr(aggs, 'results') else aggs if isinstance(aggs, list) else []
+        if not bars:
+            print("[錯誤] TRIN bars 結構無效")
+            return None
+
+        last_bar = bars[-1]
+        trin_value = last_bar.c if hasattr(last_bar, 'c') else last_bar.get('c')
+        return trin_value
+    except Exception as e:
+        print(f"[錯誤] 無法取得 TRIN 值：{e}")
+        return None
+
 def write_to_sheet_by_type(data_dict, type="交易紀錄"):
     try:
         scopes = ["https://www.googleapis.com/auth/spreadsheets"]
