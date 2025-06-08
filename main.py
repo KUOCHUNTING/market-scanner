@@ -1087,7 +1087,18 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
     print(f"[建倉紀錄] {symbol} 建倉於 {latest_price:.2f}｜投入資金 ${capital_used:.2f}")
 
 if __name__ == "__main__":
-    init_sheets()  # ⬅️ 自動建立 Google Sheets 所需欄位
+    def init_sheets():
+        try:
+            print("[DEBUG] 開始執行 init_sheets()")
+            worksheet = get_worksheet()
+            headers = [
+                "時間", "股票代碼", "價格", "RSI", "TMO", "VWAP乖離", "成交量倍數", "OBV方向",
+                "偏多/偏空", "是否進場", "訊號類型"
+            ]
+            worksheet.append_row(headers)
+            print("[INFO] Google Sheets 初始化完成")
+        except Exception as e:
+            print(f"[ERROR] 初始化 Google Sheets 失敗：{e}")
 
     while True:
         now_est = datetime.now(timezone("US/Eastern"))
