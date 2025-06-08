@@ -29,13 +29,14 @@ def init_sheets():
     import gspread
     from google.oauth2.service_account import Credentials
 
-    # 🔑 授權憑證與表單 ID
+    # ✅ 輸入你實際的 spreadsheet key
+    sheet_id = "14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko"
+
     creds = Credentials.from_service_account_file('gsheet_key.json')
     client = gspread.authorize(creds)
-    sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/你的SheetID")
+    sheet = client.open_by_key(sheet_id)
     worksheet = sheet.sheet1
 
-    # 🧾 建立欄位標題
     headers = [
         '時間', '股票代號', '方向', '價格', '進場時間', '出場時間',
         '報酬率', '持倉時間（秒）', 'TICK%', 'TRIN', 'TMO', 'VWAP偏離',
@@ -43,7 +44,7 @@ def init_sheets():
     ]
     worksheet.clear()
     worksheet.append_row(headers)
-    print("[INFO] 已初始化 Google Sheets 欄位")
+    print("[INFO] ✅ 已初始化 Google Sheets 欄位")
 
 def write_to_sheet_by_type(data_dict, type="交易紀錄"):
     try:
