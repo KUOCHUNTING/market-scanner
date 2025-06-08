@@ -1032,21 +1032,21 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
         print(f"[建倉紀錄] {symbol} 建倉於 {latest_price:.2f}｜投入資金 ${capital_used:.2f}")
 
     elif (
-    latest_rsi > 60 and
-    rsi.iloc[-2] > rsi.iloc[-1] and
-    tmo.iloc[-2] > 0 and latest_tmo < tmo.iloc[-2] and
-    abs(latest_price - latest_vwap) / latest_vwap < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and
-    volume_ratio > 1.5 and
-    obv.iloc[-1] < obv.iloc[-3] and
-    candle_type in ['shooting_star', 'bearish_engulfing']
-):
-    signal_note = (
-        f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
-        f"📉 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
-        f"📊 RSI：{latest_rsi:.1f} ↘️｜TMO：{latest_tmo:.2f} ↘️｜OBV：下滑\n"
-        f"💥 VWAP 尚未跌破但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
-        f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
-    )
+        latest_rsi > 60 and
+        rsi.iloc[-2] > rsi.iloc[-1] and
+        tmo.iloc[-2] > 0 and latest_tmo < tmo.iloc[-2] and
+        abs(latest_price - latest_vwap) / latest_vwap < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and
+        volume_ratio > 1.5 and
+        obv.iloc[-1] < obv.iloc[-3] and
+        candle_type in ['shooting_star', 'bearish_engulfing']
+    ):
+        signal_note = (
+            f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
+            f"📉 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
+            f"📊 RSI：{latest_rsi:.1f} ↘️｜TMO：{latest_tmo:.2f} ↘️｜OBV：下滑\n"
+            f"💥 VWAP 尚未跌破但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
+            f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
+        )
 
     if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="short", symbol=symbol):
         return
