@@ -25,6 +25,26 @@ from alpaca.data.timeframe import TimeFrame
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 client = RESTClient(api_key=POLYGON_API_KEY)
 
+def init_sheets():
+    import gspread
+    from google.oauth2.service_account import Credentials
+
+    # 🔑 授權憑證與表單 ID
+    creds = Credentials.from_service_account_file('gsheet_key.json')
+    client = gspread.authorize(creds)
+    sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/你的SheetID")
+    worksheet = sheet.sheet1
+
+    # 🧾 建立欄位標題
+    headers = [
+        '時間', '股票代號', '方向', '價格', '進場時間', '出場時間',
+        '報酬率', '持倉時間（秒）', 'TICK%', 'TRIN', 'TMO', 'VWAP偏離',
+        '成交量倍數', 'RSI', 'MACD', 'OBV方向', 'ROC', '策略版本', '信心分數'
+    ]
+    worksheet.clear()
+    worksheet.append_row(headers)
+    print("[INFO] 已初始化 Google Sheets 欄位")
+
 def write_to_sheet_by_type(data_dict, type="交易紀錄"):
     try:
         scopes = ["https://www.googleapis.com/auth/spreadsheets"]
