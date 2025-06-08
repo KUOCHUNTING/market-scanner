@@ -16,6 +16,7 @@ from pytz import timezone
 # === Google Sheets 套件 ===
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 # === API / SDK ===
 from dotenv import load_dotenv
@@ -29,14 +30,17 @@ def init_sheets():
     import gspread
     from google.oauth2.service_account import Credentials
 
-    # ✅ 輸入你實際的 spreadsheet key
-    sheet_id = "14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko"
-
-    creds = Credentials.from_service_account_file('gsheet_key.json')
+    # ✅ 加入正確 scope
+    scope = ["https://www.googleapis.com/auth/spreadsheets"]
+    creds = Credentials.from_service_account_file('gsheet_key.json', scopes=scope)
     client = gspread.authorize(creds)
+
+    # ✅ 寫入正確 sheet ID（或網址）
+    sheet_id = "14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko"
     sheet = client.open_by_key(sheet_id)
     worksheet = sheet.sheet1
 
+    # ✅ 寫入表頭
     headers = [
         '時間', '股票代號', '方向', '價格', '進場時間', '出場時間',
         '報酬率', '持倉時間（秒）', 'TICK%', 'TRIN', 'TMO', 'VWAP偏離',
