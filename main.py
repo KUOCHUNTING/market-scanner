@@ -1126,10 +1126,28 @@ if __name__ == "__main__":
 
         # ✅ 抓取 TICK 指標
         tick_series = get_tick_series()
-        tick_percentile = get_tick_percentile(tick_series)
-        tick_slope = get_tick_slope(tick_series)
-        current_tick = tick_series.iloc[-1] if len(tick_series) > 0 else None
+
+        if tick_series is None or len(tick_series) == 0:
+            print("[警告] tick_series 是空的，無法計算 TICK 指標")
+            tick_percentile = None
+            tick_slope = None
+            current_tick = None
+        else:
+            tick_percentile = get_tick_percentile(tick_series)
+            tick_slope = get_tick_slope(tick_series)
+            current_tick = tick_series.iloc[-1]
+
         trin_value = get_trin_value()
+
+        if tick_series is None or len(tick_series) == 0:
+            print("[警告] tick_series 是空的，無法計算百分位與斜率")
+            tick_percentile = None
+            tick_slope = None
+            current_tick = None
+        else:
+            tick_slope = get_tick_slope(tick_series)
+            current_tick = tick_series.iloc[-1]
+            tick_percentile = np.percentile(tick_series, 95)  # 或其他百分位計算邏輯
 
         # ✅ 推播市場風向預測
         if tick_percentile is not None and tick_slope is not None and trin_value is not None:
