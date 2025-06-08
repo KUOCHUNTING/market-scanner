@@ -8,6 +8,8 @@ import requests
 import pandas as pd
 import random
 import os
+import pytz
+import numpy as np
 from polygon import RESTClient
 from datetime import datetime, timedelta, time
 from pytz import timezone
@@ -23,6 +25,19 @@ from alpaca.data.timeframe import TimeFrame
 # Polygon（抓 TICK）
 POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 client = RESTClient(api_key=POLYGON_API_KEY)
+
+def get_tick_slope(series, window=5):
+    try:
+        if len(series) < window:
+            return 0
+        # 使用簡單線性迴歸計算斜率
+        x = np.arange(window)
+        y = np.array(series[-window:])
+        slope = np.polyfit(x, y, 1)[0]
+        return slope
+    except Exception as e:
+        print(f"[錯誤] 計算 TICK 斜率失敗：{e}")
+        return 0
 
 def write_to_sheet_by_type(data_dict, type="交易紀錄"):
     try:
