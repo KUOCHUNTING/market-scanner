@@ -89,7 +89,7 @@ def generate_daily_summary():
         return f"[ERROR] 產生績效摘要失敗：{e}"
  
     def init_sheets():
-    print("[DEBUG] 開始執行 init_sheets()")
+        print("[DEBUG] 開始執行 init_sheets()")
     try:
         client = gspread.authorize(creds)
         sheet = client.open(SHEET_NAME)
