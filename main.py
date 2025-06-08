@@ -29,18 +29,20 @@ client = RESTClient(api_key=POLYGON_API_KEY)
 def init_sheets():
     import gspread
     from google.oauth2.service_account import Credentials
+    import base64
+    import json
 
-    # ✅ 加入正確 scope
-    scope = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_file('gsheet_key.json', scopes=scope)
+    # ✅ 這裡貼上轉換後的 base64 金鑰字串
+    json_base64 = """PASTE_YOUR_BASE64_STRING_HERE"""
+
+    creds_json = json.loads(base64.b64decode(json_base64).decode())
+    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    creds = Credentials.from_service_account_info(creds_json, scopes=scopes)
     client = gspread.authorize(creds)
 
-    # ✅ 寫入正確 sheet ID（或網址）
-    sheet_id = "14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko"
-    sheet = client.open_by_key(sheet_id)
+    sheet = client.open_by_key("14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko")
     worksheet = sheet.sheet1
 
-    # ✅ 寫入表頭
     headers = [
         '時間', '股票代號', '方向', '價格', '進場時間', '出場時間',
         '報酬率', '持倉時間（秒）', 'TICK%', 'TRIN', 'TMO', 'VWAP偏離',
@@ -48,7 +50,7 @@ def init_sheets():
     ]
     worksheet.clear()
     worksheet.append_row(headers)
-    print("[INFO] ✅ 已初始化 Google Sheets 欄位")
+    print("[✅] 已初始化 Google Sheets（使用 base64 金鑰）")
 
 def write_to_sheet_by_type(data_dict, type="交易紀錄"):
     try:
