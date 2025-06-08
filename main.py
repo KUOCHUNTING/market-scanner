@@ -922,7 +922,7 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
         latest_volume = df['volume'].iloc[-1]
         avg_volume = df['volume'].rolling(20).mean().iloc[-1]
         volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
-        candle_type = detect_candle_pattern(df)  # ✅ 需自行定義此函數
+        candle_type = detect_candle_pattern(df)
 
         # === RSI ===
         rsi = RSIIndicator(close=df['close'], window=14).rsi()
@@ -932,8 +932,9 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
         typical_price = (df['high'] + df['low'] + df['close']) / 3
         vwap = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
         latest_vwap = vwap.iloc[-1] if not pd.isna(vwap.iloc[-1]) else 0
+        vwap_deviation = abs(latest_price - latest_vwap) / latest_vwap if latest_vwap != 0 else 0
 
-        # === TMO（需自訂 calculate_tmo(df)）===
+        # === TMO ===
         tmo = calculate_tmo(df)
         latest_tmo = tmo.iloc[-1]
         tmo_slope = tmo.diff().iloc[-1]
@@ -958,14 +959,14 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
         print(f"📊 RSI：{latest_rsi:.1f}｜TMO：{latest_tmo:.2f}（斜率：{tmo_slope:.2f}）｜VWAP：{latest_vwap:.2f}")
         print(f"📈 倍量：{volume_ratio:.2f}｜EMA交叉：{ema_cross}｜OBV：{obv_direction}｜KD：{kd_status}｜K棒：{candle_type}")
 
-        # === 基本方向研判（非強制） ===
+        # === 基本方向判斷 ===
         direction = None
         if latest_rsi < 30 and latest_tmo > 0:
             direction = "多"
         elif latest_rsi > 70 and latest_tmo < 0:
             direction = "空"
 
-        # === TRIN / TICK 市場風控排除條件 ===
+        # === TRIN / TICK 風控 ===
         if direction == "多" and trin_value >= 1.5 and tick_value < -1000:
             msg = f"⛔ **[風控 - 禁止多單進場]** ⛔ {symbol}\n📊 TRIN：{trin_value:.2f}｜TICK：{tick_value}"
             push_to_discord(msg)
@@ -975,6 +976,86 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
             msg = f"⛔ **[風控 - 禁止空單進場]** ⛔ {symbol}\n📊 TRIN：{trin_value:.2f}｜TICK：{tick_value}"
             push_to_discord(msg)
             return None
+
+        # === 多空訊號判斷與建倉 ===
+        now = datetime.now()
+        tick_percentile = 50  # ← 預設值，可替換為外部傳入
+        tick_slope = 0
+        confidence_score = 0.75
+
+        if (
+            latest_rsi < 35 and
+            tmo_slope > 0 and
+            obv.iloc[-1] > obv.iloc[-3] and
+            candle_type in ['hammer', 'bullish_engulfing']
+        ):
+            signal_note = (
+                f"🐮**[觀察 - 多頭進場]** 🐮{symbol}\n"
+                f"📈 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
+                f"📊 RSI：{latest_rsi:.1f} ↗️｜TMO：{latest_tmo:.2f} ↗️｜OBV：上升\n"
+                f"💥 VWAP 尚未站上但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
+                f"🟢 多項轉強訊號共振，多頭建倉時機形成"
+            )
+
+            if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="long", symbol=symbol):
+                return
+
+            df_30m = fetch_30min_data(symbol)
+            if not check_30min_confluence(df_30m, direction="long"):
+                signal_note += "｜⚠️ 無 30M 共振"
+                print(f"[INFO] {symbol} 無 30M 共振，跳過正式進場")
+                return
+            else:
+                signal_note += "｜✅ 30M 共振"
+
+            push_to_discord(symbol, signal_note)
+
+            capital_used = capital_left * 0.05
+            positions[symbol] = {
+                'entry_price': latest_price,
+                'capital_used': capital_used,
+                'entry_time': now,
+                'direction': '多',
+                'holding_ratio': 1.0,
+                'sell_stage': 0,
+                'max_gain': 0,
+                'volume_ratio': volume_ratio,
+                'obv': obv.iloc[-1],
+                'rsi': latest_rsi,
+                'tmo': latest_tmo,
+                'vwap': latest_vwap,
+                'ema_cross': ema_cross,
+                'kd_status': kd_status,
+                'tick_percentile': tick_percentile,
+                'tick_slope': tick_slope,
+                'trin_value': trin_value,
+                'confidence_score': confidence_score,
+            }
+            capital_left -= capital_used
+            print(f"[建倉紀錄] {symbol} 建倉於 {latest_price:.2f}｜投入資金 ${capital_used:.2f}")
+
+        elif (
+            latest_rsi > 60 and
+            rsi.iloc[-2] > rsi.iloc[-1] and
+            tmo.iloc[-2] > 0 and latest_tmo < tmo.iloc[-2] and
+            vwap_deviation < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and
+            volume_ratio > 1.5 and
+            obv.iloc[-1] < obv.iloc[-3] and
+            candle_type in ['shooting_star', 'bearish_engulfing']
+        ):
+            signal_note = (
+                f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
+                f"📉 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
+                f"📊 RSI：{latest_rsi:.1f} ↘️｜TMO：{latest_tmo:.2f} ↘️｜OBV：下滑\n"
+                f"💥 VWAP 尚未跌破但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
+                f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
+            )
+
+            if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="short", symbol=symbol):
+                return
+
+            push_to_discord(symbol, signal_note)
+            # 如果有空單建倉邏輯，可以放在這裡
 
         return {
             "price": latest_price,
@@ -992,81 +1073,6 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
     except Exception as e:
         print(f"[ERROR] analyze_stock_data 發生錯誤：{e}")
         return None
-    
-    if (
-        latest_rsi < 35 and
-        tmo_slope > 0 and
-        obv.iloc[-1] > obv.iloc[-3] and
-        candle_type in ['hammer', 'bullish_engulfing']
-    ):
-        signal_note = (
-            f"🐮**[觀察 - 多頭進場]** 🐮{symbol}\n"
-            f"📈 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
-            f"📊 RSI：{latest_rsi:.1f} ↗️｜TMO：{latest_tmo:.2f} ↗️｜OBV：上升\n"
-            f"💥 VWAP 尚未站上但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
-            f"🟢 多項轉強訊號共振，多頭建倉時機形成"
-        )
-
-        if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="long", symbol=symbol):
-            return
-
-        # ✅ 檢查 30 分鐘共振（進場前確認）
-        df_30m = fetch_30min_data(symbol)
-        has_confluence_30m = check_30min_confluence(df_30m, direction="long")
-
-        if not has_confluence_30m:
-            signal_note += "｜⚠️ 無 30M 共振"
-            print(f"[INFO] {symbol} 無 30M 共振，跳過正式進場")
-            return
-        else:
-            signal_note += "｜✅ 30M 共振"
-
-        push_to_discord(symbol, signal_note)
-
-        # ✅ 建倉
-        capital_used = capital_left * 0.05
-        positions[symbol] = {
-            'entry_price': latest_price,
-            'capital_used': capital_used,
-            'entry_time': now,
-            'direction': '多',
-            'holding_ratio': 1.0,
-            'sell_stage': 0,
-            'max_gain': 0,
-            'volume_ratio': volume_ratio,
-            'obv': obv.iloc[-1],
-            'rsi': latest_rsi,
-            'tmo': latest_tmo,
-            'vwap': latest_vwap,
-            'ema_cross': ema_cross,
-            'kd_status': kd_status,
-            'tick_percentile': tick_percentile,
-            'tick_slope': tick_slope,
-            'trin_value': trin_value,
-            'confidence_score': confidence_score,
-        }
-        capital_left -= capital_used
-        print(f"[建倉紀錄] {symbol} 建倉於 {latest_price:.2f}｜投入資金 ${capital_used:.2f}")
-
-    elif (
-    latest_rsi > 60 and
-    rsi.iloc[-2] > rsi.iloc[-1] and
-    tmo.iloc[-2] > 0 and latest_tmo < tmo.iloc[-2] and
-    abs(latest_price - latest_vwap) / latest_vwap < 0.03 and latest_price > latest_vwap and tmo_slope < 0 and
-    volume_ratio > 1.5 and
-    obv.iloc[-1] < obv.iloc[-3] and
-    candle_type in ['shooting_star', 'bearish_engulfing']
-):
-    signal_note = (
-        f"🐻**[觀察 - 空頭進場]** 🐻{symbol}\n"
-        f"📉 價格：${latest_price:.2f}｜距離 VWAP 僅 {vwap_deviation:.2%}\n"
-        f"📊 RSI：{latest_rsi:.1f} ↘️｜TMO：{latest_tmo:.2f} ↘️｜OBV：下滑\n"
-        f"💥 VWAP 尚未跌破但貼近｜📈 Volume：{volume_ratio:.2f}x｜🕯️ K棒：{candle_type}\n"
-        f"🛑 多項轉弱訊號共振，空頭建倉時機形成"
-    )
-
-    if not is_safe_entry(latest_rsi, latest_price, latest_vwap, direction="short", symbol=symbol):
-        return
 
     df_30m = fetch_30min_data(symbol)
     if not check_30min_confluence(df_30m, direction="short"):
