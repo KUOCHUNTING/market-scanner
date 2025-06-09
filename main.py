@@ -347,43 +347,6 @@ def get_tick_percentile(tick_series):
     percentile = rank / len(sorted_series) * 100
     return round(percentile, 2)
 
-
-# ✅ 股票代號有效性判斷（過濾 ETF / OTC）
-def is_valid_symbol(symbol: str) -> bool:
-    symbol = symbol.upper()
-
-    # 排除場外 OTC 股票（通常代號結尾為 F / Q）
-    if symbol.endswith("F") or symbol.endswith("Q"):
-        print(f"[FILTER] ❌ {symbol} 為 OTC 股票，排除")
-        return False
-
-    # 排除 ETF（代號中包含 ETF 關鍵字）
-    if "ETF" in symbol:
-        print(f"[FILTER] ❌ {symbol} 為 ETF，排除")
-        return False
-
-    return True  # ✅ 通過過濾
-
-        # ✅ 股票篩選條件（專為小資策略）
-def filter_stock_conditions(symbol, price, market_cap, avg_volume_10d, atr_3d):
-    if price < 1 or price > 5:
-        print(f"[FILTER] ❌ {symbol} 價格不符：{price}")
-        return False
-
-    if market_cap is not None and market_cap < 100_000_000:
-        print(f"[FILTER] ❌ {symbol} 市值過低：{market_cap}")
-        return False
-
-    if avg_volume_10d is not None and avg_volume_10d < 500_000:
-        print(f"[FILTER] ❌ {symbol} 平均量過低：{avg_volume_10d}")
-        return False
-
-    if atr_3d is not None and (atr_3d / price) < 0.02:
-        print(f"[FILTER] ❌ {symbol} 波動不足：ATR={atr_3d:.2f}, Price={price:.2f}")
-        return False
-
-    return True  # ✅ 通過全部過濾
-
 def add_to_observed_candidates(symbol, price, reason):
     now = datetime.now()
     observed_candidates[symbol] = {
