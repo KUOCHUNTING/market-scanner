@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "stellar-benefit-460204-h6",
+  "private_key_id": "73b5b3b036cfcf7220d58cdba455a27ba574e41f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCQ9mYXCeT0s3bL\n82xyN8k7m/Hpjy0AyF7QU3WwODrbcS22sXRNkXHLqB4E7LCEEQu/JzELyhONpihU\nvkHA63mNYP0X0r6YH/2mE6O5pfiEYUH29fmvlcFXjqkaaygivDaaPAwstdHc9KC+\nsFU+5tMBwNB9tmVNDHLbZAMF4cE+/VdB2yYtKdM4+Y1/1lzdIhMMR1pp3tZjK6pR\nS52s+XH0AEN7VJA/0HPLvNIa/noeVcYFQZWLLVLf/Enp2KaCjNRhmM8tcfZoW7BI\nI4cae9CvMQ7skm6zDLX7/WNIA/8YLZLhlPoYfz+nztRohrSzTy347UXn4pIymMJa\nPBSAJBh5AgMBAAECggEAGEtrRa4vVIFlRf4YbTYDQD2899c6hBiQp1ptbWinGJLp\nxeYMp1laWHbm/Q1L8f5HWTRwyFiIGWPA+57dNz9foj2gfSchMS6fXH+LH3h843bH\nTuPfgjlXa1yp45cU5Wlkv0mUAsRAFUdcT0kPKFkYAQG3D3KLnLOa5kDnLsusjuk2\n7T2uvB0C3QhaNVvVQqXlDI22NGoshNQVPO4iIUPZF8d+9vTbLDcAN38qfdTRAeJx\nLYwpc6vWCdYmq3rOybrebYpIoRiphg4of8KMUX6jjafEyusi6NeEu9aMMG/c4/0t\nYm/0fsu1btdzViCzGdMQUX5zg6Re0Wa0p76LZiRwbwKBgQDCMxRJlH9vlOWvvxUF\ny2iNPLtEgOcp6z7Vtq+IdsoivWrj7t4l4R0EFKdzQQKOAnIoOhnGyIRInD6QewDL\n3MkqdAl5qjrytlxFkfn0nkbj/Xmd5fV3RmMAYHE3o5OvcMqLEtrMtRXcw7yWZ0N2\nyBuer3exFQN5TA9GkozbcMERqwKBgQC/GBvmfsbTPLP2C9oFKp0bJPDEztemhmKa\nSa0/YKzcDwFFPz+Uxs/0dtOwkX1va3Z3C3cTvk6FEZ0O+BpJUr0ZV0FdqVDxAlXI\nP0rFrfU/MlIlws0T3EAKz+zNs3iQ6zjnoOtzieNNsP7DtSmHNY+NRP1WN5M1V1t8\nBqJFqksiawKBgBaoGu/SsWN1Pa7ZXjyE1LfVpAuD9nQ/i98nJyeGpGKVMslQ7v4A\nW4BEYJzjssaapnLnBGbasgQ+plX448jlA1s+mnRlVedHO1CqjTzq0l57DhtL3u2B\ner9qgQr6vJo1UIwVMQ28+sX82B28AnTzN7W1xwMT7onSQ9357xETAJNtAoGBALR7\nB7bdm9lcJrfGn8ZrZfCCJigrFz//AleoKEmIfBpmzZNiViGk2DmSlQLZlnfKLhvn\nJzLtdWl2pjjCGMmRrGmnoGPei0TlKLG1HWCwmMV0OGPTpS8RwSa1FHl+/OsaTidu\nM5Ju89CnzyZ2Dt/VtVv+gaqRWKZzeEMeXNqhKM87AoGAD/+rTl2n8Jg3DrJCqBPA\nEP5yRYXxWo317VNWLAt2qrxeAfRHPxqU+/9ixFoJtGSUJD9SyvehykFL24eZ5iV3\nLI+qhLsCnU9o3ZyLpJBj85qptQ2B/fNV6Ouz1bJleWPb7mk/T4ykOL+5qMsdN0zO\nK+W6vexxWNzqr0PxMMJ8Cyc=\n-----END PRIVATE KEY-----\n",
+  "client_email": "gspread@stellar-benefit-460204-h6.iam.gserviceaccount.com",
+  "client_id": "102021852399947182529",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gspread%40stellar-benefit-460204-h6.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
