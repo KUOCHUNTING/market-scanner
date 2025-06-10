@@ -18,7 +18,7 @@ from ta.volatility import AverageTrueRange
 # === 外部工具（像 Discord、Sheets 等） ===
 import requests
 from polygon import RESTClient
-
+import os
 # === Google Sheets 套件 ===
 import gspread
 from google.oauth2.service_account import Credentials
