@@ -78,7 +78,7 @@ worksheet_stats = spreadsheet.worksheet("每日統計")
 worksheet_tick = spreadsheet.worksheet("TICK紀錄")
 worksheet_mood = spreadsheet.worksheet("每日盤前情緒紀錄")
 
-spreadsheet = gc.open_by_key(GOOGLE_SPREADSHEET_ID)
+spreadsheet = client.open_by_key(GOOGLE_SPREADSHEET_ID)
 print("✅ 工作表名稱列表：", [ws.title for ws in spreadsheet.worksheets()])
 
 worksheet = None
