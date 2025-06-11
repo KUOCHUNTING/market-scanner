@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from datetime import datetime, time
 # === 載入 .env 檔案 ===
 load_dotenv()
+# ✅ 確認 Polygon API Key 是否正確載入
+print(f"[DEBUG] Polygon Key = {os.getenv('POLYGON_API_KEY')}")
 # === 技術指標相關套件 ===
 from ta.momentum import RSIIndicator
 from ta.trend import MACD
