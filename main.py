@@ -20,7 +20,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 from alpaca.data.timeframe import TimeFrame
 # Polygon（抓 TICK）
-POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
+load_dotenv()
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
 client = RESTClient(api_key=POLYGON_API_KEY)
 
 def generate_daily_summary():
