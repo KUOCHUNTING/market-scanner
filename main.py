@@ -67,7 +67,6 @@ def get_gspread_client_from_env():
 # ✅ 使用函數取得 client 並開啟試算表
 gc = get_gspread_client_from_env()
 spreadsheet = gc.open_by_key(os.getenv("GOOGLE_SPREADSHEET_ID"))
-worksheet_trades = spreadsheet.worksheet("交易點")
 
 worksheet_trades = spreadsheet.worksheet("交易紀錄")
 worksheet_stats = spreadsheet.worksheet("每日統計")
