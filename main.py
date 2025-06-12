@@ -19,9 +19,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 # === API / SDK ===
 from dotenv import load_dotenv
 from alpaca.data.timeframe import TimeFrame
-# Polygon（抓 TICK）
-POLYGON_API_KEY = "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
-client = RESTClient(api_key=POLYGON_API_KEY)
 
 def generate_daily_summary():
     try:
@@ -657,49 +654,32 @@ def load_stock_list(filepath):
         return []
 stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
 
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
+
 def fetch_stock_data(symbol):
-    from polygon import RESTClient
-    from datetime import datetime, timedelta
-    from pytz import timezone
-    import pandas as pd
-
-    client = RESTClient(api_key=POLYGON_API_KEY)
-
     try:
         print(f"[DEBUG] 嘗試抓 {symbol} 最新 15 根 5 分 K 線資料")
+        url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/5/minute/15/now"
+        params = {
+            "adjusted": "true",
+            "sort": "desc",
+            "limit": 15,
+            "apiKey": POLYGON_API_KEY
+        }
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
 
-        # === 計算時間區間 ===
-        est = timezone("US/Eastern")
-        now = datetime.now(est)
-        end_time = now - timedelta(minutes=15)  # 為了確保資料已收盤
-        start_time = end_time - timedelta(minutes=5 * 15)
-
-        aggs = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=int(start_time.timestamp()),
-            to=int(end_time.timestamp()),
-            limit=15,
-            adjusted=True,
-            sort='asc'  # ✅ 從舊到新
-        )
-
-        bars = aggs
-        if not bars:
-            print(f"[WARNING] {symbol} 無有效 bars 資料")
+        if "results" not in data or not data["results"]:
+            print(f"[警告] {symbol} 無有效 bars 資料")
             return None
 
-        cleaned = []
-        for bar in bars:
-            cleaned.append({
-                "timestamp": pd.to_datetime(bar.timestamp, unit='ms'),
-                "open": bar.open,
-                "high": bar.high,
-                "low": bar.low,
-                "close": bar.close,
-                "volume": bar.volume
-            })
+        bars = data["results"]
+        cleaned = [{
+            "timestamp": pd.to_datetime(bar["t"], unit='ms'),
+            "open": bar["o"], "high": bar["h"],
+            "low": bar["l"], "close": bar["c"],
+            "volume": bar["v"]
+        } for bar in bars if all(k in bar for k in ["t", "o", "h", "l", "c", "v"])]
 
         df = pd.DataFrame(cleaned)
         df.set_index("timestamp", inplace=True)
