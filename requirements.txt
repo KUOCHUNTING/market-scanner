@@ -11,4 +11,4 @@ boto3
 google-api-python-client
 python-dotenv
 alpaca-py==0.10.0
-polygon-api-client==1.7.0
+polygon-api-client==1.14.6
