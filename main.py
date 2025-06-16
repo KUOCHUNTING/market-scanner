@@ -671,7 +671,10 @@ def fetch_stock_data(symbol, api_key):
     market_open = est.localize(datetime.combine(now_est.date(), dtime(9, 30)))
     market_close = est.localize(datetime.combine(now_est.date(), dtime(16, 0)))
 
-    # 預設抓最近 6 小時資料
+    est = pytz.timezone("US/Eastern")
+    now = datetime.now(est)  # ✅ 要補這行
+
+    # 然後你才能寫：
     end_time = now
     start_time = now - timedelta(minutes=5 * 50)
 
