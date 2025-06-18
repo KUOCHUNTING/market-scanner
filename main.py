@@ -18,7 +18,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # === API / SDK ===
 from dotenv import load_dotenv
-from alpaca.data.timeframe import TimeFrame
 
 api_key = os.getenv("POLYGON_API_KEY")
 
