@@ -1,5 +1,6 @@
 requests
 ta
+alpaca-py
 gspread
 oauth2client
 pytz
