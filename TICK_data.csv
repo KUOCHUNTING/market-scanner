@@ -1,5 +1,0 @@
-def get_tick_series():
-    import pandas as pd
-    df = pd.read_csv("tick_data.csv")  # 檔案要放在專案資料夾
-    tick_series = df['TICK'].tail(30)  # 拿最後 30 筆
-    return tick_series
