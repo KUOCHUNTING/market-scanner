@@ -4,11 +4,5 @@ oauth2client
 pytz
 pandas_ta==0.3.14b
 numpy==1.24.4
-ta
-joblib
-scikit-learn
-boto3
-google-api-python-client
 python-dotenv
-alpaca-py==0.10.0
 polygon-api-client==1.14.6
