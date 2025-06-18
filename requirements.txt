@@ -1,4 +1,5 @@
 requests
+ta
 gspread
 oauth2client
 pytz
