@@ -11,8 +11,6 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-pi_key = os.getenv("POLYGON_API_KEY")
-
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1381592286932238336/8TLHxMcoAxGEydMVrLeTrhoirnzplM3myRoaozF_7bxoFcK4g236KLnd075NogP25Gak"  # 記得換成自己的
 
 # 🧠 交易資金設定
@@ -363,6 +361,8 @@ def scan_market(symbol_list, api_key):
 
 def main_loop():
     api_key = os.getenv("POLYGON_API_KEY")
+        if not api_key:
+            raise Exception("❌ 找不到 Polygon API 金鑰，請確認環境變數是否正確設定")
     while True:
         if not is_market_open():
             print("⏰ 非盤中，等待60秒...")
