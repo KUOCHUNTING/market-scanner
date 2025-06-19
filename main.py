@@ -429,8 +429,8 @@ def scan_market(symbol_list, api_key):
 def is_market_open():
     est = pytz.timezone("US/Eastern")
     now = datetime.now(est).time()
-    market_open = time(9, 30)
-    market_close = time(16, 0)
+    market_open = dtime(9, 30)
+    market_close = dtime(16, 0)
     return market_open <= now <= market_close
 
 def main_loop():
