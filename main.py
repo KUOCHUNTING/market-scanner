@@ -4,7 +4,8 @@ import pandas as pd
 import random
 import os
 from polygon import RESTClient
-from datetime import datetime, timedelta, time
+import time                         # 用於 time.sleep()
+from datetime import datetime, time  # 這個 time 是 class，可用於 time(9, 30)
 from datetime import time
 import pytz
 import pandas as pd
