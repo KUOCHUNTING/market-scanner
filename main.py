@@ -58,8 +58,7 @@ def detect_mean_reversion_signals(df, symbol):
         zscore < -2 and
         ema5 > ema20
     ):
-        signal_note = "📈 多單均值回歸：跌破布林下緣 + RSI 回升 + Z-score 偏低 + EMA多方"
-
+        signal_note = "📈 多單均值回歸：跌破布林下緣 + RSI 回升 + Z-score 偏低 + EMA多方\n🔎 大盤盤整中，啟動均值回歸判斷"
         # === 推播
         push_entry_to_discord(
             symbol=symbol,
@@ -80,8 +79,6 @@ def detect_mean_reversion_signals(df, symbol):
             "shares": quantity,
             "entry_time": datetime.now(),
             "capital_used": capital_used,
-
-            # ✅ 新增這兩個欄位，支援鎖利與追蹤
             "sell_stage": 0,      # 初始為 0（未鎖利）
             "max_gain": 0.0       # 初始最大報酬率為 0（尚未上漲）
         }
@@ -97,7 +94,7 @@ def detect_mean_reversion_signals(df, symbol):
         zscore > 2 and
         ema5 < ema20
     ):
-        signal_note = "📉 空單均值回歸：突破布林上緣 + RSI 轉弱 + Z-score 偏高 + EMA空方"
+        signal_note = "📉 空單均值回歸：突破布林上緣 + RSI 轉弱 + Z-score 偏高 + EMA空方\n🔎 大盤盤整中，啟動均值回歸判斷"
 
         # === 推播
         push_entry_to_discord(
