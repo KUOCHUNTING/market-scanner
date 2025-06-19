@@ -7,6 +7,7 @@ from polygon import RESTClient
 import time                         # 用於 time.sleep()
 from datetime import datetime, time  # 這個 time 是 class，可用於 time(9, 30)
 from datetime import time
+from datetime import time as dtime
 import pytz
 import pandas as pd
 # === Google Sheets 套件 ===
