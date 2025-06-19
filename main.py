@@ -256,7 +256,84 @@ def scan_market(symbol_list):
 
 import time
 
-# === 6. Polygon 資料抓取模組（5分鐘K） ===
+est = timezone("US/Eastern")
+now_est = datetime.now(est)
+
+# ✅ 補上開盤與收盤時間的定義
+market_open = est.localize(datetime.combine(now_est.date(), time(9, 30)))
+market_close = est.localize(datetime.combine(now_est.date(), time(16, 0)))
+# 只在開盤期間運行
+if now_est < market_open or now_est > market_close:
+    print("[INFO] 非美股盤中時間，跳過掃描")
+    exit()
+
+API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
+STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
+
+
+WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"
+
+def push_to_discord(symbol, price, rsi, tmo, vwap, volume_ratio, ema_cross, kd_status, candle_type, signal_note):
+    try:
+        vwap_text = f"{vwap:.2f}" if vwap is not None and not pd.isna(vwap) else "無"
+        message = (
+            f"📣 **[訊號]** {symbol}\n"
+            f"💰 價格：${price:.2f} | RSI：{rsi:.1f} | TMO：{tmo:.2f}\n"
+            f"📊 VWAP：{vwap_text} | 倍量：{volume_ratio:.2f}x\n"
+            f"📈 EMA：{ema_cross} | KD：{kd_status} | K棒：{candle_type}\n"
+            f"🔔 **訊號類型**：{signal_note}"
+        )
+        payload = {"content": message}
+        response = requests.post(WEBHOOK_URL, json=payload)
+        if response.status_code != 204:
+            print(f"[WARNING] Discord 推播失敗：{response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"[ERROR] 發送 Discord 推播失敗：{e}")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+# ✅ 2. Google Sheets 寫入函式（可放在 push_to_discord 下方）
+def write_to_sheet(
+    symbol, direction, signal_type, tick_percentile, trin, latest_rsi,
+    latest_tmo, tmo_slope, vwap_diff, volume_ratio,
+    kd_status, candle_type,
+    entry_price, exit_price, holding_time_sec, return_rate,
+    capital_used, capital_left, session, strategy_version, confidence_score, remark
+):
+    try:
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("Trading Log").worksheet("交易紀錄")
+
+        row_data = [
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            symbol, direction, signal_type,
+            f"{tick_percentile:.2f}%", entry_price, exit_price,
+            f"{return_rate:.2%}", holding_time_sec,
+            capital_used, capital_left,
+            f"RSI: {latest_rsi:.1f}", f"TMO: {latest_tmo:.2f}", f"Slope: {tmo_slope:.2f}",
+            f"VWAP乖離: {vwap_diff:.2%}", f"量能倍數: {volume_ratio:.2f}",
+            kd_status, candle_type,
+            session, strategy_version, f"{confidence_score:.2f}", remark
+        ]
+
+        sheet.append_row(row_data)
+
+    except Exception as e:
+        print(f"[ERROR] 寫入 Sheets 失敗：{e}")     
+
+def load_stock_list(filepath):
+    try:
+        df = pd.read_csv(filepath)
+        return df['symbol'].tolist()
+    except Exception as e:
+        print(f"[ERROR] 無法讀取股票清單：{e}")
+        return []
+stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
+
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
+
 def fetch_stock_data(symbol, api_key):
     from polygon import RESTClient
     from datetime import datetime, timedelta, time as dtime
@@ -331,126 +408,57 @@ def fetch_stock_data(symbol, api_key):
     except Exception as e:
         print(f"[❌錯誤] 抓取 {symbol} 失敗：{e}")
         return None
-
-# === 7. 主掃描流程與自動執行 ===
-def get_symbol_list():
+        
+def analyze_stock_data(symbol, bars, tick_value, trin_value):
+    signal_note = ""  # ✅ 預設值，避免 UnboundLocalError
     try:
-        df = pd.read_csv("stock_list.csv")
-        return df["symbol"].dropna().tolist()
-    except Exception as e:
-        print(f"[ERROR] 載入股票清單失敗：{e}")
-        return []
+        df = pd.DataFrame(bars)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
 
-def fetch_stock_data(symbol, api_key):
-    from polygon import RESTClient
-    from datetime import datetime, timedelta, time as dtime
-    import pytz
-    import pandas as pd
-
-    # 取得美東時間 now
-    est = pytz.timezone("US/Eastern")
-    now = datetime.now(est)
-
-    # 設定今日開盤 / 收盤時間
-    market_open = est.localize(datetime.combine(now.date(), dtime(9, 30)))
-    market_close = est.localize(datetime.combine(now.date(), dtime(16, 0)))
-
-    # 預設抓 50 根 5分鐘線（大約4小時）
-    end_time = now
-    start_time = now - timedelta(minutes=5 * 50)
-
-    # 若已收盤，抓當天完整盤中
-    if now > market_close:
-        start_time = market_open
-        end_time = market_close
-
-    # 若尚未開盤或早上太早，抓昨天完整盤中
-    elif now < market_open or start_time < market_open:
-        print(f"[補資料] 現在是盤前，抓取昨日資料")
-        yesterday = now.date() - timedelta(days=1)
-        start_time = est.localize(datetime.combine(yesterday, dtime(9, 30)))
-        end_time = est.localize(datetime.combine(yesterday, dtime(16, 0)))
-
-    # 時間戳轉為毫秒
-    from_ts = int(start_time.timestamp() * 1000)
-    to_ts = int(end_time.timestamp() * 1000)
-
-    print(f"[DEBUG] 抓取 {symbol}：{start_time} → {end_time}")
-
-    try:
-        client = RESTClient(api_key=api_key)
-        bars = client.get_aggs(
-            ticker=symbol,
-            multiplier=5,
-            timespan="minute",
-            from_=from_ts,
-            to=to_ts,
-            limit=100
-        )
-
-        if not bars:
-            print(f"[❌錯誤] {symbol} 沒有資料")
+        if len(df) < 20:
+            print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
             return None
 
-        df = pd.DataFrame([{
-            "timestamp": bar.timestamp,
-            "open": bar.open,
-            "high": bar.high,
-            "low": bar.low,
-            "close": bar.close,
-            "volume": bar.volume
-        } for bar in bars])
+        if 'close' not in df.columns or df['close'].isnull().all():
+            print(f"[WARNING] {symbol} 缺少有效收盤價")
+            return None
 
-        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
-        df.set_index("timestamp", inplace=True)
-        df.sort_index(inplace=True)
+        # === 基礎數據 ===
+        latest_price = df['close'].iloc[-1]
+        latest_open = df['open'].iloc[-1]
+        latest_volume = df['volume'].iloc[-1]
+        avg_volume = df['volume'].rolling(20).mean().iloc[-1]
+        volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
 
-        return df
+        # === 技術指標 ===
+        rsi = RSIIndicator(close=df['close'], window=14).rsi()
+        latest_rsi = rsi.iloc[-1]
 
-    except Exception as e:
-        print(f"[❌錯誤] {symbol} 抓取失敗：{e}")
-        return None
+        typical_price = (df['high'] + df['low'] + df['close']) / 3
+        vwap_series = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
+        latest_vwap = vwap_series.iloc[-1] if not pd.isna(vwap_series.iloc[-1]) else 0
 
-def scan_market(symbol_list, api_key):
-    for symbol in symbol_list:
-        df = fetch_stock_data(symbol, api_key)
-        if df is None or len(df) < 30:
-            continue
-        indicators = calculate_indicators(df)
-        signal_type, signal_note = detect_trading_signal(symbol, df, indicators)
-        if signal_type == "BUY":
-            enter_position(symbol, df['close'].iloc[-1], "多", signal_note)
-            push_entry_to_discord(symbol, "多", df['close'].iloc[-1], signal_note)
-        elif signal_type == "SELL":
-            enter_position(symbol, df['close'].iloc[-1], "空", signal_note)
-            push_entry_to_discord(symbol, "空", df['close'].iloc[-1], signal_note)
-        if symbol in positions:
-            check_exit_and_notify(symbol, df['close'].iloc[-1])
+        tmo = calculate_tmo(df)
+        latest_tmo = tmo.iloc[-1]
+        tmo_slope = tmo.diff().iloc[-1]
 
-def is_market_open():
-    est = pytz.timezone("US/Eastern")
-    now = datetime.now(est).time()
-    market_open = dtime(9, 30)
-    market_close = dtime(16, 0)
-    return market_open <= now <= market_close
+        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
+        obv_direction = "上升" if obv.iloc[-1] > obv.iloc[-2] else "下降"
 
-def main_loop():
-    api_key = os.getenv("POLYGON_API_KEY")
-    if not api_key:
-        raise Exception("❌ 找不到 Polygon API 金鑰，請確認環境變數是否正確設定")
-    while True:
-        if not is_market_open():
-            print("⏰ 非盤中，等待60秒...")
-            time.sleep(60)
-            continue
-        symbol_list = get_symbol_list()
-        if not symbol_list:
-            print("⚠️ 股票清單為空")
-            time.sleep(60)
-            continue
-        scan_market(symbol_list, api_key)
-        print("✅ 本輪結束，等待60秒...")
-        time.sleep(60)
+        ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
+        ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
+        ema_cross = "EMA5 上穿 EMA20" if ema5.iloc[-1] > ema20.iloc[-1] else "EMA5 下穿 EMA20"
+
+        kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14)
+        k_value = kd.stoch().iloc[-1]
+        d_value = kd.stoch_signal().iloc[-1]
+        kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
+
+        candle_type = detect_candle_pattern(df)
+
+        # 預設 signal_note（避免後面報錯）
+        signal_note = None
 
 if __name__ == "__main__":
     main_loop()
