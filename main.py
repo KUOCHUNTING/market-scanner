@@ -1,12 +1,11 @@
 # === 📦 基本功能套件 ===
 import os
-import time
 import random
 import requests
 import pytz
 import pandas as pd
 from polygon import RESTClient
-
+from datetime import datetime, time
 from datetime import datetime, time as dtime  # 用於組合時間
 
 # === 🧾 Google Sheets 套件 ===
