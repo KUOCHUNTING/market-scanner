@@ -13,7 +13,76 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # === 🌐 Discord Webhook 設定 ===
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/你的_webhook網址"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1385222120321187850/_qzr0Jq0JP7WtXRFHQcs-l0-kzYg0k6GjrT4J2V8mf9zWqaMFw9SZMbtJsIt7LGOptI6"
+
+def generate_daily_summary():
+    try:
+        # Google Sheets 連線
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("Trading Log").worksheet("交易紀錄")  # ✅ 這裡是你紀錄進出場的分頁名稱
+
+        # 讀取資料並轉為 DataFrame
+        data = sheet.get_all_records()
+        df = pd.DataFrame(data)
+
+        # 篩選今天的資料
+        today_str = datetime.now(timezone("US/Eastern")).strftime("%Y-%m-%d")
+        df_today = df[df["entry_time"].str.startswith(today_str)]
+
+        if df_today.empty:
+            return f"📊 **[今日績效速報]**\\n🗓️ 日期：{today_str}\\n⚠️ 今日尚無任何交易紀錄。"
+
+        total_trades = len(df_today)
+        wins = len(df_today[df_today["return_rate"] > 0])
+        losses = len(df_today[df_today["return_rate"] <= 0])
+        win_rate = (wins / total_trades) * 100
+        total_return = df_today["return_rate"].sum() * 100
+        capital_used = df_today["capital_used"].sum()
+        capital_left = df_today["capital_left"].iloc[-1]
+
+        report = (
+            f"📊 **[今日績效速報]**\\n"
+            f"🗓️ 日期：{today_str}\\n"
+            f"💼 總進場筆數：{total_trades}\\n"
+            f"✅ 勝場：{wins}｜❌ 敗場：{losses}\\n"
+            f"📈 勝率：{win_rate:.1f}%\\n"
+            f"💰 總報酬率：{total_return:.2f}%\\n"
+            f"💸 今日投入資金：${capital_used:,.0f}\\n"
+            f"💼 剩餘資金：${capital_left:,.0f}"
+        )
+        return report
+    except Exception as e:
+        return f"[ERROR] 產生績效摘要失敗：{e}"
+    
+def init_sheets():
+    print("[DEBUG] 開始執行 init_sheets()")  # ← 放最上面
+    try:
+        client = gspread.authorize(creds)
+        sheet = client.open(SHEET_NAME)
+
+        # 定義所有分頁與對應欄位
+        pages = {
+            "交易紀錄": ["日期", "股票代號", "進場時間", "出場時間", "持倉時間", "方向", "進場價格", "出場價格", "報酬率", "資金投入", "剩餘資金", "訊號類型", "是否TICK共振", "TICK 百分位", "TRIN 值", "TMO 值", "TMO 斜率", "RSI 值", "MACD 狀態", "VWAP 乖離", "成交量倍數", "OBV 方向", "策略版本", "信心分數"],
+            "每日績效統計": ["日期", "勝場數", "負場數", "勝率", "總交易次數", "總投入資金", "總損益金額", "總報酬率", "最大獲利", "最大虧損", "平均持倉時間", "策略版本", "機器學習最佳策略"],
+            "每日盤前情緒紀錄": ["日期", "TICK 百分位", "TICK 均值", "TICK 斜率", "TRIN 值", "VIX 值", "VIX 變化率", "當日預判方向"],
+            "TICK共振紀錄": ["時間", "TICK 值", "TICK 百分位", "TICK 斜率", "TRIN 值", "共振股票代號"],
+            "每日最佳參數": ["日期", "RSI 低點門檻", "TMO 金叉值門檻", "VWAP 乖離門檻", "ROC 濾網", "成交量倍數閾值", "VWAP 漲幅停利閾值", "選用策略名稱", "模型準確率"],
+            "潛伏訊號紀錄": ["時間", "股票代號", "價格", "RSI", "TMO", "VWAP 乖離", "成交量倍數", "OBV", "當時盤勢情緒", "是否推播", "預警類型"]
+        }
+
+        for sheet_name, headers in pages.items():
+            try:
+                worksheet = sheet.worksheet(sheet_name)
+                if not worksheet.row_values(1):
+                    worksheet.insert_row(headers, index=1)
+            except gspread.exceptions.WorksheetNotFound:
+                worksheet = sheet.add_worksheet(title=sheet_name, rows="1000", cols=str(len(headers)))
+                worksheet.insert_row(headers, index=1)
+        print("[INFO] Google Sheets 初始化完成")
+    except Exception as e:
+        print(f"[ERROR] 初始化 Sheets 時失敗：{e}")  
 
 # === 🧠 交易資金設定 ===
 TOTAL_CAPITAL = 1000000         # 初始總資金（單位：美元）
