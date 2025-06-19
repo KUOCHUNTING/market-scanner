@@ -5,7 +5,7 @@ import random
 import os
 from polygon import RESTClient
 from datetime import datetime, timedelta, time
-from pytz import timezone
+import pytz
 import pandas as pd
 # === Google Sheets 套件 ===
 import gspread
