@@ -9,7 +9,7 @@ from datetime import datetime, time
 from datetime import datetime, time as dtime  # 用於組合時間
 from ta.momentum import ROCIndicator
 from ta.volume import OnBalanceVolumeIndicator
-
+from ta.trend import EMAIndicator
 # === 🧾 Google Sheets 套件 ===
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
