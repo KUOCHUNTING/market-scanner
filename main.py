@@ -316,26 +316,23 @@ def fetch_stock_data(symbol, api_key):
     market_open = est.localize(datetime.combine(now_est.date(), dtime(9, 30)))
     market_close = est.localize(datetime.combine(now_est.date(), dtime(16, 0)))
 
-    est = pytz.timezone("US/Eastern")
-    now = datetime.now(est)  # ✅ 要補這行
+    now = datetime.now(est)  # ✅ 補上 now
 
-    # 然後你才能寫：
+    # 預設抓最近 50 根 5分鐘K
     end_time = now
     start_time = now - timedelta(minutes=5 * 50)
 
-    # ✅ 如果現在是收盤後，直接抓今天完整盤中
+    # ✅ 補資料：收盤後改抓當天完整盤中
     if now_est > market_close:
         start_time = market_open
         end_time = market_close
 
-    # ✅ 如果現在是開盤前或資料區間跨開盤前，就抓昨天完整盤中
+    # ✅ 補資料：開盤前或區間跨盤前，改抓昨天
     elif now_est < market_open or start_time < market_open:
         print(f"[補資料] 當前資料不足，改抓昨日盤中")
         yesterday = now_est.date() - timedelta(days=1)
         start_time = est.localize(datetime.combine(yesterday, dtime(9, 30)))
         end_time = est.localize(datetime.combine(yesterday, dtime(16, 0)))
-
-    # 其餘狀況（盤中）則維持預設抓法
 
     from_ts = int(start_time.timestamp() * 1000)
     to_ts = int(end_time.timestamp() * 1000)
@@ -377,57 +374,8 @@ def fetch_stock_data(symbol, api_key):
     except Exception as e:
         print(f"[❌錯誤] 抓取 {symbol} 失敗：{e}")
         return None
-        
-def analyze_stock_data(symbol, bars, tick_value, trin_value):
-    signal_note = ""  # ✅ 預設值，避免 UnboundLocalError
-    try:
-        df = pd.DataFrame(bars)
-        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-        df.set_index('timestamp', inplace=True)
 
-        if len(df) < 20:
-            print(f"[WARNING] {symbol} 線數不足（僅 {len(df)} 筆），跳過")
-            return None
 
-        if 'close' not in df.columns or df['close'].isnull().all():
-            print(f"[WARNING] {symbol} 缺少有效收盤價")
-            return None
-
-        # === 基礎數據 ===
-        latest_price = df['close'].iloc[-1]
-        latest_open = df['open'].iloc[-1]
-        latest_volume = df['volume'].iloc[-1]
-        avg_volume = df['volume'].rolling(20).mean().iloc[-1]
-        volume_ratio = latest_volume / avg_volume if avg_volume > 0 else 0
-
-        # === 技術指標 ===
-        rsi = RSIIndicator(close=df['close'], window=14).rsi()
-        latest_rsi = rsi.iloc[-1]
-
-        typical_price = (df['high'] + df['low'] + df['close']) / 3
-        vwap_series = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
-        latest_vwap = vwap_series.iloc[-1] if not pd.isna(vwap_series.iloc[-1]) else 0
-
-        tmo = calculate_tmo(df)
-        latest_tmo = tmo.iloc[-1]
-        tmo_slope = tmo.diff().iloc[-1]
-
-        obv = OnBalanceVolumeIndicator(close=df['close'], volume=df['volume']).on_balance_volume()
-        obv_direction = "上升" if obv.iloc[-1] > obv.iloc[-2] else "下降"
-
-        ema5 = EMAIndicator(close=df['close'], window=5).ema_indicator()
-        ema20 = EMAIndicator(close=df['close'], window=20).ema_indicator()
-        ema_cross = "EMA5 上穿 EMA20" if ema5.iloc[-1] > ema20.iloc[-1] else "EMA5 下穿 EMA20"
-
-        kd = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14)
-        k_value = kd.stoch().iloc[-1]
-        d_value = kd.stoch_signal().iloc[-1]
-        kd_status = "金叉" if k_value > d_value else "死叉" if k_value < d_value else "中性"
-
-        candle_type = detect_candle_pattern(df)
-
-        # 預設 signal_note（避免後面報錯）
-        signal_note = None
-
-        if __name__ == "__main__":
-            main_loop()
+# ✅ 主程式區（放最外層）
+if __name__ == "__main__":
+    main_loop()
