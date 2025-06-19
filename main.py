@@ -253,6 +253,8 @@ def scan_market(symbol_list):
             print(f"[ERROR] {symbol} 掃描錯誤：{e}")
 
 # ✅ 補上開盤與收盤時間的定義
+est = pytz.timezone("US/Eastern")
+now_est = datetime.now(est)
 market_open = est.localize(datetime.combine(now_est.date(), time(9, 30)))
 market_close = est.localize(datetime.combine(now_est.date(), time(16, 0)))
 # 只在開盤期間運行
