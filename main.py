@@ -346,43 +346,38 @@ def fetch_stock_data(symbol, api_key):
     import pytz
     import pandas as pd
 
+    # 取得美東時間 now
     est = pytz.timezone("US/Eastern")
-    now_est = datetime.now(est)
+    now = datetime.now(est)
 
-    # 設定當天的交易時段（09:30～16:00）
-    market_open = est.localize(datetime.combine(now_est.date(), dtime(9, 30)))
-    market_close = est.localize(datetime.combine(now_est.date(), dtime(16, 0)))
+    # 設定今日開盤 / 收盤時間
+    market_open = est.localize(datetime.combine(now.date(), dtime(9, 30)))
+    market_close = est.localize(datetime.combine(now.date(), dtime(16, 0)))
 
-    est = pytz.timezone("US/Eastern")
-    now = datetime.now(est)  # ✅ 要補這行
-
-    # 然後你才能寫：
+    # 預設抓 50 根 5分鐘線（大約4小時）
     end_time = now
     start_time = now - timedelta(minutes=5 * 50)
 
-    # ✅ 如果現在是收盤後，直接抓今天完整盤中
-    if now_est > market_close:
+    # 若已收盤，抓當天完整盤中
+    if now > market_close:
         start_time = market_open
         end_time = market_close
 
-    # ✅ 如果現在是開盤前或資料區間跨開盤前，就抓昨天完整盤中
-    elif now_est < market_open or start_time < market_open:
-        print(f"[補資料] 當前資料不足，改抓昨日盤中")
-        yesterday = now_est.date() - timedelta(days=1)
+    # 若尚未開盤或早上太早，抓昨天完整盤中
+    elif now < market_open or start_time < market_open:
+        print(f"[補資料] 現在是盤前，抓取昨日資料")
+        yesterday = now.date() - timedelta(days=1)
         start_time = est.localize(datetime.combine(yesterday, dtime(9, 30)))
         end_time = est.localize(datetime.combine(yesterday, dtime(16, 0)))
 
-    # 其餘狀況（盤中）則維持預設抓法
-
+    # 時間戳轉為毫秒
     from_ts = int(start_time.timestamp() * 1000)
     to_ts = int(end_time.timestamp() * 1000)
 
-    print(f"[DEBUG] 抓取 {symbol} 15 分K：{from_ts} → {to_ts}")
-    print(f"[DEBUG] 抓取 {symbol} 15 分K：{start_time} → {end_time}")
+    print(f"[DEBUG] 抓取 {symbol}：{start_time} → {end_time}")
 
     try:
         client = RESTClient(api_key=api_key)
-
         bars = client.get_aggs(
             ticker=symbol,
             multiplier=5,
@@ -393,7 +388,7 @@ def fetch_stock_data(symbol, api_key):
         )
 
         if not bars:
-            print(f"[❌錯誤] {symbol} 無 bars 資料")
+            print(f"[❌錯誤] {symbol} 沒有資料")
             return None
 
         df = pd.DataFrame([{
@@ -412,7 +407,7 @@ def fetch_stock_data(symbol, api_key):
         return df
 
     except Exception as e:
-        print(f"[❌錯誤] 抓取 {symbol} 失敗：{e}")
+        print(f"[❌錯誤] {symbol} 抓取失敗：{e}")
         return None
 
 def scan_market(symbol_list, api_key):
