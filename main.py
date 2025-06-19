@@ -359,6 +359,13 @@ def scan_market(symbol_list, api_key):
         if symbol in positions:
             check_exit_and_notify(symbol, df['close'].iloc[-1])
 
+def is_market_open():
+    est = pytz.timezone("US/Eastern")
+    now = datetime.now(est).time()
+    market_open = time(9, 30)
+    market_close = time(16, 0)
+    return market_open <= now <= market_close
+
 def main_loop():
     api_key = os.getenv("POLYGON_API_KEY")
     if not api_key:
