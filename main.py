@@ -28,6 +28,55 @@ TRAIL_MARGIN  = 0.015         # 回落超過 1.5% 停利出場
 DEFAULT_STOP_LOSS = 0.02      # -2% 停損
 DEFAULT_TAKE_PROFIT = 0.05    # +5% 預設停利
 
+import pandas as pd
+from ta.momentum import RSIIndicator
+from ta.volatility import BollingerBands
+
+def detect_mean_reversion_signals(df):
+    signal_note = None
+    if len(df) < 30:
+        return None  # 避免資料不足
+
+    close = df['close']
+    volume = df['volume']
+
+    # ========== 計算指標 ==========
+    rsi = RSIIndicator(close=close, window=14).rsi()
+
+    bb = BollingerBands(close=close, window=20, window_dev=2)
+    lower_band = bb.bollinger_lband()
+    upper_band = bb.bollinger_hband()
+    mid_band = bb.bollinger_mavg()
+
+    rolling_mean = close.rolling(20).mean()
+    rolling_std = close.rolling(20).std()
+    z_score = (close - rolling_mean) / rolling_std
+
+    latest_price = close.iloc[-1]
+    latest_rsi = rsi.iloc[-1]
+    prev_rsi = rsi.iloc[-2]
+    latest_z = z_score.iloc[-1]
+
+    # ========== 多單均值回歸條件 ==========
+    if (
+        latest_price < lower_band.iloc[-1] and
+        latest_rsi > prev_rsi and
+        latest_rsi < 35 and
+        latest_z < -2
+    ):
+        signal_note = "📈 多單均值回歸：跌破布林下緣 + RSI 回升 + Z-score 偏低"
+
+    # ========== 空單均值回歸條件 ==========
+    elif (
+        latest_price > upper_band.iloc[-1] and
+        latest_rsi < prev_rsi and
+        latest_rsi > 65 and
+        latest_z > 2
+    ):
+        signal_note = "📉 空單均值回歸：突破布林上緣 + RSI 轉弱 + Z-score 偏高"
+
+    return signal_note
+
 # === 2. 技術指標計算函數 ===
 
 def calculate_indicators(df):
@@ -286,6 +335,26 @@ def push_to_discord(symbol, price, rsi, tmo, vwap, volume_ratio, ema_cross, kd_s
         print(f"[ERROR] 發送 Discord 推播失敗：{e}")
     except Exception as e:
         print(f"[ERROR] {e}")
+
+def analyze_stock_data(symbol, df):
+    signal_note = detect_mean_reversion_signals(df)
+    if signal_note:
+        latest_price = df['close'].iloc[-1]
+        rsi = RSIIndicator(close=df['close'], window=14).rsi().iloc[-1]
+        zscore = ((df['close'] - df['close'].rolling(20).mean()) / df['close'].rolling(20).std()).iloc[-1]
+
+        direction = "多" if "多單" in signal_note else "空"
+
+        push_entry_to_discord(
+            symbol=symbol,
+            direction=direction,
+            price=latest_price,
+            signal_note=signal_note,
+            zscore=zscore,
+            rsi=rsi
+        )
+        return True
+    return False
 
 def load_stock_list(filepath):
     try:
