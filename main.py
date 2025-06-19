@@ -292,37 +292,6 @@ def push_to_discord(symbol, price, rsi, tmo, vwap, volume_ratio, ema_cross, kd_s
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# ✅ 2. Google Sheets 寫入函式（可放在 push_to_discord 下方）
-def write_to_sheet(
-    symbol, direction, signal_type, tick_percentile, trin, latest_rsi,
-    latest_tmo, tmo_slope, vwap_diff, volume_ratio,
-    kd_status, candle_type,
-    entry_price, exit_price, holding_time_sec, return_rate,
-    capital_used, capital_left, session, strategy_version, confidence_score, remark
-):
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Trading Log").worksheet("交易紀錄")
-
-        row_data = [
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            symbol, direction, signal_type,
-            f"{tick_percentile:.2f}%", entry_price, exit_price,
-            f"{return_rate:.2%}", holding_time_sec,
-            capital_used, capital_left,
-            f"RSI: {latest_rsi:.1f}", f"TMO: {latest_tmo:.2f}", f"Slope: {tmo_slope:.2f}",
-            f"VWAP乖離: {vwap_diff:.2%}", f"量能倍數: {volume_ratio:.2f}",
-            kd_status, candle_type,
-            session, strategy_version, f"{confidence_score:.2f}", remark
-        ]
-
-        sheet.append_row(row_data)
-
-    except Exception as e:
-        print(f"[ERROR] 寫入 Sheets 失敗：{e}")     
-
 def load_stock_list(filepath):
     try:
         df = pd.read_csv(filepath)
@@ -460,5 +429,5 @@ def analyze_stock_data(symbol, bars, tick_value, trin_value):
         # 預設 signal_note（避免後面報錯）
         signal_note = None
 
-if __name__ == "__main__":
-    main_loop()
+        if __name__ == "__main__":
+            main_loop()
