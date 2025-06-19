@@ -361,8 +361,8 @@ def scan_market(symbol_list, api_key):
 
 def main_loop():
     api_key = os.getenv("POLYGON_API_KEY")
-        if not api_key:
-            raise Exception("❌ 找不到 Polygon API 金鑰，請確認環境變數是否正確設定")
+    if not api_key:
+        raise Exception("❌ 找不到 Polygon API 金鑰，請確認環境變數是否正確設定")
     while True:
         if not is_market_open():
             print("⏰ 非盤中，等待60秒...")
