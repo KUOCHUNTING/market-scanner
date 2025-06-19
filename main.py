@@ -5,6 +5,7 @@ import random
 import os
 from polygon import RESTClient
 from datetime import datetime, timedelta, time
+from datetime import time
 import pytz
 import pandas as pd
 # === Google Sheets 套件 ===
@@ -338,10 +339,80 @@ def get_symbol_list():
         print(f"[ERROR] 載入股票清單失敗：{e}")
         return []
 
-def is_market_open():
+def fetch_stock_data(symbol, api_key):
+    from polygon import RESTClient
+    from datetime import datetime, timedelta, time as dtime
+    import pytz
+    import pandas as pd
+
     est = pytz.timezone("US/Eastern")
-    now = datetime.now(est)
-    return now.weekday() < 5 and (now.hour > 9 or (now.hour == 9 and now.minute >= 30)) and now.hour < 16
+    now_est = datetime.now(est)
+
+    # 設定當天的交易時段（09:30～16:00）
+    market_open = est.localize(datetime.combine(now_est.date(), dtime(9, 30)))
+    market_close = est.localize(datetime.combine(now_est.date(), dtime(16, 0)))
+
+    est = pytz.timezone("US/Eastern")
+    now = datetime.now(est)  # ✅ 要補這行
+
+    # 然後你才能寫：
+    end_time = now
+    start_time = now - timedelta(minutes=5 * 50)
+
+    # ✅ 如果現在是收盤後，直接抓今天完整盤中
+    if now_est > market_close:
+        start_time = market_open
+        end_time = market_close
+
+    # ✅ 如果現在是開盤前或資料區間跨開盤前，就抓昨天完整盤中
+    elif now_est < market_open or start_time < market_open:
+        print(f"[補資料] 當前資料不足，改抓昨日盤中")
+        yesterday = now_est.date() - timedelta(days=1)
+        start_time = est.localize(datetime.combine(yesterday, dtime(9, 30)))
+        end_time = est.localize(datetime.combine(yesterday, dtime(16, 0)))
+
+    # 其餘狀況（盤中）則維持預設抓法
+
+    from_ts = int(start_time.timestamp() * 1000)
+    to_ts = int(end_time.timestamp() * 1000)
+
+    print(f"[DEBUG] 抓取 {symbol} 15 分K：{from_ts} → {to_ts}")
+    print(f"[DEBUG] 抓取 {symbol} 15 分K：{start_time} → {end_time}")
+
+    try:
+        client = RESTClient(api_key=api_key)
+
+        bars = client.get_aggs(
+            ticker=symbol,
+            multiplier=5,
+            timespan="minute",
+            from_=from_ts,
+            to=to_ts,
+            limit=100
+        )
+
+        if not bars:
+            print(f"[❌錯誤] {symbol} 無 bars 資料")
+            return None
+
+        df = pd.DataFrame([{
+            "timestamp": bar.timestamp,
+            "open": bar.open,
+            "high": bar.high,
+            "low": bar.low,
+            "close": bar.close,
+            "volume": bar.volume
+        } for bar in bars])
+
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+        df.set_index("timestamp", inplace=True)
+        df.sort_index(inplace=True)
+
+        return df
+
+    except Exception as e:
+        print(f"[❌錯誤] 抓取 {symbol} 失敗：{e}")
+        return None
 
 def scan_market(symbol_list, api_key):
     for symbol in symbol_list:
