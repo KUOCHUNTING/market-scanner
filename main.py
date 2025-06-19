@@ -252,13 +252,6 @@ def scan_market(symbol_list):
         except Exception as e:
             print(f"[ERROR] {symbol} 掃描錯誤：{e}")
 
-# === 7. 主迴圈執行區（從 CSV 載入） ===
-
-import time
-
-est = timezone("US/Eastern")
-now_est = datetime.now(est)
-
 # ✅ 補上開盤與收盤時間的定義
 market_open = est.localize(datetime.combine(now_est.date(), time(9, 30)))
 market_close = est.localize(datetime.combine(now_est.date(), time(16, 0)))
