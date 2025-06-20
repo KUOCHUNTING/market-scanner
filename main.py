@@ -130,16 +130,7 @@ def fetch_stock_data(symbol, api_key):
     except Exception as e:
         print(f"[❌錯誤] 抓取 {symbol} 失敗：{e}")
         return None
-    
-def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
-    try:
-        df = pd.read_csv(filepath)
-        return df['symbol'].tolist()
-    except Exception as e:
-        print(f"[ERROR] 無法讀取股票清單：{e}")
-        return []
-stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
-
+        
 def detect_mean_reversion_signals(df, symbol):
     global capital_left  # ⚠️ 確保這個變數在主程式有定義
     signal_note = None
