@@ -310,6 +310,8 @@ def calculate_indicators(df):
     ema_5 = EMAIndicator(close=close, window=5).ema_indicator()
     ema_20 = EMAIndicator(close=close, window=20).ema_indicator()
 
+    print(f"[指標] {symbol} 最新收盤價: {latest_price:.2f}, RSI: {rsi:.2f}, EMA5: {ema5:.2f}, EMA20: {ema20:.2f}")
+
     return {
         'rsi': rsi,
         'roc': roc,
