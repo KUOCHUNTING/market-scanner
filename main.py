@@ -50,14 +50,16 @@ TRAIL_MARGIN = 0.015            # 回落 1.5% 停利出場
 DEFAULT_STOP_LOSS = 0.02        # -2% 強制停損
 DEFAULT_TAKE_PROFIT = 0.05      # +5% 預設停利
 
-def load_stock_list(filepath):
+def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     try:
         df = pd.read_csv(filepath)
         return df['symbol'].tolist()
     except Exception as e:
         print(f"[ERROR] 無法讀取股票清單：{e}")
         return []
-stock_list = load_stock_list("filtered_us_stocks_common_only.csv")
+
+# ✅ 呼叫時就可以簡單這樣
+symbol_list = load_stock_list()
 
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
 
