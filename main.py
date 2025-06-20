@@ -2,7 +2,6 @@
 import os
 import random
 import requests
-import pytz
 
 # === 📊 資料處理 ===
 import pandas as pd
@@ -21,7 +20,8 @@ from polygon import RESTClient
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-est = timezone("US/Eastern")
+import pytz
+est = pytz.timezone("US/Eastern")
 now_est = datetime.now(est)
 
 # ✅ 補上開盤與收盤時間的定義
