@@ -110,6 +110,7 @@ def fetch_stock_data(symbol, api_key):
             from_=from_ts,
             to=to_ts,
             limit=100
+            adjusted=True
         )
 
         if not bars:
