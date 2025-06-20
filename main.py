@@ -36,9 +36,7 @@ if now_est < market_open or now_est > market_close:
 
 API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
-
-
-WEBHOOK_URL = "https://discord.com/api/webhooks/1372956363235393536/2bELr_6LwGlk2K7G4B3d3J0MBD5iv04IwC33pQaWxAHcRbgn6sBVtkvI_65FfmC4Um5f"
+webhook_url = os.getenv("DISCORD_WEBHOOK_URL", WEBHOOK_URL)
 # === 🧠 交易資金設定 ===
 TOTAL_CAPITAL = 1000000         # 初始總資金（單位：美元）
 POSITION_SIZE = 0.05            # 每次進場資金佔比（5%）
@@ -50,6 +48,46 @@ TRAIL_TRIGGER = 0.03            # +3% 啟動移動停利
 TRAIL_MARGIN = 0.015            # 回落 1.5% 停利出場
 DEFAULT_STOP_LOSS = 0.02        # -2% 強制停損
 DEFAULT_TAKE_PROFIT = 0.05      # +5% 預設停利
+
+def main():
+    symbol_list = load_stock_list()
+
+    for symbol in symbol_list:
+        print(f"📡 掃描中：{symbol}")
+        df = fetch_stock_data(symbol, POLYGON_API_KEY)
+
+        if df is None or len(df) < 30:
+            print(f"[跳過] {symbol} 無效或資料不足")
+            continue
+
+        print(f"[DEBUG] {symbol} df.shape：{df.shape}")
+
+        # === 技術指標計算 ===
+        close = df['close']
+        volume = df['volume']
+
+        latest_price = close.iloc[-1]
+        avg_volume = volume.rolling(20).mean().iloc[-1]
+        volume_ratio = volume.iloc[-1] / avg_volume if avg_volume > 0 else 1.0
+
+        rsi = RSIIndicator(close=close, window=14).rsi().iloc[-1]
+
+        ema5 = EMAIndicator(close=close, window=5).ema_indicator().iloc[-1]
+        ema20 = EMAIndicator(close=close, window=20).ema_indicator().iloc[-1]
+
+        df['cum_vol'] = volume.cumsum()
+        df['cum_vwap'] = (close * volume).cumsum()
+        vwap = df['cum_vwap'] / df['cum_vol']
+        latest_vwap = vwap.iloc[-1]
+
+        print(f"""
+📊 {symbol} 技術概況：
+🔹 收盤價：${latest_price:.2f}
+🔹 RSI(14)：{rsi:.2f}
+🔹 VWAP：{latest_vwap:.2f}
+🔹 EMA5：{ema5:.2f} / EMA20：{ema20:.2f}
+🔹 量能倍數：{volume_ratio:.2f} 倍（對20MA）
+""")
 
 def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     try:
