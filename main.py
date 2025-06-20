@@ -86,7 +86,7 @@ def fetch_stock_data(symbol, api_key):
         end_time = market_close
 
     # ✅ 如果現在是開盤前或資料區間跨開盤前，就抓昨天完整盤中
-    elif now_est < market_open or start_time < market_open:
+    elif now_est < market_open:
         print(f"[補資料] 當前資料不足，改抓昨日盤中")
         yesterday = now_est.date() - timedelta(days=1)
         start_time = est.localize(datetime.combine(yesterday, dtime(9, 30)))
