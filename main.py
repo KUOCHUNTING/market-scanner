@@ -291,7 +291,7 @@ def calculate_indicators(df):
 # === 3. 訊號判斷邏輯（多空建倉，無預警） ===
 
 def detect_trading_signal(symbol, df, indicators):  # ✅ 有 symbol 參數
-    print(f"[判斷] {symbol} 訊號：{signal_type}, 說明：{signal_note}")ype
+    print(f"[判斷] {symbol} 訊號：{signal_type}, 說明：{signal_note}")
     latest_price = df['close'].iloc[-1]
     rsi = indicators['rsi'].iloc[-1]
     roc = indicators['roc'].iloc[-1]
