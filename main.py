@@ -9,6 +9,7 @@ from datetime import datetime, time
 from datetime import datetime, time as dtime  # 用於組合時間
 from ta.momentum import ROCIndicator
 from ta.volume import OnBalanceVolumeIndicator
+from polygon import SyncStocksClient
 
 # === 🧾 Google Sheets 套件 ===
 import gspread
