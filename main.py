@@ -6,6 +6,7 @@ import requests
 # === 📊 資料處理 ===
 import pandas as pd
 from datetime import datetime
+from datetime import datetime, time
 
 # === 📈 技術指標（ta-lib 套件）===
 from ta.momentum import RSIIndicator, ROCIndicator
