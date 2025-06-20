@@ -36,7 +36,7 @@ if now_est < market_open or now_est > market_close:
 
 API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
-  
+WEBHOOK_URL = "https://discord.com/api/webhooks/1385222120321187850/_qzr0Jq0JP7WtXRFHQcs-l0-kzYg0k6GjrT4J2V8mf9zWqaMFw9SZMbtJsIt7LGOptI6"
 # === 🧠 交易資金設定 ===
 TOTAL_CAPITAL = 1000000         # 初始總資金（單位：美元）
 POSITION_SIZE = 0.05            # 每次進場資金佔比（5%）
@@ -329,8 +329,8 @@ def detect_trading_signal(symbol, df, indicators):  # ✅ 有 symbol 參數
 # === 5. 推播模組（Discord） ===
 
 def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rsi=None):
-    WEBHOOK_URL = "https://discord.com/api/webhooks/1385222120321187850/_qzr0Jq0JP7WtXRFHQcs-l0-kzYg0k6GjrT4J2V8mf9zWqaMFw9SZMbtJsIt7LGOptI6"
-
+    requests.post(WEBHOOK_URL, json={"content": msg})
+    
     emoji = "🐸" if direction == "多" else "🐶"
     time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
