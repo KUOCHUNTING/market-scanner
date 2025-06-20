@@ -37,6 +37,7 @@ if now_est < market_open or now_est > market_close:
 API_KEY = os.getenv("POLYGON_API_KEY") or "YmbcjRd1RA6l3pTlN0NvKRzd7OY4eV8k"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
 
+WEBHOOK_URL = "https://discord.com/api/webhooks/1385222120321187850/_qzr0Jq0JP7WtXRFHQcs-l0-kzYg0k6GjrT4J2V8mf9zWqaMFw9SZMbtJsIt7LGOptI6"  
 requests.post(WEBHOOK_URL, json={"content": msg})
 # === 🧠 交易資金設定 ===
 TOTAL_CAPITAL = 1000000         # 初始總資金（單位：美元）
