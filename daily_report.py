@@ -1,5 +1,3 @@
-# daily_report.py
-
 import os
 import json
 import requests
