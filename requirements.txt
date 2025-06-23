@@ -1,5 +1,5 @@
 setuptools>=65.0.0
-wheel
+wheel>=0.40.0
 requests
 ta
 gspread
