@@ -86,7 +86,7 @@ def push_to_discord(
     vwap_deviation=(latest_price - vwap) / vwap * 100 if vwap else None,
     bb_deviation=((latest_price - indicators['lower_band'].iloc[-1]) / indicators['lower_band'].iloc[-1] * 100)
         if indicators['lower_band'].iloc[-1] > 0 else None
-)
+):
     import requests
 
     webhook_url = "https://discord.com/api/webhooks/1385222120321187850/_qzr0Jq0JP7WtXRFHQcs-l0-kzYg0k6GjrT4J2V8mf9zWqaMFw9SZMbtJsIt7LGOptI6"  # 🟡 換成你的實際 URL
