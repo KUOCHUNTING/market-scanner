@@ -1237,7 +1237,7 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
 
 # === 5. 推播模組（Discord） ===
 
- def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rsi=None, roc=None,
+def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rsi=None, roc=None,
                           obv=None, obv_change=None, ema5=None, ema20=None,
                           vwap=None, strategy=None, confidence_score=None,
                           capital_left=None):  # ✅ 加入剩餘資金
