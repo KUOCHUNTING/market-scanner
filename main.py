@@ -1793,7 +1793,7 @@ except Exception as e:
     print(f"[EXCEPTION] Discord 測試推播錯誤：{e}")
 
 # ✅ 測試建倉模式（可單獨測試 enter_position，不啟動主控輪詢）
-TEST_MODE = True
+TEST_MODE = False
 
 if __name__ == "__main__":
     if TEST_MODE:
