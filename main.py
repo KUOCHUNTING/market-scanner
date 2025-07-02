@@ -26,7 +26,7 @@ import base64
 import json
 import os, json, base64
 from google.oauth2.service_account import Credentials
-s
+
 # 建立美東時間
 eastern = pytz.timezone("US/Eastern")
 now_est = datetime.now(eastern)
