@@ -127,7 +127,7 @@ def write_entry_to_sheet(symbol, price, direction, shares, capital, strategy, co
         now = datetime.now()
 
         row = [
-            round(capital_left, 0)  # ✅ 四捨五入為整數
+            round(capital_left, 0),  # ✅ 四捨五入為整數
             now.strftime("%Y-%m-%d %H:%M:%S"),  # 建倉時間
             now.strftime("%Y-%m-%d"),           # 建倉日期
             symbol,
