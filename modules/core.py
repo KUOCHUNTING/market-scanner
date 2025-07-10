@@ -16,7 +16,7 @@ def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     從 CSV 檔載入股票代碼清單，預設為專案根目錄的 stock_list.csv。
     回傳：股票代碼 list，例如 ['AAPL', 'TSLA', 'NVDA']
     """
-    filepath = os.path.join(get_project_root(), filename)
+    file_path = os.path.join(get_project_root(), filename)
     try:
         df = pd.read_csv(filepath)
         if "symbol" in df.columns:
