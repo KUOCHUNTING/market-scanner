@@ -1,4 +1,4 @@
-from modules import load_stock_list, scan_market
+from .load_stock_list import load_stock_list
 from datetime import datetime
 import pandas as pd
 
