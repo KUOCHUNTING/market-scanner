@@ -1,4 +1,5 @@
 import os
+import pytz
 # === API & 常數設定 ===
 POLYGON_API_KEY = "3Oa52hFieaUvTyToZudJanq39Rw9zApi"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
