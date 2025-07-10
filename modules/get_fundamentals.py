@@ -1,3 +1,5 @@
+import requests
+
 def get_fundamentals(symbol, polygon_api_key, df=None):
     try:
         url = f"https://api.polygon.io/v3/reference/tickers/{symbol}?apiKey={polygon_api_key}"
