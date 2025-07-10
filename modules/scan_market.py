@@ -1,4 +1,5 @@
 from modules import load_stock_list, scan_market
+from datetime import datetime
 
 stock_list = load_stock_list()
 scan_market(stock_list)
