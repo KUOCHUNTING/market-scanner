@@ -1,4 +1,8 @@
-from ta.momentum import RSIIndicator
+import pandas as pd
+from ta.momentum import RSIIndicator, ROCIndicator
+from ta.trend import EMAIndicator
+from ta.volatility import BollingerBands
+from ta.volume import OnBalanceVolumeIndicator
 
 def calculate_indicators(df):
     if len(df) < 60:
