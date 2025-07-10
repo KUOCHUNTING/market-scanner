@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rsi=None, roc=None,
                           obv=None, obv_change=None, ema5=None, ema20=None,
                           vwap=None, strategy=None, confidence_score=None,
