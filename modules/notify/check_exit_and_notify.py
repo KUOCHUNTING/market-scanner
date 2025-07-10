@@ -1,7 +1,13 @@
 from datetime import datetime, timedelta
 from modules.notify.discord_push import send_discord_message
 from modules.exit_position import exit_position
-from modules.config.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN, WEBHOOK_URL
+from modules.config import (
+    DEFAULT_STOP_LOSS,
+    DEFAULT_TAKE_PROFIT,
+    TRAIL_TRIGGER,
+    TRAIL_MARGIN,
+    WEBHOOK_URL
+)
 from modules.logic.repair_position import repair_position
 
 # ⛔ 全域變數需在主程式中宣告並傳進來
