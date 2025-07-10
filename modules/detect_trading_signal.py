@@ -1,3 +1,5 @@
+import pandas as pd
+
 def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False):
     if 'volume' not in df.columns:
         print(f"[跳過] {symbol} 缺少 volume 欄位")
