@@ -1,6 +1,5 @@
 from datetime import datetime
 import requests
-
 from .config import TOTAL_CAPITAL, POSITION_RATIO, WEBHOOK_URL
 from .analyze_ema_trend import analyze_ema_trend  # ← 若用到，請確保這個檔案存在
 
