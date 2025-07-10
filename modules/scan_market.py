@@ -1,3 +1,8 @@
+from modules import load_stock_list, scan_market
+
+stock_list = load_stock_list()
+scan_market(stock_list)
+
 def scan_market(symbol_list):
     global capital_left
     MIN_REQUIRED_CAPITAL = 3000
