@@ -1,20 +1,33 @@
 from datetime import datetime
+import requests
+
+from .config import TOTAL_CAPITAL, POSITION_RATIO, WEBHOOK_URL
+from .analyze_ema_trend import analyze_ema_trend  # ← 若用到，請確保這個檔案存在
 
 def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rsi=None, roc=None,
                           obv=None, obv_change=None, ema5=None, ema20=None,
                           vwap=None, strategy=None, confidence_score=None,
-                          capital_left=None, df=None):  # ✅ 加入剩餘資金
+                          capital_left=None, df=None):
+    """
+    發送建倉通知到 Discord（含策略、價格、信心分數、指標資訊）
 
-    import requests
-    from datetime import datetime
-
+    Parameters:
+        symbol (str): 股票代號
+        direction (str): 多 or 空
+        price (float): 進場價
+        signal_note (str): 條件說明文字
+        zscore, rsi, roc, obv, ema5, ema20, vwap: 技術指標
+        confidence_score (float): 信心評分
+        capital_left (float): 剩餘資金
+        df (DataFrame): 用於計算 EMA 趨勢（均值策略時）
+    """
     emoji = "🐸" if direction == "多" else "🐶"
     time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     capital_used = TOTAL_CAPITAL * POSITION_RATIO
     quantity = int(capital_used // price)
 
-    # === EMA 趨勢統計（只在均值回歸策略中執行）
+    # === EMA 趨勢統計（僅均值策略需要）
     ema_trend_text = "N/A"
     if strategy == "均值回歸策略" and df is not None:
         try:
@@ -30,7 +43,7 @@ def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rs
     if capital_left is not None:
         content += f"💼 剩餘資金：${capital_left:,.0f}\n"
 
-    # === 策略標籤轉換 ===
+    # === 策略標籤 ===
     strategy_label = {
         "均值回歸策略": "🎯 均值回歸策略",
         "RROV 策略": "📊 RROV 策略",
@@ -72,7 +85,7 @@ def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rs
             position = "高於" if price > vwap else "低於"
             content += f"📊 價格{position} VWAP：{price:.2f} vs {vwap:.2f}\n"
 
-    # === 其他通用附加項目 ===
+    # === 通用附加項目 ===
     if confidence_score is not None:
         content += f"🔍 信心分數：{confidence_score:.2f}\n"
 
@@ -80,7 +93,7 @@ def push_entry_to_discord(symbol, direction, price, signal_note, zscore=None, rs
     content += f"📝 條件說明：{signal_note}\n"
     content += f"🕒 時間：{time_str}"
 
-    # === 發送 Discord 推播 ===
+    # === 發送 Discord ===
     try:
         requests.post(WEBHOOK_URL, json={"content": content})
         print(f"[✅推播成功] {symbol} 建倉通知已送出")
