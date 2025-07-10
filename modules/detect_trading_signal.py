@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False):
     if 'volume' not in df.columns:
