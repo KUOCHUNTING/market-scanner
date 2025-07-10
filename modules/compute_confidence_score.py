@@ -46,3 +46,16 @@ def compute_confidence_score(rsi, roc, obv, vwap_deviation, zscore, bb_deviation
         score += 0.2
 
     return min(score, 1.0)
+
+def get_strategy_match_score(strategy_name, conditions_dict):
+    """
+    根據 True/False 條件布林值，計算策略命中率
+    """
+    if not conditions_dict:
+        return 0.0
+
+    true_count = sum(1 for val in conditions_dict.values() if val)
+    total_count = len(conditions_dict)
+    
+    score = round(true_count / total_count, 2)
+    return score
