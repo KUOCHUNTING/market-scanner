@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def write_entry_to_sheet(symbol, price, direction, shares, capital, strategy, confidence, capital_left):
     try:
         from datetime import datetime
