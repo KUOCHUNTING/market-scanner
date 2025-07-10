@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 def get_fundamentals(symbol, polygon_api_key, df=None):
     try:
