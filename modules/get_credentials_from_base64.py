@@ -1,3 +1,4 @@
+import pytz
 def get_credentials_from_base64(env_var_key):
     base64_key = os.getenv(env_var_key)
     if not base64_key:
