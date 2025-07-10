@@ -1,5 +1,4 @@
 # 自動產生的模組初始化檔案
-from .scan_market import scan_market
 from .calculate_exit_metrics import *
 from .calculate_indicators import *
 from .can_enter_new_position import *
