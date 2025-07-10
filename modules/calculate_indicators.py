@@ -1,3 +1,5 @@
+from ta.momentum import RSIIndicator
+
 def calculate_indicators(df):
     if len(df) < 60:
         print("[警告] 技術指標計算時資料不足，跳過")
