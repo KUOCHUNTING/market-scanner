@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def main_loop():
     while True:
         symbol_list = load_stock_list()  # 確保這是回傳股票代碼清單的函數
