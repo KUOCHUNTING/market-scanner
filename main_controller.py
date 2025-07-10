@@ -1,6 +1,9 @@
-from 模組化腳本 import *
+from modules import *
 import threading
 import time
+
+scan_market()
+schedule_exit_check()
 
 if __name__ == "__main__":
     print("🚀 啟動主控系統：scan_market + 出場排程")
