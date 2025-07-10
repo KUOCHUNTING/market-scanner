@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def write_alert_to_sheet(symbol, price, direction, signal_type, signal_note, rsi, zscore, vwap, volume_ratio):
     try:
         from datetime import datetime
