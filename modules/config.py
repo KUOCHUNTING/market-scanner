@@ -29,7 +29,7 @@ from google.oauth2.service_account import Credentials
 from oauth2client.service_account import ServiceAccountCredentials
 
 # === 🧠 自訂模組 ===
-from core import load_stock_list  # 根據實際模組結構載入自訂函數
+from .core import load_stock_list
 # === API & 常數設定 ===
 POLYGON_API_KEY = "3Oa52hFieaUvTyToZudJanq39Rw9zApi"
 STOCK_LIST_CSV = "filtered_us_stocks_common_only.csv"
