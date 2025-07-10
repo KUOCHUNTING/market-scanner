@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def enter_position(symbol, price, direction, signal_note,
                    rsi=None, zscore=None, strategy_name="未標記策略",
                    ema5=None, ema20=None, upper_band=None, lower_band=None, mid_band=None,
