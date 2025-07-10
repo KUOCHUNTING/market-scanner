@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def record_entry_position(symbol, price, direction, shares, strategy_name,
                           confidence_score=None, capital_used=None):
     """
