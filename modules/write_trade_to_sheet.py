@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def write_trade_to_sheet(strategy_type, symbol, direction, entry_price, shares,
                          invested_capital, rsi, zscore, roc, obv, vwap,
                          confidence_score, signal_note, sheet_webhook_url,
