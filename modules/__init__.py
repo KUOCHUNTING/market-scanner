@@ -26,7 +26,6 @@ from .get_strategy_display import *
 from .get_strategy_match_score import *
 from .load_stock_list import *
 from .log_exit_to_sheet import *
-from .main import *
 from .main_loop import *
 from .normalize_strategy_name import *
 from .push_entry_to_discord import *
