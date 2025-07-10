@@ -1,4 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from modules.notify.discord_push import send_discord_message
+from modules.logic.exit_position import exit_position
+from modules.config.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN, WEBHOOK_URL
+from modules.logic.repair_position import repair_position
+
+# ⛔ 全域變數需在主程式中宣告並傳進來
+positions = {}
+capital_left = 0
+last_tracking_push_time = {}
 
 def check_exit_and_notify(symbol, latest_price):
     global capital_left
@@ -6,7 +15,7 @@ def check_exit_and_notify(symbol, latest_price):
     if symbol not in positions:
         return
 
-    # ✅ 修補持倉資訊
+    # ✅ 修補持倉資料（如缺欄位自動補全）
     repair_position(symbol)
     pos = positions[symbol]
 
@@ -31,7 +40,7 @@ def check_exit_and_notify(symbol, latest_price):
         print(f"[略過] {symbol} ➜ entry_price={entry_price}, quantity={quantity}，略過出場判斷")
         return
 
-    # ✅ 報酬率計算
+    # ✅ 計算報酬率
     if direction and "多" in direction:
         return_rate = (latest_price - entry_price) / entry_price
     elif direction and "空" in direction:
@@ -47,7 +56,7 @@ def check_exit_and_notify(symbol, latest_price):
         pos["max_gain"] = return_rate
         max_gain = return_rate
 
-    # ✅ 停損 / 三段鎖利邏輯（含追蹤停利）
+    # ✅ 停損與鎖利邏輯
     reason, exit_ratio = None, 0
 
     if return_rate <= -DEFAULT_STOP_LOSS:
@@ -71,35 +80,28 @@ def check_exit_and_notify(symbol, latest_price):
         exit_ratio = 1.0
         sell_stage = 3
 
-    # ✅ 尚未出場也印出當前狀態
+    # ✅ 尚未出場也推播追蹤狀態（每 3 分鐘一次）
     if reason is None or exit_ratio <= 0:
         now = datetime.now()
         last_push = last_tracking_push_time.get(symbol)
 
-        # 若無推播記錄，或已經超過 3 分鐘，才推播
         if not last_push or (now - last_push) >= timedelta(minutes=3):
             holding_minutes = int((now - entry_time).total_seconds() / 60) if entry_time else 0
             pnl_emoji = "🟢" if return_rate > 0 else "🔴" if return_rate < 0 else "⚪"
             pnl_text = f"{return_rate:.2f}%"
 
             message = f"🔔【持倉追蹤】{symbol}\n" \
-                    f"{pnl_emoji} 報酬率：{pnl_text}\n" \
-                    f"進場價：{entry_price:.2f}｜目前價：{latest_price:.2f}\n" \
-                    f"策略：{strategy}｜持倉時間：{holding_minutes} 分鐘"
+                      f"{pnl_emoji} 報酬率：{pnl_text}\n" \
+                      f"進場價：{entry_price:.2f}｜目前價：{latest_price:.2f}\n" \
+                      f"策略：{strategy}｜持倉時間：{holding_minutes} 分鐘"
             
             send_discord_message(WEBHOOK_URL, message)
-
             print(message)
-            try:
-                requests.post(WEBHOOK_URL, json={"content": message})
-            except Exception as e:
-                print(f"[推播錯誤] {symbol} ➜ {e}")
 
-            # ✅ 更新推播時間
             last_tracking_push_time[symbol] = now
         return
 
-    # ✅ 計算出場數量與損益金額
+    # ✅ 出場處理
     exit_qty = int(quantity * exit_ratio)
     if exit_qty <= 0:
         print(f"[略過] {symbol} ➜ 出場數量為 0")
@@ -115,7 +117,6 @@ def check_exit_and_notify(symbol, latest_price):
     emoji = "✅" if return_rate >= 0 else "⚠️"
     time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # ✅ 策略名稱顯示轉換
     strategy_name_map = {
         "均值回歸": "🎯 均值回歸策略",
         "順勢策略": "🔥 順勢策略",
@@ -123,7 +124,6 @@ def check_exit_and_notify(symbol, latest_price):
     }
     strategy_name = strategy_name_map.get(strategy, f"📌 {strategy}")
 
-    # ✅ 推播訊息
     content = (
         f"{emoji} **[出場通知 - {strategy_name}｜{direction}單]** {symbol}\n"
         f"📈 出場價格：${latest_price:.2f} ｜ 數量：{exit_qty} 股\n"
@@ -132,9 +132,10 @@ def check_exit_and_notify(symbol, latest_price):
         f"🕒 時間：{time_str}"
     )
 
-    requests.post(WEBHOOK_URL, json={"content": content})
+    send_discord_message(WEBHOOK_URL, content)
+    print(content)
 
-    # ✅ 出場紀錄
+    # ✅ 實際出場記錄（更新部位資料）
     exit_position(symbol, latest_price, pos)
 
     if pos["quantity"] <= 0:
