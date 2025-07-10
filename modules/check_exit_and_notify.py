@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def check_exit_and_notify(symbol, latest_price):
     global capital_left
 
