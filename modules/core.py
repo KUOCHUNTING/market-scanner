@@ -11,7 +11,7 @@ def get_project_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # === 📊 股票清單讀取 ===
-def loadstock_list(filepath="filtered_us_stocks_common_only.csv"):
+def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     """
     從 CSV 檔載入股票代碼清單，預設為專案根目錄的 stock_list.csv。
     回傳：股票代碼 list，例如 ['AAPL', 'TSLA', 'NVDA']
