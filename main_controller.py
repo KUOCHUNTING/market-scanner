@@ -1,17 +1,14 @@
-from modules import *
-import threading
 import time
 from modules.config import stock_list
 from modules.scan_market import scan_market
-scan_market(stock_list)
-schedule_exit_check()
+from modules.notify.check_exit_and_notify import schedule_exit_check  # ← ✅ 加這行
 
 if __name__ == "__main__":
     print("🚀 啟動主控系統：scan_market + 出場排程")
 
     # ✅ 執行市場掃描與建倉
     try:
-        scan_market()
+        scan_market(stock_list)  # ← 傳入股票清單
     except Exception as e:
         print(f"[錯誤] scan_market 失敗：{e}")
 
@@ -21,6 +18,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"[錯誤] schedule_exit_check 啟動失敗：{e}")
 
-    # ✅ 防止主程式結束（維持執行狀態）
+    # ✅ 維持主程式執行
     while True:
         time.sleep(60)
