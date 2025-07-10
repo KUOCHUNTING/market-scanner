@@ -12,13 +12,9 @@ def get_project_root():
 
 # === 📊 股票清單讀取 ===
 def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
-    """
-    從 CSV 檔載入股票代碼清單，預設為專案根目錄的 stock_list.csv。
-    回傳：股票代碼 list，例如 ['AAPL', 'TSLA', 'NVDA']
-    """
-    file_path = os.path.join(get_project_root(), filename)
+    file_path = os.path.join(get_project_root(), filepath)  # ✅ 改回 filepath
     try:
-        df = pd.read_csv(filepath)
+        df = pd.read_csv(file_path)
         if "symbol" in df.columns:
             return df["symbol"].dropna().tolist()
         else:
