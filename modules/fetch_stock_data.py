@@ -1,9 +1,9 @@
-def fetch_stock_data(symbol, api_key):
-    import pytz
-    import pandas as pd
-    from datetime import datetime, timedelta, time as dtime
-    from polygon import RESTClient
+import pytz
+import pandas as pd
+from datetime import datetime, timedelta, time as dtime
+from polygon import RESTClient
 
+def fetch_stock_data(symbol, api_key):
     est = pytz.timezone("US/Eastern")
     now_est = datetime.now(est)
 
