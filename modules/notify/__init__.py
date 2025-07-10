@@ -1,45 +1,7 @@
-# 自動產生的模組初始化檔案
-from modules.calculate_exit_metrics import your_function_name
-from .calculate_indicators import *
-from .can_enter_new_position import *
-from .check_all_positions import *
-from .check_exit_and_notify import *
-from .check_volume_alert import *
-from .compute_confidence_score import *
-from .compute_position_size import *
-from .config import *
-from .connect_to_gsheet import *
-from .detect_mean_reversion_score import *
-from .detect_mean_reversion_signals import *
-from .detect_trading_signal import *
-from .enter_position import *
-from .exit_position import *
-from .fetch_latest_price import *
-from .fetch_latest_prices_batch import *
-from .fetch_stock_data import *
-from .filter_fundamentals import *
-from .get_credentials_from_base64 import *
-from .get_fundamentals import *
-from .get_gspread_client import *
-from .get_latest_price import *
-from .get_strategy_display import *
-from .get_strategy_match_score import *
-from .load_stock_list import *
-from .log_exit_to_sheet import *
-from .main_loop import *
-from .normalize_strategy_name import *
-from .push_entry_to_discord import *
-from .push_exit_to_discord import *
-from .push_to_discord import *
-from .record_entry_position import *
-from .repair_position import *
-from .safe_round import *
-from .scan_market import *
-from .schedule_exit_check import *
-from .send_entry_push import *
-from .should_exit import *
-from .summarize_ema_direction import *
-from .write_alert_to_sheet import *
-from .write_entry_to_sheet import *
-from .write_exit_to_sheet import *
-from .write_trade_to_sheet import *
+# modules/notify/__init__.py
+
+# ✅ 此檔用於標示 notify 為合法 Python 模組
+# ❌ 不要在這裡匯入 modules 其他層級的檔案
+# ✅ 所有需要的函數請在實際使用處明確匯入，例如：
+#     from modules.notify.discord_push import send_discord_message
+#     from modules.notify.check_exit_and_notify import schedule_exit_chec
