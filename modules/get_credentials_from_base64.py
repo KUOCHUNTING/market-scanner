@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+from datetime import datetime, time
 
 def get_credentials_from_base64(env_var_key):
     base64_key = os.getenv(env_var_key)
