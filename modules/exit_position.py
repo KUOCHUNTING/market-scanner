@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def exit_position(symbol, current_price, position_data):
     from datetime import datetime
     exit_time = datetime.now()
