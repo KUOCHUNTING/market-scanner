@@ -1,7 +1,8 @@
 from modules import *
 import threading
 import time
-from modules import stock_list, scan_market
+from modules.config import stock_list
+from modules.scan_market import scan_market
 scan_market(stock_list)
 schedule_exit_check()
 
