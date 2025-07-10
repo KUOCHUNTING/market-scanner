@@ -1,5 +1,5 @@
 # 自動產生的模組初始化檔案
-from .calculate_exit_metrics import *
+from modules.calculate_exit_metrics import your_function_name
 from .calculate_indicators import *
 from .can_enter_new_position import *
 from .check_all_positions import *
