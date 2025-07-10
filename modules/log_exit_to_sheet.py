@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def log_exit_to_sheet(symbol, latest_price, return_pct, profit_dollar, reason, strategy_name, direction, qty):
     try:
         time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
