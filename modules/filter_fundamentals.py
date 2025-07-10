@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def filter_fundamentals(symbol, fundamentals):
     avg_volume = fundamentals.get("avg_volume", 0)
     price = fundamentals.get("price", 5)
