@@ -4,8 +4,9 @@ from .filter_fundamentals import filter_fundamentals
 from .calculate_indicators import calculate_indicators
 from .detect_trading_signal import detect_trading_signal
 from .compute_confidence_score import compute_confidence_score
-
+from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left
+
 import pandas as pd
 import traceback  # ✅ 你要 print traceback 時一定要加這行
 
