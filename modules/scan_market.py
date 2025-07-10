@@ -3,7 +3,6 @@ from datetime import datetime
 import pandas as pd
 
 stock_list = load_stock_list()
-scan_market(stock_list)
 
 def scan_market(symbol_list):
     global capital_left
@@ -824,3 +823,7 @@ def scan_market(symbol_list):
         except Exception as e:
             print(f"[錯誤] {symbol} 描錯誤：{e}\n{traceback.format_exc()}")
             continue
+# ✅ 單獨執行用（不影響其他模組呼叫）
+if __name__ == "__main__":
+    symbol_list = load_stock_list()
+    scan_market(symbol_list)
