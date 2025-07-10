@@ -1,5 +1,6 @@
 from .load_stock_list import load_stock_list
 from datetime import datetime
+from .config import capital_left
 import pandas as pd
 
 stock_list = load_stock_list()
