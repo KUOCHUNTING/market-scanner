@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def check_volume_alert(symbol, df, indicators):
     try:
         if 'close' not in df.columns or df['close'].isnull().all():
