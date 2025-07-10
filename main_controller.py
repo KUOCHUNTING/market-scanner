@@ -1,7 +1,7 @@
 from modules import *
 import threading
 import time
-
+from modules import stock_list, scan_market
 scan_market()
 schedule_exit_check()
 
