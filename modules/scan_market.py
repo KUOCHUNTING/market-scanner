@@ -1,5 +1,6 @@
 from modules import load_stock_list, scan_market
 from datetime import datetime
+import pandas as pd
 
 stock_list = load_stock_list()
 scan_market(stock_list)
