@@ -26,10 +26,7 @@ from modules.strategy.strategy_score import (get_rrov_scores,get_trend_scores,ge
 stock_list = load_stock_list()
 
 # ✅ 整齊版摘要顯示
-def print_debug_summary(symbol, indicators, latest_price, score,
-                        rrov_long, rrov_short,
-                        trend_long, trend_short,
-                        mean_long, mean_short):
+def print_debug_summary(symbol, indicators, latest_price, score, rrov_long, trend_long, mean_long):
     rsi = indicators['rsi'].iloc[-1]
     ema5 = indicators['ema_5'].iloc[-1]
     ema20 = indicators['ema_20'].iloc[-1]
