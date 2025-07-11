@@ -2,6 +2,8 @@ import time
 from modules.config import stock_list
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check  # ← ✅ 加這行
+from dotenv import load_dotenv
+load_dotenv()
 
 if __name__ == "__main__":
     print("🚀 啟動主控系統：scan_market + 出場排程")
