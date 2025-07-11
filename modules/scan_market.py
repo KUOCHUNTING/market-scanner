@@ -74,24 +74,10 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # ✅ 三策略命中率計算
-            is_breakout = latest_price > indicators['bb_upper'].iloc[-1]
-            volume_surge = indicators['curr_volume'] > indicators['avg_volume'] * 1.2
-            price_above_ema5 = latest_price > indicators['ema_5'].iloc[-1]
-            rrov_conditions = {
-                "突破壓力": is_breakout,
-                "量能放大": volume_surge,
-                "短期強勢": price_above_ema5
-            }
-            rrov_score = get_strategy_match_score('RROV', rrov_conditions)
-            trend_score = get_strategy_match_score('順勢策略', {
-                "RSI強勢": indicators['rsi'].iloc[-1] > 60,
-                "均線多頭": indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1],
-            })
-            mean_score = get_strategy_match_score('均值回歸', {
-                "Z-score低": indicators['zscore'].iloc[-1] < -1.0,
-                "接近下軌": latest_price < indicators['bb_lower'].iloc[-1] * 1.02
-            })
+            # ✅ 使用模組化版本來計算三策略命中率
+            rrov_score = get_rrov_score(indicators, latest_price)
+            trend_score = get_trend_score(indicators)
+            mean_score = get_mean_score(indicators, latest_price)
 
             # ✅ 技術信心分數
             score = compute_confidence_score(
