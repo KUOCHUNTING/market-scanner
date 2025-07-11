@@ -137,7 +137,7 @@ def scan_market(symbol_list):
 
             # ✅ 判斷是否有交易訊號
             signal_type, strategy_name, signal_note, direction, df, indicators, latest_price, \
-            rrov_score, trend_score, mean_score = detect_trading_signal(symbol)
+            rrov_score, trend_score, mean_score = detect_trading_signal(symbol, df, indicators)
 
             # 補上命中率（或也可以從 detect_trading_signal 一起回傳）
             trend_long, trend_short = get_strategy_hit_rate(symbol, "trend")
