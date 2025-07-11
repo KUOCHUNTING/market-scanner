@@ -81,4 +81,7 @@ def enter_position(symbol, price, direction, signal_note,
 
     # ✅ 成功推播 / 日誌
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
+
+    print(f"✅【建倉成功】{symbol} ➜ 價格：${latest_price:.2f}｜方向：{direction}｜股數：{shares}")
+
     return shares, capital_used, capital_left
