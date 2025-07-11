@@ -97,8 +97,8 @@ def enter_position(symbol, price, direction, signal_note,
         message += f"📋 訊號說明：\n{signal_note}\n\n"
         message += f"🧠 策略：{strategy_display or strategy_name}\n\n"
         message += f"📦 股數：{shares} 股\n"
-        message += f"💰 進場資金：${capital_used:,.2f}\n"
-        message += f"💼 剩餘資金：${capital_left:,.2f}"
+        message += f"💰 進場資金：${int(capital_used):,}\n"
+        message += f"💼 剩餘資金：${int(capital_used):,}"
 
         send_discord_message(WEBHOOK_URL, message)
 
