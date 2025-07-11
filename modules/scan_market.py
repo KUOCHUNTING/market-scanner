@@ -20,11 +20,7 @@ from modules.enter_position import enter_position
 
 # === 🧠 策略工具與評分模組 ===
 from modules.strategy.utils import get_strategy_display
-from modules.strategy.strategy_score import (
-    get_rrov_scores,
-    get_trend_scores,
-    get_mean_scores
-)
+from modules.strategy.strategy_score import (get_rrov_scores,get_trend_scores,get_mean_scores)
 
 # === 🧾 載入股票清單 ===
 stock_list = load_stock_list()
@@ -89,9 +85,9 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 三策略命中率
-            rrov_score = get_rrov_score(indicators, latest_price)
-            trend_score = get_trend_score(indicators)
-            mean_score = get_mean_score(indicators, latest_price)
+            rrov_long, rrov_short = get_rrov_scores(indicators, latest_price)
+            trend_long, trend_short = get_trend_scores(indicators)
+            mean_long, mean_short = get_mean_scores(indicators, latest_price)
 
             # 顯示技術摘要
             print(f"📌 股票代號：{symbol}")
