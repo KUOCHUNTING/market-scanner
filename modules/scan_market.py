@@ -1,6 +1,9 @@
+# === 📦 套件與模組匯入 ===
 import pandas as pd
 import traceback
 import random
+
+# === 📊 自訂模組 ===
 from .fetch_stock_data import fetch_stock_data
 from .get_fundamentals import get_fundamentals
 from .filter_fundamentals import filter_fundamentals
@@ -9,12 +12,21 @@ from .detect_trading_signal import detect_trading_signal
 from .compute_confidence_score import compute_confidence_score
 from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
-from modules.notify.discord_push import send_discord_message
-from modules.enter_position import enter_position
-from modules.strategy.utils import get_strategy_display
-from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
-from modules.notify.build_discord_message import build_entry_message
 
+# === 📤 推播與建倉模組 ===
+from modules.notify.discord_push import send_discord_message
+from modules.notify.build_discord_message import build_entry_message
+from modules.enter_position import enter_position
+
+# === 🧠 策略工具與評分模組 ===
+from modules.strategy.utils import get_strategy_display
+from modules.strategy.strategy_score import (
+    get_rrov_scores,
+    get_trend_scores,
+    get_mean_scores
+)
+
+# === 🧾 載入股票清單 ===
 stock_list = load_stock_list()
 
 # ✅ 整齊版摘要顯示
