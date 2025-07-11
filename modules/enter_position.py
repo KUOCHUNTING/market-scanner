@@ -1,19 +1,18 @@
 from datetime import datetime
+from modules.connect_to_gsheet import write_entry_to_sheet  # ✅ 寫入 Sheets
 
-# 全域已建倉股票追蹤集（防重複建倉）
+# 全域建倉追蹤與資金資訊（可在 config 中統一管理）
 entered_positions = set()
-
-# 假設以下變數已由其他模組定義（如 config.py）
-# from config import capital_left, positions, compute_position_size
-capital_left = 100000  # ✅ 假設初始資金（實際請用你自己的）
+capital_left = 100000  # ✅ 實際使用時請改由 config 載入
 positions = {}
 
+# ✅ 計算建倉股數與資金
 def compute_position_size(price):
-    # ✅ 可自行改為更精細的風控計算
-    shares = int(1000 // price)
+    shares = int(1000 // price)  # 可改為更動態的風控方式
     capital_used = shares * price
     return shares, capital_used
 
+# ✅ 主建倉函數
 def enter_position(symbol, price, direction, signal_note,
                    rsi=None, zscore=None, strategy_name="未標記策略",
                    ema5=None, ema20=None, upper_band=None, lower_band=None, mid_band=None,
@@ -21,34 +20,30 @@ def enter_position(symbol, price, direction, signal_note,
                    strategy_display=None):
     global capital_left, positions
 
-    # ✅ 價格合法性檢查
+    # 防呆：價格不合法
     if price is None or price <= 0:
         print(f"[錯誤] {symbol} 建倉失敗 ➜ 價格無效：{price}")
         return
 
-    # ✅ 避免重複建倉
+    # 防重複建倉
     if symbol in entered_positions:
         print(f"⛔ 已建倉過：{symbol}，略過")
         return
-
-    # 加入已建倉名單
     entered_positions.add(symbol)
 
-    # ✅ 計算股數與資金
+    # 建倉資金計算
     shares, capital_used = compute_position_size(price)
-
-    # ✅ 防呆檢查
     if shares <= 0 or capital_used <= 0:
-        print(f"[跳過] {symbol} 建倉失敗 ➜ 價格={price}｜股數={shares}｜資金=${capital_used:.2f}")
+        print(f"[跳過] {symbol} ➜ 建倉失敗：股數={shares}｜資金=${capital_used:.2f}")
         return
 
-    # ✅ 扣除資金
+    # 資金扣除
     capital_left -= capital_used
     print(f"[資金確認] 已扣資金：${capital_used:.2f}，剩餘資金：${capital_left:,.2f}")
 
     now = datetime.now()
 
-    # ✅ 記錄部位資訊
+    # ✅ 記錄正式部位（給出場模組用）
     positions[symbol] = {
         "direction": direction,
         "entry_price": price,
@@ -68,6 +63,21 @@ def enter_position(symbol, price, direction, signal_note,
         "vwap": vwap,
         "confidence_score": confidence_score,
     }
+
+    # ✅ Google Sheets 紀錄建倉
+    try:
+        write_entry_to_sheet({
+            "建倉時間": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "建倉日期": now.strftime("%Y-%m-%d"),
+            "股票代號": symbol,
+            "方向": direction,
+            "股數": shares,
+            "投入資金": capital_used,
+            "建倉價格": price,
+            "策略名稱": strategy_display or strategy_name
+        })
+    except Exception as e:
+        print(f"[錯誤] 無法寫入 Google Sheets 建倉紀錄：{e}")
 
     # ✅ 成功訊息
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
