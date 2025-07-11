@@ -1,5 +1,6 @@
 import pandas as pd
 import traceback
+import random
 from .fetch_stock_data import fetch_stock_data
 from .get_fundamentals import get_fundamentals
 from .filter_fundamentals import filter_fundamentals
@@ -14,6 +15,9 @@ stock_list = load_stock_list()
 
 def scan_market(symbol_list):
     global capital_left
+
+    random.shuffle(symbol_list)
+    
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f} 已低於 ${MIN_REQUIRED_CAPITAL}，暫停掃描...")
