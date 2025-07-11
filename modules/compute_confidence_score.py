@@ -1,3 +1,5 @@
+from modules.compute_confidence_score import get_strategy_hit_rate
+
 def compute_confidence_score(rsi, roc, obv, vwap_deviation, zscore, bb_deviation, ema5, ema20):
     score = 0
 
