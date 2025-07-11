@@ -38,3 +38,9 @@ def write_entry_to_sheet(symbol, direction, shares, entry_capital, strategy_name
         confidence_score,                    # 信心分數（I）
         capital_left                         # 剩餘資金（J）
     ])
+
+    try:
+        worksheet.append_row(row)
+        print(f"✅【寫入成功】{symbol} ➜ 已寫入 Google Sheets 建倉紀錄")
+    except Exception as e:
+        print(f"❌【寫入失敗】{symbol} ➜ {e}")
