@@ -1,3 +1,5 @@
+# 📂 modules/notify/check_exit_and_notify.py
+
 from datetime import datetime, timedelta
 from modules.notify.discord_push import send_discord_message
 from modules.exit_position import exit_position
@@ -8,9 +10,9 @@ from modules.config import (
     TRAIL_MARGIN,
     WEBHOOK_URL
 )
-from modules.logic.repair_position import repair_position
+from modules.repair_position import repair_position  # ✅ 建議移出 logic 資料夾
 
-# ⛔ 全域變數需在主程式中宣告並傳進來
+# ⛔ 全域變數應由主程式傳進來或用 Singleton 管理
 positions = {}
 capital_left = 0
 last_tracking_push_time = {}
@@ -21,11 +23,11 @@ def check_exit_and_notify(symbol, latest_price):
     if symbol not in positions:
         return
 
-    # ✅ 修補持倉資料（如缺欄位自動補全）
+    # ✅ 修補持倉資料
     repair_position(symbol)
     pos = positions[symbol]
 
-    # ✅ 防呆欄位檢查
+    # ✅ 防呆檢查
     required_keys = ["entry_price", "direction", "quantity", "capital_used", "sell_stage", "max_gain", "strategy"]
     for key in required_keys:
         if key not in pos:
@@ -40,11 +42,6 @@ def check_exit_and_notify(symbol, latest_price):
     max_gain = pos["max_gain"]
     strategy = pos["strategy"]
     entry_time = pos.get("entry_time")
-
-    # ✅ 防呆處理
-    if entry_price is None or entry_price < 0.1 or quantity <= 0:
-        print(f"[略過] {symbol} ➜ entry_price={entry_price}, quantity={quantity}，略過出場判斷")
-        return
 
     # ✅ 計算報酬率
     if direction and "多" in direction:
@@ -62,48 +59,40 @@ def check_exit_and_notify(symbol, latest_price):
         pos["max_gain"] = return_rate
         max_gain = return_rate
 
-    # ✅ 停損與鎖利邏輯
+    # ✅ 停損與鎖利條件
     reason, exit_ratio = None, 0
-
     if return_rate <= -DEFAULT_STOP_LOSS:
         reason = f"🛑 停損觸發：報酬率 {return_rate:.2f}%"
         exit_ratio = 1.0
         sell_stage = -1
-
     elif return_rate >= DEFAULT_TAKE_PROFIT and sell_stage == 0:
         reason = f"🔒 第一段鎖利：報酬率 {return_rate:.2f}%"
         exit_ratio = 0.5
         sell_stage = 1
-
     elif return_rate >= 8.0 and sell_stage <= 1:
         reason = f"🔒 第二段鎖利：報酬率 {return_rate:.2f}%"
         exit_ratio = 1.0
         sell_stage = 2
-
     elif max_gain >= TRAIL_TRIGGER and (max_gain - return_rate) >= TRAIL_MARGIN and sell_stage <= 1:
         drop = round(max_gain - return_rate, 2)
         reason = f"🔃 追蹤停利觸發（回落 {drop:.2f}%）"
         exit_ratio = 1.0
         sell_stage = 3
 
-    # ✅ 尚未出場也推播追蹤狀態（每 3 分鐘一次）
+    # ✅ 3 分鐘一次追蹤推播
     if reason is None or exit_ratio <= 0:
         now = datetime.now()
         last_push = last_tracking_push_time.get(symbol)
-
         if not last_push or (now - last_push) >= timedelta(minutes=3):
             holding_minutes = int((now - entry_time).total_seconds() / 60) if entry_time else 0
             pnl_emoji = "🟢" if return_rate > 0 else "🔴" if return_rate < 0 else "⚪"
             pnl_text = f"{return_rate:.2f}%"
-
             message = f"🔔【持倉追蹤】{symbol}\n" \
                       f"{pnl_emoji} 報酬率：{pnl_text}\n" \
                       f"進場價：{entry_price:.2f}｜目前價：{latest_price:.2f}\n" \
                       f"策略：{strategy}｜持倉時間：{holding_minutes} 分鐘"
-            
             send_discord_message(WEBHOOK_URL, message)
             print(message)
-
             last_tracking_push_time[symbol] = now
         return
 
@@ -115,7 +104,6 @@ def check_exit_and_notify(symbol, latest_price):
 
     pnl = (latest_price - entry_price) if "多" in direction else (entry_price - latest_price)
     profit_dollar = round(pnl * exit_qty, 2)
-
     capital_left += latest_price * exit_qty
     pos["quantity"] -= exit_qty
     pos["sell_stage"] = sell_stage
@@ -137,11 +125,10 @@ def check_exit_and_notify(symbol, latest_price):
         f"🔄 原因：{reason}\n"
         f"🕒 時間：{time_str}"
     )
-
     send_discord_message(WEBHOOK_URL, content)
     print(content)
 
-    # ✅ 實際出場記錄（更新部位資料）
+    # ✅ 紀錄出場
     exit_position(symbol, latest_price, pos)
 
     if pos["quantity"] <= 0:
