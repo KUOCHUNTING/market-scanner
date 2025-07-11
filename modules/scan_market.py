@@ -59,7 +59,7 @@ def scan_market(symbol_list):
             # === ✅ 3. 策略條件判斷與命中率
             is_breakout = df['close'].iloc[-1] > indicators['bb_upper'].iloc[-1]
             volume_surge = indicators['curr_volume'] > indicators['avg_volume'] * 1.2
-            price_above_ema5 = indicators['close'].iloc[-1] > indicators['ema_5'].iloc[-1]
+            price_above_ema5 = df['close'].iloc[-1] > indicators['ema_5'].iloc[-1]
 
             rrov_conditions = {
                 "突破壓力": is_breakout,
