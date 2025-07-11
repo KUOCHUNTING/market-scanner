@@ -119,7 +119,7 @@ def scan_market(symbol_list):
 🧠 技術信心：{score:.2f}｜RROV 命中率：{match_score:.2f}
 {bias}
 {ema_summary}"""
-            send_discord_message(WEBHOOK_URL, msg)
+            send_discord_message(WEBHOOK_URL, message)
 
         except Exception as e:
             print(f"[錯誤] {symbol} 描錯誤：{e}")
