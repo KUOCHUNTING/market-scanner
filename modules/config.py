@@ -50,3 +50,8 @@ DEFAULT_TAKE_PROFIT = 0.05      # +5% 預設停利
 eastern = pytz.timezone("US/Eastern")
 now_est = datetime.now(eastern)
 print("建倉時間（美東）:", now_est.strftime("%Y-%m-%d %H:%M:%S"))
+
+# === 📈 持倉紀錄變數 ===
+positions = {}             # ➜ 用於正式記錄持倉，供出場模組使用
+entered_positions = {}     # ➜ 防止重複建倉用
+
