@@ -1,14 +1,14 @@
 from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet  # ✅ 寫入 Sheets
 
-# 全域建倉追蹤與資金資訊（可在 config 中統一管理）
+# === 📦 全域變數（資金與持倉）===
 entered_positions = set()
-capital_left = 100000  # ✅ 實際使用時請改由 config 載入
+capital_left = 100000  # ✅ 可改由 config 載入
 positions = {}
 
 # ✅ 計算建倉股數與資金
 def compute_position_size(price):
-    shares = int(1000 // price)  # 可改為更動態的風控方式
+    shares = int(1000 // price)  # 例：每檔最多花 $1000，可調整
     capital_used = shares * price
     return shares, capital_used
 
@@ -31,19 +31,19 @@ def enter_position(symbol, price, direction, signal_note,
         return
     entered_positions.add(symbol)
 
-    # 建倉資金計算
+    # 計算建倉數量與成本
     shares, capital_used = compute_position_size(price)
     if shares <= 0 or capital_used <= 0:
         print(f"[跳過] {symbol} ➜ 建倉失敗：股數={shares}｜資金=${capital_used:.2f}")
         return
 
-    # 資金扣除
+    # 扣除資金
     capital_left -= capital_used
-    print(f"[資金確認] 已扣資金：${capital_used:.2f}，剩餘資金：${capital_left:,.2f}")
+    print(f"[資金變化] {symbol} ➜ 花費 ${capital_used:.2f}｜剩餘資金 ${capital_left:,.2f}")
 
     now = datetime.now()
 
-    # ✅ 記錄正式部位（給出場模組用）
+    # ✅ 紀錄部位
     positions[symbol] = {
         "direction": direction,
         "entry_price": price,
@@ -64,7 +64,7 @@ def enter_position(symbol, price, direction, signal_note,
         "confidence_score": confidence_score,
     }
 
-    # ✅ Google Sheets 紀錄建倉
+    # ✅ 寫入 Google Sheets
     try:
         write_entry_to_sheet(
             symbol=symbol,
@@ -78,6 +78,6 @@ def enter_position(symbol, price, direction, signal_note,
     except Exception as e:
         print(f"[錯誤] 無法寫入 Google Sheets 建倉紀錄：{e}")
 
-    # ✅ 成功訊息
+    # ✅ 成功推播 / 日誌
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
     return shares, capital_used, capital_left
