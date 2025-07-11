@@ -66,16 +66,15 @@ def enter_position(symbol, price, direction, signal_note,
 
     # ✅ Google Sheets 紀錄建倉
     try:
-        write_entry_to_sheet({
-            "建倉時間": now.strftime("%Y-%m-%d %H:%M:%S"),
-            "建倉日期": now.strftime("%Y-%m-%d"),
-            "股票代號": symbol,
-            "方向": direction,
-            "股數": shares,
-            "投入資金": capital_used,
-            "建倉價格": price,
-            "策略名稱": strategy_display or strategy_name
-        })
+        write_entry_to_sheet(
+            symbol=symbol,
+            direction=direction,
+            shares=shares,
+            entry_capital=capital_used,
+            strategy_name=strategy_display or strategy_name,
+            confidence_score=confidence_score,
+            capital_left=capital_left
+        )
     except Exception as e:
         print(f"[錯誤] 無法寫入 Google Sheets 建倉紀錄：{e}")
 
