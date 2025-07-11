@@ -100,7 +100,7 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 補上完整 enter_position 呼叫
-            enter_position(
+            shares, capital_used = enter_position(
                 symbol=symbol,
                 price=latest_price,
                 direction=direction,
