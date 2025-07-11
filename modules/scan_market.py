@@ -115,12 +115,12 @@ def scan_market(symbol_list):
 
             # ✅ 推播完整訊息（一次）
             message = f"🚀【{strategy_type} 訊號】{symbol}\n"
-message += f"📊 類型：{signal_type}（方向：{direction}）\n"
-message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}\n"
-message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
-message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n"
-message += f"📋 訊號說明：{signal_note}"
-message += f"\n🧠 策略：{strategy_name}"  # ✅ 加在這裡
+            message += f"📊 類型：{signal_type}（方向：{direction}）\n"
+            message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}\n"
+            message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
+            message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n"
+            message += f"📋 訊號說明：{signal_note}"
+            message += f"\n🧠 策略：{strategy_name}"  # ✅ 加在這裡
             send_discord_message(WEBHOOK_URL, msg)
 
         except Exception as e:
