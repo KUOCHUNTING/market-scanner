@@ -135,7 +135,7 @@ def check_exit_and_notify(symbol, latest_price):
         del positions[symbol]
 
 import threading
-from modules.logic.should_exit import should_exit  # ← 你要實作
+from modules.should_exit import should_exit
 from modules.logic.execute_exit import execute_exit  # ← 你要實作
 from modules.market_data import get_latest_price     # ← 你要實作
 
