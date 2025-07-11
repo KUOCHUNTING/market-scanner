@@ -1,34 +1,20 @@
-# === 📦 套件與模組匯入 ===
-import pandas as pd
-import traceback
-import random
-
-# === 📊 自訂模組 ===
-from .fetch_stock_data import fetch_stock_data
-from .get_fundamentals import get_fundamentals
-from .filter_fundamentals import filter_fundamentals
-from .calculate_indicators import calculate_indicators
-from .detect_trading_signal import detect_trading_signal
-from .compute_confidence_score import compute_confidence_score
-from .load_stock_list import load_stock_list
-from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
-
-# === 📤 推播與建倉模組 ===
-from modules.notify.discord_push import send_discord_message
-from modules.notify.build_discord_message import build_entry_message
-from modules.enter_position import enter_position
-
-# === 🧠 策略工具與評分模組 ===
-from modules.strategy.utils import get_strategy_display
-from modules.strategy.strategy_score import (get_rrov_scores,get_trend_scores,get_mean_scores)
-
-# === 🧾 載入股票清單 ===
-stock_list = load_stock_list()
-
-# ✅ 整齊版摘要顯示
-
-# ✅ 掃描主邏輯
 def scan_market(symbol_list):
+    from modules.fetch_stock_data import fetch_stock_data
+    from modules.get_fundamentals import get_fundamentals
+    from modules.filter_fundamentals import filter_fundamentals
+    from modules.calculate_indicators import calculate_indicators
+    from modules.strategy.analyze_strategy_scores import analyze_strategy_scores
+    from modules.logic.evaluate_signal_and_score import evaluate_signal_and_score
+    from modules.logic.execute_entry import execute_entry
+    from modules.compute_confidence_score import get_strategy_match_score
+    from modules.notify.print_debug_summary import print_debug_summary
+    from modules.notify.build_discord_message import build_entry_message
+    from modules.notify.discord_push import send_discord_message
+    from modules.config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
+    import traceback
+    import pandas as pd
+    import random
+
     global capital_left
     random.shuffle(symbol_list)
     MIN_REQUIRED_CAPITAL = 3000
@@ -51,13 +37,8 @@ def scan_market(symbol_list):
                 continue
 
             indicators = calculate_indicators(df)
-            if indicators is None:
-                print(f"[跳過] {symbol} ➜ 指標產生失敗")
-                continue
-
-            required_keys = ['rsi', 'roc', 'obv', 'zscore', 'vwap', 'ema_5', 'ema_20', 'bb_upper', 'bb_lower', 'bb_mid']
-            if any(k not in indicators or indicators[k].isna().iloc[-1] for k in required_keys):
-                print(f"[跳過] {symbol} ➜ 技術指標缺失")
+            if indicators is None or 'close' not in df.columns:
+                print(f"[跳過] {symbol} ➜ 指標產生失敗或無 close 欄位")
                 continue
 
             latest_price = df['close'].iloc[-1]
@@ -66,56 +47,22 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 三策略命中率
-            rrov_long, rrov_short = get_rrov_scores(indicators, latest_price)
-            trend_long, trend_short = get_trend_scores(indicators)
-            mean_long, mean_short = get_mean_scores(indicators, latest_price)
+            scores = analyze_strategy_scores(indicators, latest_price)
 
-            # 顯示技術摘要
-            print(f"📌 股票代號：{symbol}")
-            print(f"📈 多頭命中 ➜ 順勢: {trend_long:.2f} | RROV: {rrov_long:.2f} | 均值: {mean_long:.2f}")
-            print(f"📉 空頭命中 ➜ 順勢: {trend_short:.2f} | RROV: {rrov_short:.2f} | 均值: {mean_short:.2f}"
+            # ✅ 訊號偵測與技術分數
+            signal_type, strategy_name, signal_note, direction, score, \
+                rrov_score, trend_score, mean_score = evaluate_signal_and_score(symbol, df, indicators, latest_price)
 
-            # ✅ 技術信心分數
-            score = compute_confidence_score(
-                rsi=indicators['rsi'].iloc[-1],
-                roc=indicators['roc'].iloc[-1],
-                obv=indicators['obv'].iloc[-1],
-                vwap_deviation=indicators['vwap'].iloc[-1] - latest_price,
-                zscore=indicators['zscore'].iloc[-1],
-                bb_deviation=(latest_price - indicators['bb_lower'].iloc[-1]) /
-                             (indicators['bb_upper'].iloc[-1] - indicators['bb_lower'].iloc[-1] + 1e-6),
-                ema5=indicators['ema_5'].iloc[-1],
-                ema20=indicators['ema_20'].iloc[-1]
-            )
-
-            # ✅ 顯示終端摘要
-            print_debug_summary(
-                symbol,
-                indicators,
-                latest_price,
-                score,
-                rrov_long,
-                rrov_short,
-                trend_long,
-                trend_short,
-                mean_long,
-                mean_short
-            )
-
-            # ✅ 判斷是否有交易訊號
-            signal_type, strategy_name, signal_note, direction, df, indicators, latest_price, \
-            rrov_score, trend_score, mean_score = detect_trading_signal(symbol, df, indicators)
-
-            # 補上命中率（或也可以從 detect_trading_signal 一起回傳）
+            # ✅ 命中率補充
             trend_long, trend_short = get_strategy_match_score(symbol, "趨勢")
-            rrov_long, rrov_short = get_strategy_hit_rate(symbol, "rrov")
-            mean_long, mean_short = get_strategy_hit_rate(symbol, "mean")
+            rrov_long, rrov_short = get_strategy_match_score(symbol, "RROV")
+            mean_long, mean_short = get_strategy_match_score(symbol, "均值")
 
-            # Debug 輸出
+            # ✅ 顯示技術摘要
             print_debug_summary(
-                symbol, indicators, latest_price, score, 
-                rrov_score, trend_score, 
-                strategy_name, direction, strategy_hit,
+                symbol, indicators, latest_price, score,
+                rrov_score, trend_score,
+                strategy_name, direction, rrov_score,
                 trend_long, trend_short, rrov_long, rrov_short, mean_long, mean_short
             )
 
@@ -123,17 +70,17 @@ def scan_market(symbol_list):
                 print(f"[略過] {symbol} ➜ 無明確訊號")
                 continue
 
-            # ✅ 嘗試建倉（模擬進場）
-            print(f"[進場嘗試] {symbol} ➜ 策略：{strategy_name}｜方向：{direction}｜價格：{latest_price:.2f}")
-            result = enter_position(symbol, latest_price, direction, score, strategy_name)
-            
-            if result is None:
+            # ✅ 嘗試建倉
+            shares, capital_used, ema_trend = execute_entry(
+                symbol, latest_price, direction, score, strategy_name, indicators, capital_left
+            )
+            if shares is None:
                 print(f"[略過] {symbol} ➜ 建倉失敗")
                 continue
 
-            shares, capital_used = result
             print(f"[✅ 建倉成功] {symbol} ➜ 股數：{shares}｜花費資金：${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
-            # ✅ 推播訊息組裝與發送
+
+            # ✅ 組裝並推播進場訊息
             message = build_entry_message(
                 symbol=symbol,
                 strategy_type="📌 技術選股",
@@ -142,14 +89,14 @@ def scan_market(symbol_list):
                 score=score,
                 win_rate=rrov_score,
                 trend_text=direction,
-                trend_emoji="📈" if direction == "做多" else "📉",
-                up_count=result[2] if len(result) > 2 else 0,
-                down_count=result[3] if len(result) > 3 else 0,
-                ema_trend="多頭" if indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1] else "空頭",
+                trend_emoji="📈" if direction == "多" else "📉",
+                up_count=0,
+                down_count=0,
+                ema_trend=ema_trend,
                 signal_note=signal_note,
                 strategy_name=strategy_name,
                 shares=shares,
-                capital_used=int(capital_used),  # ✅ 移除小數點
+                capital_used=int(capital_used),
                 capital_left=int(capital_left)
             )
             send_discord_message(WEBHOOK_URL, message)
