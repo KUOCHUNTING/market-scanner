@@ -10,6 +10,7 @@ from .compute_confidence_score import compute_confidence_score, get_strategy_mat
 from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
+from modules.enter_position import enter_position
 
 stock_list = load_stock_list()
 
@@ -97,6 +98,8 @@ def scan_market(symbol_list):
             if not signal_type:
                 print(f"[略過] {symbol} ➜ 無明確策略訊號")
                 continue
+
+            enter_position(symbol, latest_price, direction, strategy_name, score)
 
             # 半山腰過濾（順勢策略專屬）
             if strategy_name == "順勢策略":
