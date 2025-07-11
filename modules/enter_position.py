@@ -1,5 +1,7 @@
 from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet  # ✅ 寫入 Sheets
+from modules.notify.discord_push import send_discord_message  # ✅ 推播用
+from modules.config import WEBHOOK_URL  # ✅ Webhook 設定
 
 # === 📦 全域變數（資金與持倉）===
 entered_positions = set()
@@ -17,7 +19,8 @@ def enter_position(symbol, price, direction, signal_note,
                    rsi=None, zscore=None, strategy_name="未標記策略",
                    ema5=None, ema20=None, upper_band=None, lower_band=None, mid_band=None,
                    roc=None, obv=None, vwap=None, confidence_score=None,
-                   strategy_display=None):
+                   strategy_display=None, match_score=None, ema_trend=None,
+                   up_count=None, down_count=None):
     global capital_left, positions
 
     # 防呆：價格不合法
@@ -66,7 +69,7 @@ def enter_position(symbol, price, direction, signal_note,
 
     # ✅ 寫入 Google Sheets
     try:
-        print(f"[DEBUG] 嘗試寫入 Sheets ➜ {symbol}")  # ←
+        print(f"[DEBUG] 嘗試寫入 Sheets ➜ {symbol}")
         write_entry_to_sheet(
             symbol=symbol,
             direction=direction,
@@ -76,12 +79,31 @@ def enter_position(symbol, price, direction, signal_note,
             confidence_score=confidence_score,
             capital_left=capital_left
         )
+        print(f"✅【寫入成功】{symbol} ➜ 已寫入 Google Sheets 建倉紀錄")
     except Exception as e:
-        print(f"[錯誤] 無法寫入 Google Sheets 建倉紀錄：{e}")
+        print(f"❌【寫入失敗】{symbol} ➜ {e}")
 
-    # ✅ 成功推播 / 日誌
+    # ✅ 成功推播
+    if match_score is not None and up_count is not None and down_count is not None:
+        trend_emoji = "🟢" if ema_trend == "多" else "🔴" if ema_trend == "空" else "⚪"
+        trend_text = ema_trend or "未知"
+        win_rate = match_score * 100
+
+        message  = f"🚀【技術策略 訊號】{symbol}\n\n"
+        message += f"📊 類型：策略（方向：{direction}）\n"
+        message += f"🧠 信心分數：{confidence_score:.2f}｜RROV 命中率：{win_rate:.2f}%\n\n"
+        message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
+        message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n\n"
+        message += f"📋 訊號說明：\n{signal_note}\n\n"
+        message += f"🧠 策略：{strategy_display or strategy_name}\n\n"
+        message += f"📦 股數：{shares} 股\n"
+        message += f"💰 進場資金：${capital_used:,.2f}\n"
+        message += f"💼 剩餘資金：${capital_left:,.2f}"
+
+        send_discord_message(WEBHOOK_URL, message)
+
+    # ✅ 結尾日誌
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
-
-    print(f"✅【建倉成功】{symbol} ➜ 價格：${latest_price:.2f}｜方向：{direction}｜股數：{shares}")
+    print(f"✅【建倉成功】{symbol} ➜ 價格：${price:.2f}｜方向：{direction}｜股數：{shares}")
 
     return shares, capital_used, capital_left
