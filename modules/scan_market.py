@@ -26,7 +26,10 @@ from modules.strategy.strategy_score import (get_rrov_scores,get_trend_scores,ge
 stock_list = load_stock_list()
 
 # ✅ 整齊版摘要顯示
-def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score):
+def print_debug_summary(symbol, indicators, latest_price, score,
+                        rrov_long, rrov_short,
+                        trend_long, trend_short,
+                        mean_long, mean_short):
     rsi = indicators['rsi'].iloc[-1]
     ema5 = indicators['ema_5'].iloc[-1]
     ema20 = indicators['ema_20'].iloc[-1]
@@ -41,7 +44,10 @@ def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, tre
     print("───────────── 技術判斷摘要 ─────────────")
     print(f"📌 股票代號：{symbol}")
     print(f"🧠 技術信心：{score:.2f}")
-    print(f"🎯 命中率 ➜ 順勢：{trend_score:.2f}｜RROV：{rrov_score:.2f}｜均值：{mean_score:.2f}")
+    print(f"🎯 命中率 ➜")
+    print(f"　🔹 順勢：多 {trend_long:.2f}｜空 {trend_short:.2f}")
+    print(f"　🔹 RROV：多 {rrov_long:.2f}｜空 {rrov_short:.2f}")
+    print(f"　🔹 均值：多 {mean_long:.2f}｜空 {mean_short:.2f}")
     print(f"📈 收盤價：${latest_price:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}")
     print(f"📉 {ema_relation}｜VWAP乖離：{vwap_pct:.2f}%｜OBV變化：{obv_trend}")
     print("─────────────────────────────────────")
