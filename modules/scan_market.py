@@ -6,7 +6,7 @@ from .get_fundamentals import get_fundamentals
 from .filter_fundamentals import filter_fundamentals
 from .calculate_indicators import calculate_indicators
 from .detect_trading_signal import detect_trading_signal
-from .compute_confidence_score import compute_confidence_score, get_strategy_match_score
+from .compute_confidence_score import compute_confidence_score
 from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
@@ -14,9 +14,10 @@ from modules.enter_position import enter_position
 from modules.strategy.utils import get_strategy_display
 from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
 from modules.notify.build_discord_message import build_entry_message
+
 stock_list = load_stock_list()
 
-# ✅ 整齊版摘要顯示（含三策略命中率）
+# ✅ 整齊版摘要顯示
 def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score):
     rsi = indicators['rsi'].iloc[-1]
     ema5 = indicators['ema_5'].iloc[-1]
@@ -37,6 +38,7 @@ def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, tre
     print(f"📉 {ema_relation}｜VWAP乖離：{vwap_pct:.2f}%｜OBV變化：{obv_trend}")
     print("─────────────────────────────────────")
 
+# ✅ 掃描主邏輯
 def scan_market(symbol_list):
     global capital_left
     random.shuffle(symbol_list)
@@ -74,7 +76,7 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # ✅ 使用模組化版本來計算三策略命中率
+            # ✅ 三策略命中率
             rrov_score = get_rrov_score(indicators, latest_price)
             trend_score = get_trend_score(indicators)
             mean_score = get_mean_score(indicators, latest_price)
@@ -95,9 +97,43 @@ def scan_market(symbol_list):
             # ✅ 顯示終端摘要
             print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score)
 
-            # 👇 以下原邏輯不變，略...
-            # signal_type, strategy_name, detect_trading_signal, enter_position...
-            # 推播格式也保留原樣
+            # ✅ 判斷是否有交易訊號
+            signal_type, strategy_name, signal_note, direction = detect_trading_signal(
+                df, indicators, latest_price, rrov_score, trend_score, mean_score
+            )
+
+            if signal_type is None:
+                print(f"[略過] {symbol} ➜ 無明確訊號")
+                continue
+
+            # ✅ 建倉執行（模擬）
+            result = enter_position(symbol, latest_price, direction, score, strategy_name)
+            if result is None:
+                print(f"[略過] {symbol} ➜ 建倉失敗")
+                continue
+
+            shares, capital_used = result
+
+            # ✅ 推播訊息組裝與發送
+            message = build_entry_message(
+                symbol=symbol,
+                strategy_type="📌 技術選股",
+                signal_type=signal_type,
+                direction=direction,
+                score=score,
+                win_rate=rrov_score,
+                trend_text=direction,
+                trend_emoji="📈" if direction == "做多" else "📉",
+                up_count=result[2] if len(result) > 2 else 0,
+                down_count=result[3] if len(result) > 3 else 0,
+                ema_trend="多頭" if indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1] else "空頭",
+                signal_note=signal_note,
+                strategy_name=strategy_name,
+                shares=shares,
+                capital_used=int(capital_used),  # ✅ 移除小數點
+                capital_left=int(capital_left)
+            )
+            send_discord_message(WEBHOOK_URL, message)
 
         except Exception as e:
             print(f"[錯誤] {symbol} 掃描錯誤：{e}")
