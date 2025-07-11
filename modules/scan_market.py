@@ -47,7 +47,7 @@ def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, tre
     print(f"📌 股票代號：{symbol}")
     print(f"🧠 技術信心：{score:.2f}")
 
-    if trend_long is not None:
+    if trend_long is not None and trend_short is not None:
         print(f"🎯 命中率 ➜")
         print(f"　🔹 順勢：多 {trend_long:.2f}｜空 {trend_short:.2f}")
         print(f"　🔹 RROV：多 {rrov_long:.2f}｜空 {rrov_short:.2f}")
