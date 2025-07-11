@@ -1,6 +1,6 @@
 from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet  # ✅ 寫入 Sheets
-return shares, capital_used
+
 # 全域建倉追蹤與資金資訊（可在 config 中統一管理）
 entered_positions = set()
 capital_left = 100000  # ✅ 實際使用時請改由 config 載入
