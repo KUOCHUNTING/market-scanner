@@ -54,9 +54,9 @@ def scan_market(symbol_list):
                 rrov_score, trend_score, mean_score = evaluate_signal_and_score(symbol, df, indicators, latest_price)
 
             # ✅ 命中率補充
-            rrov_score = get_rrov_scores(symbol, df, indicators)
-            trend_score = get_trend_scores(symbol, df, indicators)
-            mean_score = get_mean_scores(symbol, df, indicators)
+            trend_long, trend_short = get_strategy_match_score(symbol, df, indicators, "順勢")
+            rrov_long, rrov_short   = get_strategy_match_score(symbol, df, indicators, "RROV")
+            mean_long, mean_short   = get_strategy_match_score(symbol, df, indicators, "均值")
 
             # ✅ 顯示技術摘要
             print_debug_summary(
