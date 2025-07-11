@@ -105,8 +105,8 @@ def scan_market(symbol_list):
 
             # 顯示技術摘要
             print(f"📌 股票代號：{symbol}")
-            print(f" 🎯 多頭命中 ➜ 順勢: {trend_long:.2f} | RROV: {rrov_long:.2f} | 均值: {mean_long:.2f}")
-            print(f"🎯 空頭命中 ➜ 順勢：{trend_short:.2f}｜RROV：{rrov_short:.2f}｜均值：{mean_short:.2f}")
+            print(f"📈 多頭命中 ➜ 順勢: {trend_long:.2f} | RROV: {rrov_long:.2f} | 均值: {mean_long:.2f}")
+            print(f"📉 空頭命中 ➜ 順勢: {trend_short:.2f} | RROV: {rrov_short:.2f} | 均值: {mean_short:.2f}"
 
             # ✅ 技術信心分數
             score = compute_confidence_score(
