@@ -15,6 +15,26 @@ from modules.strategy.utils import get_strategy_display  # ✅ 補上策略顯�
 
 stock_list = load_stock_list()
 
+# ✅ 技術摘要輸出函數
+def print_debug_summary(symbol, indicators, latest_price, score, match_score):
+    rsi = indicators['rsi'].iloc[-1]
+    ema5 = indicators['ema_5'].iloc[-1]
+    ema20 = indicators['ema_20'].iloc[-1]
+    obv = indicators['obv'].iloc[-1]
+    zscore = indicators['zscore'].iloc[-1]
+    obv_trend = "上升" if obv - indicators['obv'].iloc[-2] > 0 else "下降"
+    vwap = indicators['vwap'].iloc[-1]
+    vwap_diff = latest_price - vwap
+    vwap_pct = (vwap_diff / vwap) * 100
+    ema_relation = "EMA5 > EMA20" if ema5 > ema20 else "EMA5 < EMA20"
+
+    print("───────────── 技術判斷摘要 ─────────────")
+    print(f"📌 股票代號：{symbol}")
+    print(f"🧠 技術信心：{score:.2f}｜RROV 命中率：{match_score:.2f}%")
+    print(f"📈 收盤價：${latest_price:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}")
+    print(f"📉 {ema_relation}｜VWAP乖離：{vwap_pct:.2f}%｜OBV變化：{obv_trend}")
+    print("─────────────────────────────────────")
+
 def scan_market(symbol_list):
     global capital_left
 
@@ -26,7 +46,7 @@ def scan_market(symbol_list):
 
     for symbol in symbol_list:
         try:
-            print(f"📡 掃描中：{symbol}")
+            print(f"\n📡 掃描中：{symbol}")
             df = fetch_stock_data(symbol, POLYGON_API_KEY)
             if df is None or df.empty:
                 print(f"[跳過] {symbol} ➜ 無資料")
@@ -74,7 +94,9 @@ def scan_market(symbol_list):
                 "短期強勢": price_above_ema5
             }
             match_score = get_strategy_match_score('RROV', rrov_conditions)
-            print(f"🎯 {symbol} ➜ 技術信心：{score:.2f}｜RROV 命中率：{match_score:.2f}")
+
+            # ✅ 顯示整齊版技術摘要
+            print_debug_summary(symbol, indicators, latest_price, score, match_score)
 
             try:
                 trend_series = indicators['ema_trend'].tail(20)
@@ -85,14 +107,13 @@ def scan_market(symbol_list):
                 ema_trend = "未知"
                 print(f"[錯誤] {symbol} EMA 統計失敗：{e}")
 
+            # === 技術判斷
             rsi = indicators['rsi'].iloc[-1]
             roc = indicators['roc'].iloc[-1]
             ema5 = indicators['ema_5'].iloc[-1]
             ema20 = indicators['ema_20'].iloc[-1]
             obv = indicators['obv'].iloc[-1]
             obv_diff = indicators['obv'].diff().iloc[-1]
-            bias = "🟢 技術偏多" if rsi > 60 or roc > 0.5 or ema5 > ema20 or obv_diff > 0 else \
-                   "🔴 技術偏空" if rsi < 40 or roc < -0.5 or ema5 < ema20 or obv_diff < 0 else "⚪ 中性"
 
             signal_type, signal_note, direction, strategy_name = detect_trading_signal(symbol, df, indicators, debug=True)
             if not signal_type:
