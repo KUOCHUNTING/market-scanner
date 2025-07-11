@@ -134,7 +134,7 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 嘗試建倉（模擬進場）
-            print(f"[進場嘗試] {symbol} ➜ 策略：{strategy_name}｜方向：{direction}｜價格：{latest_price:.2f}
+            print(f"[進場嘗試] {symbol} ➜ 策略：{strategy_name}｜方向：{direction}｜價格：{latest_price:.2f}")
             result = enter_position(symbol, latest_price, direction, score, strategy_name)
             
             if result is None:
