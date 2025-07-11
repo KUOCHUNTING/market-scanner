@@ -146,6 +146,8 @@ def scan_market(symbol_list):
             message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n"
             message += f"📋 訊號說明：{signal_note}"
             message += f"\n🧠 策略：{strategy_name}"
+            message += f"\n💰 進場資金：${capital_used:,.2f}"
+            message += f"\n💼 剩餘資金：${capital_left:,.2f}"
             send_discord_message(WEBHOOK_URL, message)
 
         except Exception as e:
