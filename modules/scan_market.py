@@ -99,26 +99,30 @@ def scan_market(symbol_list):
                 print(f"[略過] {symbol} ➜ 無明確策略訊號")
                 continue
 
-            # ✅ 補上完整 enter_position 呼叫
-            shares, capital_used, capital_left = enter_position(
-                symbol=symbol,
-                price=latest_price,
-                direction=direction,
-                signal_note=signal_note,
-                rsi=rsi,
-                zscore=indicators["zscore"].iloc[-1],
-                strategy_name=strategy_name,
-                strategy_display=get_strategy_display(strategy_name),
-                ema5=ema5,
-                ema20=ema20,
-                upper_band=indicators["bb_upper"].iloc[-1],
-                lower_band=indicators["bb_lower"].iloc[-1],
-                mid_band=indicators["bb_mid"].iloc[-1],
-                roc=roc,
-                obv=obv,
-                vwap=indicators["vwap"].iloc[-1],
-                confidence_score=score
-            )
+            ## ✅ 篩選策略類型才進場
+            if strategy_name in ["順勢策略", "RROV 主策略", "均值回歸"]:
+                shares, capital_used, capital_left = enter_position(
+                    symbol=symbol,
+                    price=latest_price,
+                    direction=direction,
+                    signal_note=signal_note,
+                    rsi=rsi,
+                    zscore=indicators["zscore"].iloc[-1],
+                    strategy_name=strategy_name,
+                    strategy_display=get_strategy_display(strategy_name),
+                    ema5=ema5,
+                    ema20=ema20,
+                    upper_band=indicators["bb_upper"].iloc[-1],
+                    lower_band=indicators["bb_lower"].iloc[-1],
+                    mid_band=indicators["bb_mid"].iloc[-1],
+                    roc=roc,
+                    obv=obv,
+                    vwap=indicators["vwap"].iloc[-1],
+                    confidence_score=score
+                )
+            else:
+                print(f"[略過] {symbol} ➜ 策略類型 {strategy_name} 非建倉類型，略過")
+                continue
 
             # 半山腰過濾（順勢策略專屬）
             if strategy_name == "順勢策略":
