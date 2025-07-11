@@ -66,6 +66,7 @@ def enter_position(symbol, price, direction, signal_note,
 
     # ✅ 寫入 Google Sheets
     try:
+        print(f"[DEBUG] 嘗試寫入 Sheets ➜ {symbol}")  # ←
         write_entry_to_sheet(
             symbol=symbol,
             direction=direction,
