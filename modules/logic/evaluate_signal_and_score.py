@@ -1,7 +1,8 @@
 def evaluate_signal_and_score(symbol, df, indicators, latest_price):
     from modules.detect_trading_signal import detect_trading_signal
     from modules.compute_confidence_score import compute_confidence_score
-
+    from modules.logic.strategy_score import get_strategy_match_score
+    
     signal_type, strategy_name, signal_note, direction, df, indicators, latest_price, \
         rrov_score, trend_score, mean_score = detect_trading_signal(symbol, df, indicators)
 
