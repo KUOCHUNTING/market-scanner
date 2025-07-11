@@ -136,14 +136,16 @@ def scan_market(symbol_list):
                 print(f"[略過] {symbol} ➜ 無明確訊號")
                 continue
 
-            # ✅ 建倉執行（模擬）
+            # ✅ 嘗試建倉（模擬進場）
+            print(f"[進場嘗試] {symbol} ➜ 策略：{strategy_name}｜方向：{direction}｜價格：{latest_price:.2f}
             result = enter_position(symbol, latest_price, direction, score, strategy_name)
+            
             if result is None:
                 print(f"[略過] {symbol} ➜ 建倉失敗")
                 continue
 
             shares, capital_used = result
-
+            print(f"[✅ 建倉成功] {symbol} ➜ 股數：{shares}｜花費資金：${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
             # ✅ 推播訊息組裝與發送
             message = build_entry_message(
                 symbol=symbol,
