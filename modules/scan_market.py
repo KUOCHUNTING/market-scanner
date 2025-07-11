@@ -100,7 +100,7 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 補上完整 enter_position 呼叫
-            shares, capital_used = enter_position(
+            shares, capital_used, capital_left = enter_position(
                 symbol=symbol,
                 price=latest_price,
                 direction=direction,
@@ -139,15 +139,16 @@ def scan_market(symbol_list):
             win_rate = match_score * 100
 
             # ✅ 推播完整訊息
-            message = f"🚀【{strategy_type} 訊號】{symbol}\n"
+            message  = f"🚀【{strategy_type} 訊號】{symbol}\n\n"
             message += f"📊 類型：{signal_type}（方向：{direction}）\n"
-            message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}%\n"
+            message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}%\n\n"
             message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
-            message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n"
-            message += f"📋 訊號說明：{signal_note}"
-            message += f"\n🧠 策略：{strategy_name}"
-            message += f"\n💰 進場資金：${capital_used:,.2f}"
-            message += f"\n💼 剩餘資金：${capital_left:,.2f}"
+            message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n\n"
+            message += f"📋 訊號說明：\n{signal_note}\n\n"
+            message += f"🧠 策略：{strategy_name}\n\n"
+            message += f"📦 股數：{shares} 股\n"
+            message += f"💰 進場資金：${capital_used:,.2f}\n"
+            message += f"💼 剩餘資金：${capital_left:,.2f}"
             send_discord_message(WEBHOOK_URL, message)
 
         except Exception as e:
