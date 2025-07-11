@@ -7,7 +7,6 @@ def scan_market(symbol_list):
     from modules.logic.evaluate_signal_and_score import evaluate_signal_and_score
     from modules.logic.execute_entry import execute_entry
     from modules.logic.strategy_score import get_strategy_match_score
-    from modules.compute_confidence_score import get_strategy_match_score
     from modules.notify.print_debug_summary import print_debug_summary
     from modules.notify.build_discord_message import build_entry_message
     from modules.notify.discord_push import send_discord_message
