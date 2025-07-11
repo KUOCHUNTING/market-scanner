@@ -12,7 +12,8 @@ from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
 from modules.enter_position import enter_position
 from modules.strategy.utils import get_strategy_display
-
+from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
+from modules.notify.build_discord_message import build_entry_message
 stock_list = load_stock_list()
 
 # ✅ 整齊版摘要顯示（含三策略命中率）
