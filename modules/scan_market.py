@@ -40,7 +40,15 @@ def scan_market(symbol_list):
             if indicators is None or 'close' not in df.columns:
                 print(f"[跳過] {symbol} ➜ 指標產生失敗或無 close 欄位")
                 continue
+            # ✅ 加入 EMA 欄位（放這裡！）
+            df["ema_5"] = indicators["ema_5"]
+            df["ema_20"] = indicators["ema_20"]
 
+            # ✅ 計算 EMA 趨勢次數
+            ema_up = (df["ema_5"].diff() > 0).sum()
+            ema_down = (df["ema_5"].diff() < 0).sum()
+            ema_trend = "多" if ema_up > ema_down else "空" if ema_down > ema_up else "盤整"
+            
             latest_price = df['close'].iloc[-1]
             if pd.isna(latest_price) or latest_price <= 0:
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
