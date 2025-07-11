@@ -8,7 +8,7 @@ def get_rrov_score(indicators, latest_price):
         "量能放大": volume_surge,
         "短期強勢": price_above_ema5
     }
-    from .compute_confidence_score import get_strategy_match_score
+    from modules.compute_confidence_score import get_strategy_match_score
     return get_strategy_match_score("RROV", conditions)
 
 def get_trend_score(indicators):
