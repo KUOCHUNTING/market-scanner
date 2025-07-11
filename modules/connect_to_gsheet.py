@@ -62,3 +62,28 @@ def write_exit_to_sheet(
 
     except Exception as e:
         print(f"[❌ Google Sheets 寫入失敗] {symbol} ➜ {e}")
+
+# === ✅ 寫入建倉紀錄至 Google Sheets ===
+def write_entry_to_sheet(entry):
+    try:
+        client = connect_to_gsheet()
+        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
+        worksheet = sheet.worksheet("建倉紀錄")  # 請確認這個分頁名稱存在
+
+        # ✅ 對應欄位順序（依你表單：A~H）
+        row = [
+            entry["建倉時間"],
+            entry["建倉日期"],
+            entry["股票代號"],
+            entry["方向"],
+            entry["股數"],
+            entry["投入資金"],
+            entry["建倉價格"],
+            entry["策略名稱"]
+        ]
+
+        worksheet.append_row(row, value_input_option="USER_ENTERED")
+        print(f"✅ 已寫入建倉紀錄：{entry['股票代號']}")
+
+    except Exception as e:
+        print(f"[❌ 建倉紀錄寫入失敗] {entry['股票代號']} ➜ {e}")
