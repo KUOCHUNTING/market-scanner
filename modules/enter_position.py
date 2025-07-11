@@ -41,6 +41,7 @@ def enter_position(symbol, price, direction, signal_note,
         return
 
     # 扣除資金
+    capital_used = shares * price
     capital_left -= capital_used
     print(f"[資金變化] {symbol} ➜ 花費 ${capital_used:.2f}｜剩餘資金 ${capital_left:,.2f}")
 
