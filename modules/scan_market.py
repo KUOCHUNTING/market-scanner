@@ -11,6 +11,7 @@ from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
 from modules.enter_position import enter_position
+from modules.strategy.utils import get_strategy_display  # ✅ 補上策略顯示名稱
 
 stock_list = load_stock_list()
 
@@ -79,10 +80,9 @@ def scan_market(symbol_list):
                 trend_series = indicators['ema_trend'].tail(20)
                 up_count = (trend_series == "上彎").sum()
                 down_count = (trend_series == "下彎").sum()
-                trend_bias = "偏多" if up_count > down_count else "偏空" if down_count > up_count else "盤整"
-                ema_summary = f"EMA 趨勢：上彎 {up_count} 次｜下彎 {down_count} 次（{trend_bias}）"
+                ema_trend = "多" if up_count > down_count else "空" if down_count > up_count else "盤整"
             except Exception as e:
-                ema_summary = "EMA 趨勢：統計失敗"
+                ema_trend = "未知"
                 print(f"[錯誤] {symbol} EMA 統計失敗：{e}")
 
             rsi = indicators['rsi'].iloc[-1]
@@ -99,7 +99,26 @@ def scan_market(symbol_list):
                 print(f"[略過] {symbol} ➜ 無明確策略訊號")
                 continue
 
-            enter_position(symbol, latest_price, direction, strategy_name, score)
+            # ✅ 補上完整 enter_position 呼叫
+            enter_position(
+                symbol=symbol,
+                price=latest_price,
+                direction=direction,
+                signal_note=signal_note,
+                rsi=rsi,
+                zscore=indicators["zscore"].iloc[-1],
+                strategy_name=strategy_name,
+                strategy_display=get_strategy_display(strategy_name),
+                ema5=ema5,
+                ema20=ema20,
+                upper_band=indicators["bb_upper"].iloc[-1],
+                lower_band=indicators["bb_lower"].iloc[-1],
+                mid_band=indicators["bb_mid"].iloc[-1],
+                roc=roc,
+                obv=obv,
+                vwap=indicators["vwap"].iloc[-1],
+                confidence_score=score
+            )
 
             # 半山腰過濾（順勢策略專屬）
             if strategy_name == "順勢策略":
@@ -113,15 +132,21 @@ def scan_market(symbol_list):
                         print(f"[略過] {symbol} ➜ 空單順勢策略條件不佳")
                         continue
 
-            # ✅ 推播完整訊息（一次）
+            # 推播變數補齊
+            strategy_type = "技術策略"
+            trend_emoji = "🟢" if ema_trend == "多" else "🔴" if ema_trend == "空" else "⚪"
+            trend_text = ema_trend
+            win_rate = match_score * 100
+
+            # ✅ 推播完整訊息
             message = f"🚀【{strategy_type} 訊號】{symbol}\n"
             message += f"📊 類型：{signal_type}（方向：{direction}）\n"
-            message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}\n"
+            message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}%\n"
             message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
             message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n"
             message += f"📋 訊號說明：{signal_note}"
-            message += f"\n🧠 策略：{strategy_name}"  # ✅ 加在這裡
-            send_discord_message(WEBHOOK_URL, msg)
+            message += f"\n🧠 策略：{strategy_name}"
+            send_discord_message(WEBHOOK_URL, message)
 
         except Exception as e:
             print(f"[錯誤] {symbol} 描錯誤：{e}")
