@@ -114,7 +114,12 @@ def scan_market(symbol_list):
             )
 
             # ✅ 顯示終端摘要
-            print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score)
+            print_debug_summary(
+                symbol, indicators, latest_price, score,
+                rrov_long, rrov_short,
+                trend_long, trend_short,
+                mean_long, mean_short
+            )
 
             # ✅ 判斷是否有交易訊號
             signal_type, strategy_name, signal_note, direction = detect_trading_signal(
