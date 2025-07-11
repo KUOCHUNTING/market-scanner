@@ -9,7 +9,7 @@ from .detect_trading_signal import detect_trading_signal
 from .compute_confidence_score import compute_confidence_score, get_strategy_match_score
 from .load_stock_list import load_stock_list
 from .config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
-from modules.notify.discord_push import send_discord_message  # ✅ 確保你已支援兩參數版本
+from modules.notify.discord_push import send_discord_message
 
 stock_list = load_stock_list()
 
@@ -17,7 +17,6 @@ def scan_market(symbol_list):
     global capital_left
 
     random.shuffle(symbol_list)
-    
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f} 已低於 ${MIN_REQUIRED_CAPITAL}，暫停掃描...")
@@ -42,7 +41,6 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ 指標產生失敗")
                 continue
 
-            # 防呆檢查欄位完整性
             required_keys = ['rsi', 'roc', 'obv', 'zscore', 'vwap', 'ema_5', 'ema_20', 'bb_upper', 'bb_lower', 'bb_mid']
             if any(k not in indicators or indicators[k].isna().iloc[-1] for k in required_keys):
                 print(f"[跳過] {symbol} ➜ 技術指標缺失")
@@ -53,7 +51,6 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # 🎯 信心分數計算
             score = compute_confidence_score(
                 rsi=indicators['rsi'].iloc[-1],
                 roc=indicators['roc'].iloc[-1],
@@ -66,7 +63,6 @@ def scan_market(symbol_list):
                 ema20=indicators['ema_20'].iloc[-1]
             )
 
-            # 🎯 策略條件匹配
             is_breakout = latest_price > indicators['bb_upper'].iloc[-1]
             volume_surge = indicators['curr_volume'] > indicators['avg_volume'] * 1.2
             price_above_ema5 = latest_price > indicators['ema_5'].iloc[-1]
@@ -78,7 +74,6 @@ def scan_market(symbol_list):
             match_score = get_strategy_match_score('RROV', rrov_conditions)
             print(f"🎯 {symbol} ➜ 技術信心：{score:.2f}｜RROV 命中率：{match_score:.2f}")
 
-            # EMA 趨勢統計
             try:
                 trend_series = indicators['ema_trend'].tail(20)
                 up_count = (trend_series == "上彎").sum()
@@ -89,7 +84,6 @@ def scan_market(symbol_list):
                 ema_summary = "EMA 趨勢：統計失敗"
                 print(f"[錯誤] {symbol} EMA 統計失敗：{e}")
 
-            # 技術傾向解釋
             rsi = indicators['rsi'].iloc[-1]
             roc = indicators['roc'].iloc[-1]
             ema5 = indicators['ema_5'].iloc[-1]
@@ -99,13 +93,12 @@ def scan_market(symbol_list):
             bias = "🟢 技術偏多" if rsi > 60 or roc > 0.5 or ema5 > ema20 or obv_diff > 0 else \
                    "🔴 技術偏空" if rsi < 40 or roc < -0.5 or ema5 < ema20 or obv_diff < 0 else "⚪ 中性"
 
-            # 🧠 策略判斷
             signal_type, signal_note, direction, strategy_name = detect_trading_signal(symbol, df, indicators, debug=True)
             if not signal_type:
                 print(f"[略過] {symbol} ➜ 無明確策略訊號")
                 continue
 
-            # 半山腰過濾（僅限順勢策略）
+            # 半山腰過濾（順勢策略專屬）
             if strategy_name == "順勢策略":
                 vwap = indicators['vwap'].iloc[-1]
                 if direction == "多":
@@ -117,13 +110,14 @@ def scan_market(symbol_list):
                         print(f"[略過] {symbol} ➜ 空單順勢策略條件不佳")
                         continue
 
-            # ✅ 整合訊息推播
+            # ✅ 推播完整訊息（一次）
             msg = f"""🚀【{strategy_name} 訊號】{symbol}
-📈 策略類型：{signal_type}（方向：{direction}）
-🧠 技術信心：{score:.2f}｜RROV 命中率：{match_score:.2f}
-{bias}
-{ema_summary}"""
-            send_discord_message(WEBHOOK_URL, message)
+📈 類型：{signal_type}（方向：{direction}）
+🧠 信心分數：{score:.2f}｜RROV 命中率：{match_score:.2f}
+📊 技術傾向：{bias}
+📉 {ema_summary}
+📝 訊號說明：{signal_note or "N/A"}"""
+            send_discord_message(WEBHOOK_URL, msg)
 
         except Exception as e:
             print(f"[錯誤] {symbol} 描錯誤：{e}")
