@@ -47,15 +47,18 @@ def compute_confidence_score(rsi, roc, obv, vwap_deviation, zscore, bb_deviation
 
     return min(score, 1.0)
 
-def get_strategy_match_score(strategy_name, conditions_dict):
-    """
-    根據 True/False 條件布林值，計算策略命中率
-    """
-    if not conditions_dict:
-        return 0.0
+# modules/compute_confidence_score.py
 
-    true_count = sum(1 for val in conditions_dict.values() if val)
-    total_count = len(conditions_dict)
-    
-    score = round(true_count / total_count, 2)
-    return score
+def get_strategy_match_score(symbol, strategy_type):
+    """
+    模擬：根據策略名稱，回傳 (long 命中率, short 命中率)
+    未來可以從真實資料統計得出
+    """
+    if strategy_type == "RROV":
+        return 0.66, 0.52
+    elif strategy_type == "趨勢":
+        return 0.61, 0.47
+    elif strategy_type == "均值":
+        return 0.57, 0.56
+    else:
+        return 0.50, 0.50
