@@ -4,25 +4,24 @@ import numpy as np
 def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False):
     if 'volume' not in df.columns:
         print(f"[跳過] {symbol} 缺少 volume 欄位")
-        return None, None, None, None
+        return None, None, None, None, df, indicators, None, 0.0, 0.0, 0.0
 
     if len(df) < 60:
         if debug:
             print(f"[跳過] {symbol} 資料不足（僅 {len(df)} 筆）")
-        return None, None, None, None
+        return None, None, None, None, df, indicators, None, 0.0, 0.0, 0.0
 
     if 'close' not in df.columns or df['close'].isnull().all():
         print(f"[跳過] {symbol} ➜ close 欄位無效")
-        return None, None, None, None
+        return None, None, None, None, df, indicators, None, 0.0, 0.0, 0.0
 
     latest_price = df['close'].iloc[-1]
     prev_close = df['close'].iloc[-2]
     if pd.isna(latest_price) or latest_price <= 0:
         print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
-        return None, None, None, None
+        return None, None, None, None, df, indicators, None, 0.0, 0.0, 0.0
 
-    price_change = abs(latest_price - prev_close) / prev_close
-
+    # === 技術指標抽出 ===
     rsi = indicators['rsi'].iloc[-1]
     rsi_prev = indicators['rsi'].iloc[-2]
     roc = indicators['roc'].iloc[-1]
@@ -39,10 +38,12 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
     std = df['close'].rolling(window=20).std().iloc[-1]
     zscore = (latest_price - mean) / std if std and not pd.isna(std) else 0
     vwap_deviation = (latest_price - vwap) / vwap if vwap else 0
+    price_change = abs(latest_price - prev_close) / prev_close
 
     signal_type = signal_note = direction = strategy_name = None
+    rrov_score = trend_score = mean_score = 0.0
 
-    # === 🟢 多單策略 ===
+    # === 策略判斷 ===
     if (
         rsi < 35 and rsi > rsi_prev and
         roc < 0 and roc > roc_prev and
@@ -50,9 +51,13 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
         abs(latest_price - vwap) / vwap < 0.05 and
         price_change < 0.01
     ):
-        return "BUY", "🐸 多單建倉（RROV）：RSI回升 + ROC翻揚 + OBV上升 + VWAP貼近", "多", "RROV 主策略"
+        signal_type = "BUY"
+        signal_note = "🐸 多單建倉（RROV）：RSI回升 + ROC翻揚 + OBV上升 + VWAP貼近"
+        direction = "多"
+        strategy_name = "RROV 主策略"
+        rrov_score = 1.0
 
-    if (
+    elif (
         rsi > 50 and rsi > rsi_prev and
         roc > 0 and roc > roc_prev and
         obv > obv_prev and
@@ -60,29 +65,38 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
         ema5 > ema20 and
         price_change < 0.015
     ):
-        return "BUY", "🐸 多單建倉（順勢）：RSI轉強、VWAP上方、EMA 多頭排列", "多", "順勢多單"
-        
-    if debug:
-        print(f"[DEBUG] {symbol} ➜ Zscore={zscore:.2f}, RSI={rsi:.1f}, EMA5>EMA20={ema5 > ema20}, latest_price={latest_price:.2f}, lower_band={lower_band:.2f}")
-    if (
+        signal_type = "BUY"
+        signal_note = "🐸 多單建倉（順勢）：RSI轉強、VWAP上方、EMA 多頭排列"
+        direction = "多"
+        strategy_name = "順勢多單"
+        trend_score = 1.0
+
+    elif (
         latest_price < lower_band and
         rsi < 35 and rsi > rsi_prev and
         zscore < -2 and
         ema5 > ema20
     ):
-        return "BUY", "🐸 多單建倉（均值回歸）：跌破布林 + RSI回升 + Z-score超跌", "多", "均值回歸"
+        signal_type = "BUY"
+        signal_note = "🐸 多單建倉（均值回歸）：跌破布林 + RSI回升 + Z-score超跌"
+        direction = "多"
+        strategy_name = "均值回歸"
+        mean_score = 1.0
 
-    # === 🔴 空單策略 ===
-    if (
+    elif (
         rsi > 65 and rsi < rsi_prev and
         roc > 0 and roc < roc_prev and
         obv < obv_prev and
         abs(latest_price - vwap) / vwap < 0.05 and
         price_change < 0.01
     ):
-        return "SELL", "🐶 空單建倉（RROV）：RSI轉弱 + ROC下滑 + OBV下降 + VWAP貼近", "空", "RROV 主策略"
+        signal_type = "SELL"
+        signal_note = "🐶 空單建倉（RROV）：RSI轉弱 + ROC下滑 + OBV下降 + VWAP貼近"
+        direction = "空"
+        strategy_name = "RROV 主策略"
+        rrov_score = 1.0
 
-    if (
+    elif (
         rsi < 50 and rsi < rsi_prev and
         roc < 0 and roc < roc_prev and
         obv < obv_prev and
@@ -90,30 +104,23 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
         ema5 < ema20 and
         price_change < 0.015
     ):
-        return "SELL", "🐶 空單建倉（順勢）：RSI轉弱、VWAP下方、EMA死叉", "空", "順勢空單"
-        
-    if debug:
-        print(f"[DEBUG] {symbol} ➜ Zscore={zscore:.2f}, RSI={rsi:.1f}, EMA5<EMA20={ema5 < ema20}, latest_price={latest_price:.2f}, upper_band={upper_band:.2f}")
-    if (
+        signal_type = "SELL"
+        signal_note = "🐶 空單建倉（順勢）：RSI轉弱、VWAP下方、EMA死叉"
+        direction = "空"
+        strategy_name = "順勢空單"
+        trend_score = 1.0
+
+    elif (
         latest_price > upper_band and
         rsi > 65 and rsi < rsi_prev and
         zscore > 2 and
         ema5 < ema20
     ):
-        return "SELL", "🐶 空單建倉（均值回歸）：突破布林 + RSI轉弱 + Z-score過熱", "空", "均值回歸"
+        signal_type = "SELL"
+        signal_note = "🐶 空單建倉（均值回歸）：突破布林 + RSI轉弱 + Z-score過熱"
+        direction = "空"
+        strategy_name = "均值回歸"
+        mean_score = 1.0
 
-    # === ⚠️ 爆量預警 ===
-    curr_volume = df['volume'].iloc[-1]
-    avg_volume = df['volume'].rolling(20).mean().iloc[-1]
-    volume_ratio = curr_volume / avg_volume if avg_volume > 0 else 1.0
-
-    if volume_ratio >= 5 and (rsi < 40 or latest_price < lower_band * 1.02):
-        return "ALERT_VOLUME_SPIKE_LONG", f"⚠️ [低檔爆量] ➜ 量比={volume_ratio:.1f}x，RSI={rsi:.1f}", "多", "爆量預警"
-
-    elif volume_ratio >= 5 and (rsi > 70 or latest_price > upper_band * 0.98):
-        return "ALERT_VOLUME_SPIKE_SHORT", f"⚠️ [高檔爆量] ➜ 量比={volume_ratio:.1f}x，RSI={rsi:.1f}", "空", "爆量預警"
-
-    # === 無效訊號 ===
-    if debug:
-        print(f"[未達條件] {symbol} ➜ 無訊號，RSI={rsi:.1f}、Z-score={zscore:.2f}、VWAP乖離={vwap_deviation:.2%}")
-    return None, None, None, None
+    # === 回傳完整 10 項
+    return signal_type, strategy_name, signal_note, direction, df, indicators, latest_price, rrov_score, trend_score, mean_score
