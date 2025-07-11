@@ -81,3 +81,4 @@ def enter_position(symbol, price, direction, signal_note,
 
     # ✅ 成功訊息
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
+    return shares, capital_used
