@@ -44,10 +44,6 @@ def detect_trading_signal(symbol, df, indicators, debug=False, force_test=False)
 
     signal_type = signal_note = direction = strategy_name = None
 
-    # === 測試訊號（可刪除）
-    if force_test and symbol in ["TSLA", "NVDA"]:
-        return "BUY", "🧪 測試訊號", "多", "測試策略"
-
     # === 🟢 多單策略
     if (
         rsi < 35 and rsi > rsi_prev and
