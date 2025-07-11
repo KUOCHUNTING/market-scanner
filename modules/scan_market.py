@@ -140,7 +140,7 @@ def scan_market(symbol_list):
             rrov_score, trend_score, mean_score = detect_trading_signal(symbol, df, indicators)
 
             # 補上命中率（或也可以從 detect_trading_signal 一起回傳）
-            trend_long, trend_short = get_strategy_hit_rate(symbol, "trend")
+            trend_long, trend_short = get_strategy_match_score(symbol, "趨勢")
             rrov_long, rrov_short = get_strategy_hit_rate(symbol, "rrov")
             mean_long, mean_short = get_strategy_hit_rate(symbol, "mean")
 
