@@ -57,3 +57,28 @@ def get_strategy_match_score(symbol, df, indicators, strategy_type):
         return round(long_score / 3, 2), round(short_score / 3, 2)
 
     return 0.0, 0.0
+
+def select_best_strategy(df, indicators):
+    # 三策略命中率（long / short）
+    trend_long, trend_short = get_strategy_match_score(df, indicators, "順勢")
+    rrov_long, rrov_short   = get_strategy_match_score(df, indicators, "RROV")
+    mean_long, mean_short   = get_strategy_match_score(df, indicators, "均值")
+
+    candidates = [
+        ("順勢", "多", trend_long),
+        ("順勢", "空", trend_short),
+        ("RROV", "多", rrov_long),
+        ("RROV", "空", rrov_short),
+        ("均值", "多", mean_long),
+        ("均值", "空", mean_short)
+    ]
+
+    # 取滿分策略中分數最高的（先找 == 1.0）
+    full_score_strategies = [c for c in candidates if c[2] == 1.0]
+    if full_score_strategies:
+        # ✅ 策略命中（滿分）
+        best = full_score_strategies[0]  # 或 max(full_score_strategies, key=lambda x: x[2])
+        return best[0], best[1], best[2]
+    
+    # ❌ 沒有策略達到滿分
+    return None, None, 0.0
