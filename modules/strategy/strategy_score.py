@@ -1,4 +1,6 @@
+# ✅ 只需要保留這一行 import（放在檔案最上方）
 from modules.compute_confidence_score import get_strategy_match_score
+
 def get_rrov_score(indicators, latest_price):
     is_breakout = latest_price > indicators['bb_upper'].iloc[-1]
     volume_surge = indicators['curr_volume'] > indicators['avg_volume'] * 1.2
@@ -8,7 +10,6 @@ def get_rrov_score(indicators, latest_price):
         "量能放大": volume_surge,
         "短期強勢": price_above_ema5
     }
-    from .compute_confidence_score import get_strategy_match_score
     return get_strategy_match_score("RROV", conditions)
 
 def get_trend_score(indicators):
@@ -16,7 +17,6 @@ def get_trend_score(indicators):
         "RSI強勢": indicators['rsi'].iloc[-1] > 60,
         "均線多頭": indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1],
     }
-    from .compute_confidence_score import get_strategy_match_score
     return get_strategy_match_score("順勢策略", conditions)
 
 def get_mean_score(indicators, latest_price):
@@ -24,5 +24,4 @@ def get_mean_score(indicators, latest_price):
         "Z-score低": indicators['zscore'].iloc[-1] < -1.0,
         "接近下軌": latest_price < indicators['bb_lower'].iloc[-1] * 1.02
     }
-    from .compute_confidence_score import get_strategy_match_score
     return get_strategy_match_score("均值回歸", conditions)
