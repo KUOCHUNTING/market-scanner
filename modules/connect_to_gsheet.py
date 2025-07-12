@@ -20,7 +20,7 @@ def connect_to_gsheet():
     client = gspread.authorize(creds)
     return client
 
-# === ✅ 建倉紀錄：快速打包 entry 字典（推薦使用）===
+# === ✅ 建倉紀錄快速包裝 ===
 def build_entry_record(symbol, direction, shares, capital_used, price, strategy_name):
     now = datetime.now()
     return {
@@ -34,12 +34,12 @@ def build_entry_record(symbol, direction, shares, capital_used, price, strategy_
         "策略名稱": strategy_name
     }
 
-# === ✅ 寫入建倉紀錄至 Google Sheets ===
+# === ✅ 寫入建倉紀錄 ===
 def write_entry_to_sheet(entry):
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("建倉紀錄")  # 請確保此分頁存在
+        worksheet = sheet.worksheet("建倉紀錄")  # ← 請確認有這個分頁
 
         row = [
             entry.get("建倉時間", ""),
@@ -58,7 +58,7 @@ def write_entry_to_sheet(entry):
     except Exception as e:
         print(f"[❌ 建倉紀錄寫入失敗] {entry.get('股票代號', '未知')} ➜ {e}")
 
-# === ✅ 寫入出場紀錄至 Google Sheets ===
+# === ✅ 寫入出場紀錄 ===
 def write_exit_to_sheet(
     symbol,
     entry_time,
@@ -79,7 +79,7 @@ def write_exit_to_sheet(
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("出場紀錄")
+        worksheet = sheet.worksheet("出場紀錄")  # ← 請確認有這個分頁
 
         row = [
             symbol,
