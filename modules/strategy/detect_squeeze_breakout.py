@@ -1,10 +1,8 @@
-# modules/strategy/detect_squeeze_breakout.py
-
-import yfinance as yf
-import pandas as pd
+from modules.fetch_stock_data import fetch_stock_data
+from modules.config import POLYGON_API_KEY
 
 def detect_squeeze_breakout(symbol):
-    df = yf.download(symbol, period="3mo", interval="1d")
+    df = fetch_stock_data(symbol, api_key=POLYGON_API_KEY)
     if df.isnull().values.any() or len(df) < 25:
         return None
 
