@@ -9,8 +9,9 @@ capital_left = 100000  # 可改由 config 載入
 positions = {}
 
 # ✅ 計算建倉股數與資金
-def compute_position_size(price):
-    shares = int(1000 // price)  # 每檔最多花 $1000
+def compute_position_size(price, direction="做多"):
+    max_capital = 1000 if direction == "做多" else 1000  # 空單可視需求調整金額
+    shares = int(max_capital // price)
     capital_used = shares * price
     return shares, capital_used
 
@@ -21,9 +22,9 @@ def enter_position(symbol, price, direction, signal_note,
                    roc=None, obv=None, vwap=None, confidence_score=None,
                    strategy_display=None, match_score=None, ema_trend=None,
                    up_count=None, down_count=None,
-                   close_price=None,  # ✅ 收盤價
-                   mean_hit_rate=None,  # ✅ 均值回歸命中率
-                   trend_hit_rate=None  # ✅ 順勢策略命中率
+                   close_price=None,
+                   mean_hit_rate=None,
+                   trend_hit_rate=None
                    ):
     global capital_left, positions
 
@@ -36,7 +37,7 @@ def enter_position(symbol, price, direction, signal_note,
         return
     entered_positions.add(symbol)
 
-    shares, capital_used = compute_position_size(price)
+    shares, capital_used = compute_position_size(price, direction)
     if shares <= 0 or capital_used <= 0:
         print(f"[跳過] {symbol} ➜ 建倉失敗：股數={shares}｜資金=${capital_used:.2f}")
         return
@@ -86,13 +87,14 @@ def enter_position(symbol, price, direction, signal_note,
     except Exception as e:
         print(f"❌【寫入失敗】{symbol} ➜ {e}")
 
-    # ✅ 成功推播
+    # ✅ 成功推播（策略訊號）
     if match_score is not None and up_count is not None and down_count is not None:
+        direction_emoji = "📈" if direction == "做多" else "📉"
         trend_emoji = "🟢" if ema_trend == "多" else "🔴" if ema_trend == "空" else "⚪"
         trend_text = ema_trend or "未知"
         win_rate = match_score * 100
 
-        message  = f"🚀【技術策略 訊號】{symbol}\n\n"
+        message  = f"{direction_emoji}【技術策略 訊號】{symbol}\n\n"
         message += f"📊 類型：策略（方向：{direction}）\n"
         message += f"💵 收盤價：${close_price:.2f}\n"
         message += f"🧠 信心分數：{confidence_score:.2f}\n"
