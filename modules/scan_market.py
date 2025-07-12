@@ -37,6 +37,12 @@ def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, tre
     print(f"🎯 命中率 ➜ 順勢：{trend_score:.2f}｜RROV：{rrov_score:.2f}｜均值：{mean_score:.2f}")
     print(f"📈 收盤價：${latest_price:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}")
     print(f"📉 {ema_relation}｜VWAP乖離：{vwap_pct:.2f}%｜OBV變化：{obv_trend}")
+
+    # 判斷是否剛解除 Squeeze（前一天是 ON、今天是 OFF）
+    if 'squeeze_on' in indicators:
+        if indicators['squeeze_on'].iloc[-2] and not indicators['squeeze_on'].iloc[-1]:
+            print("🧨 擠壓狀態：剛解除 Squeeze（可能進入爆發階段）")
+
     print("─────────────────────────────────────")
 
 # ✅ 掃描主邏輯
