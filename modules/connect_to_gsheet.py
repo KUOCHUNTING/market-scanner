@@ -20,7 +20,7 @@ def connect_to_gsheet():
     client = gspread.authorize(creds)
     return client
 
-# === ✅ 建倉紀錄：快速打包 entry 字典用（推薦）===
+# === ✅ 建倉紀錄：快速打包 entry 字典（推薦使用）===
 def build_entry_record(symbol, direction, shares, capital_used, price, strategy_name):
     now = datetime.now()
     return {
@@ -39,7 +39,7 @@ def write_entry_to_sheet(entry):
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("建倉紀錄")  # 請確保表單中有這分頁
+        worksheet = sheet.worksheet("建倉紀錄")  # 請確保此分頁存在
 
         row = [
             entry.get("建倉時間", ""),
