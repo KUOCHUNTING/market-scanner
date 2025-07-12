@@ -92,21 +92,20 @@ def scan_market(symbol_list):
             # ✅ 組裝並推播進場訊息
             message = build_entry_message(
                 symbol=symbol,
-                strategy_type="📌 技術選股",
-                signal_type=signal_type,
                 direction=direction,
-                score=score,
-                win_rate=rrov_score,
-                trend_text=direction,
-                trend_emoji="📈" if direction == "多" else "📉",
-                up_count=0,
-                down_count=0,
-                ema_trend=ema_trend,
-                signal_note=signal_note,
                 strategy_name=strategy_name,
+                score=score,
+                rrov_score=rrov_score,
+                trend_score=trend_score,
+                mean_score=mean_score,
+                latest_price=latest_price,
+                rsi=indicators["rsi"].iloc[-1],
+                zscore=indicators["zscore"].iloc[-1],
+                signal_note=signal_note,
+                confidence_score=score,
                 shares=shares,
-                capital_used=int(capital_used),
-                capital_left=int(capital_left)
+                capital_used=capital_used,
+                capital_left=capital_left
             )
             send_discord_message(WEBHOOK_URL, message)
 
