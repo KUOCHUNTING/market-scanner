@@ -98,8 +98,8 @@ def scan_market(symbol_list):
             print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score)
 
             # ✅ 判斷是否有交易訊號
-            signal_type, strategy_name, signal_note, direction = detect_trading_signal(
-                df, indicators, latest_price, rrov_score, trend_score, mean_score
+            signal_type, signal_note, direction, strategy_name = detect_trading_signal(
+                symbol, df, indicators, latest_price
             )
 
             if signal_type is None:
