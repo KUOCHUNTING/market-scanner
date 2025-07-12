@@ -79,7 +79,7 @@ def scan_market(symbol_list):
                 continue
 
             # ✅ 嘗試建倉
-            shares, capital_used, ema_trend = execute_entry(
+            shares, capital_used, capital_left = execute_entry(
                 symbol, latest_price, direction, score, strategy_name, indicators, capital_left
             )
             if shares is None:
