@@ -16,20 +16,25 @@ def build_entry_message(
     message += f"股數：{shares} 股｜進場資金：${capital_used:.0f}｜剩餘資金：${capital_left:,.0f}"
     return message
     
-def build_breakout_message(squeeze_result):
-    symbol = squeeze_result["symbol"]
-    direction = squeeze_result["direction"]
-    direction_label = "多單" if direction == "做多" else "空單"
-    score = squeeze_result["score"]
-    close = squeeze_result["close"]
-    rsi = squeeze_result.get("rsi", 0)
-    zscore = squeeze_result.get("zscore", 0)
-    conditions = ", ".join(squeeze_result.get("conditions_met", []))
+# ✅ 擠壓策略推播訊息（多空雙向皆可）
+def build_breakout_message(result):
+    symbol = result.get("symbol", "未知代號")
+    direction = result.get("direction", "未知方向")
+    score = result.get("score", 0)
+    conditions = result.get("conditions_met", [])
+    close = result.get("close", 0)
+    rsi = result.get("rsi", None)
+    ema_5 = result.get("ema_5", None)
+    ema_20 = result.get("ema_20", None)
+    strategy_name = result.get("strategy_name", "擠壓策略")
 
-    message = f"💥【{symbol} 擠壓突破策略】\n"
-    message += f"方向：{direction_label}｜收盤價：${close:.2f}\n"
-    message += f"技術信心分數：{score:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}\n"
-    message += f"✅ 命中條件：{conditions}\n"
-    message += f"📌 策略：擠壓突破（Squeeze Breakout）"
+    emoji = "🚀" if direction == "做多" else "💥"
+
+    message  = f"{emoji}【擠壓策略觸發】{symbol}｜{strategy_name}\n\n"
+    message += f"📌 收盤價：${close:.2f}｜RSI：{rsi:.1f}\n"
+    message += f"📈 EMA5：{ema_5:.2f}｜EMA20：{ema_20:.2f}\n"
+    message += f"🎯 命中條件（{score}）項：\n"
+    message += "\n".join([f"- {c}" for c in conditions]) + "\n\n"
+    message += f"📊 判定方向：{direction}"
 
     return message
