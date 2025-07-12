@@ -98,6 +98,35 @@ def scan_market(symbol_list):
             # ✅ 顯示終端摘要
             print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score)
 
+            # ✅ 額外偵測擠壓 + 突破策略
+            squeeze_result = detect_squeeze_breakout(symbol)
+            if squeeze_result:
+                print(f"📣 [{symbol}] 擠壓突破策略觸發！")
+                print(f"分數：{squeeze_result['score']}")
+                print(f"命中條件：{', '.join(squeeze_result['conditions_met'])}")
+
+                # ✅ 組裝推播訊息
+                from modules.notify.build_discord_message import build_breakout_message
+                msg = build_breakout_message(squeeze_result)
+                send_discord_message(WEBHOOK_URL, msg)
+
+               # ✅ 擠壓突破策略也建倉
+                shares, capital_used = enter_position(
+                    symbol=symbol,
+                    price=squeeze_result["close"],
+                    direction="做多",
+                    score=squeeze_result["score"],
+                    strategy_name="擠壓突破",
+                    rsi=squeeze_result.get("rsi"),
+                    ema5=squeeze_result.get("ema_5"),
+                    ema20=squeeze_result.get("ema_20"),
+                    obv=None,  # 若你想抓 OBV 也可加上
+                    signal_note="Squeeze OFF + 價格突破 + 技術條件命中",
+                )
+
+                if shares:
+                    print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
+
             # ✅ 判斷是否有交易訊號
             signal_type, strategy_name, signal_note, direction = detect_trading_signal(
                 symbol, df, indicators, latest_price
