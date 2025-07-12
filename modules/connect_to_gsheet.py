@@ -4,7 +4,7 @@ import base64
 import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
-
+from modules.connect_to_gsheet import connect_to_gsheet  # 確保你有這個模組
 # === ✅ 建立 Google Sheets 連線 ===
 def connect_to_gsheet():
     b64_json = os.getenv("GCP_KEY_BASE64")
@@ -39,7 +39,7 @@ def write_entry_to_sheet(entry):
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("建倉紀錄")  # ← 請確認有這個分頁
+        worksheet = sheet.worksheet("建倉紀錄")  # 分頁名稱要一致
 
         row = [
             entry.get("建倉時間", ""),
@@ -49,15 +49,17 @@ def write_entry_to_sheet(entry):
             entry.get("股數", ""),
             entry.get("投入資金", ""),
             entry.get("建倉價格", ""),
-            entry.get("策略名稱", "")
+            entry.get("策略名稱", ""),
+            entry.get("技術信心", ""),
+            entry.get("訊號摘要", "")
         ]
 
         worksheet.append_row(row, value_input_option="USER_ENTERED")
-        print(f"✅ 已寫入建倉紀錄：{entry['股票代號']}")
+        print(f"✅ 已寫入建倉紀錄：{entry.get('股票代號', '未知')}")
 
     except Exception as e:
         print(f"[❌ 建倉紀錄寫入失敗] {entry.get('股票代號', '未知')} ➜ {e}")
-
+        
 # === ✅ 寫入出場紀錄 ===
 def write_exit_to_sheet(
     symbol,
@@ -79,7 +81,7 @@ def write_exit_to_sheet(
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("出場紀錄")  # ← 請確認有這個分頁
+        worksheet = sheet.worksheet("出場紀錄")  # 分頁名稱要一致
 
         row = [
             symbol,
