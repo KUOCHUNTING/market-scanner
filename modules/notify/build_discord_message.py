@@ -1,16 +1,17 @@
-# modules/notify/build_discord_message.py
-def build_entry_message(symbol, strategy_type, signal_type, direction,
-                        score, win_rate, trend_emoji, trend_text,
-                        up_count, down_count, ema_trend, signal_note,
-                        strategy_name, shares, capital_used, capital_left):
-    message  = f"🚀【{strategy_type} 訊號】{symbol}\n\n"
-    message += f"📊 類型：{signal_type}（方向：{direction}）\n"
-    message += f"🧠 信心分數：{score:.2f}｜RROV 命中率：{win_rate:.2f}%\n\n"
-    message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
-    message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n\n"
-    message += f"📋 訊號說明：\n{signal_note}\n\n"
-    message += f"🧠 策略：{strategy_name}\n\n"
-    message += f"📦 股數：{shares} 股\n"
-    message += f"💰 進場資金：${int(capital_used):,}\n"
-    message += f"💼 剩餘資金：${int(capital_left):,}"
+def build_entry_message(
+    symbol, direction, signal_note, latest_price, score,
+    strategy_name, rsi, zscore, shares, capital_used,
+    capital_left, rrov_score, trend_score, mean_score
+):
+    direction_label = "多單" if direction == "多" else "空單"
+    signal_type_label = f"【 {direction_label} 技術策略 訊號】{symbol}"
+
+    message = f"{signal_type_label}\n"
+    message += f"類型：{direction}（方向：{direction}）\n"
+    message += f"命中率 ➜ 順勢：{trend_score:.2f}｜RROV：{rrov_score:.2f}｜均值：{mean_score:.2f}\n"
+    message += f"技術信心：{score:.2f}\n"
+    message += f"收盤價：${latest_price:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}\n"
+    message += f"訊號摘要：{signal_note}\n"
+    message += f"策略名稱：{strategy_name}\n"
+    message += f"股數：{shares} 股｜進場資金：${capital_used:.0f}｜剩餘資金：${capital_left:,.0f}"
     return message
