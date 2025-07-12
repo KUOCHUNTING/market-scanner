@@ -3,15 +3,12 @@ def scan_market(symbol_list):
     from modules.get_fundamentals import get_fundamentals
     from modules.filter_fundamentals import filter_fundamentals
     from modules.calculate_indicators import calculate_indicators
-    from modules.strategy.analyze_strategy_scores import analyze_strategy_scores
-    from modules.logic.evaluate_signal_and_score import evaluate_signal_and_score
     from modules.logic.execute_entry import execute_entry
-    from modules.logic.strategy_score import get_strategy_match_score
+    from modules.logic.strategy_score import select_best_strategy, get_strategy_match_score
     from modules.notify.print_debug_summary import print_debug_summary
-    from modules.notify.build_discord_message import build_entry_message
+    from modules.build_discord_message import build_entry_message
     from modules.notify.discord_push import send_discord_message
     from modules.config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
-    from modules.build_discord_message import build_entry_message
     import traceback
     import pandas as pd
     import random
@@ -41,47 +38,54 @@ def scan_market(symbol_list):
             if indicators is None or 'close' not in df.columns:
                 print(f"[跳過] {symbol} ➜ 指標產生失敗或無 close 欄位")
                 continue
-            # ✅ 加入 EMA 欄位（放這裡！）
+
             df["ema_5"] = indicators["ema_5"]
             df["ema_20"] = indicators["ema_20"]
 
-            # ✅ 計算 EMA 趨勢次數
+            # ✅ EMA 趨勢計算
             ema_up = (df["ema_5"].diff() > 0).sum()
             ema_down = (df["ema_5"].diff() < 0).sum()
             ema_trend = "多" if ema_up > ema_down else "空" if ema_down > ema_up else "盤整"
-            
+
             latest_price = df['close'].iloc[-1]
             if pd.isna(latest_price) or latest_price <= 0:
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # ✅ 三策略命中率
-            scores = analyze_strategy_scores(indicators, latest_price)
+            # ✅ 選擇最佳策略
+            strategy_name, direction, strategy_score = select_best_strategy(df, indicators)
+            if strategy_name is None:
+                print(f"[略過] {symbol} ➜ 無策略達滿分")
+                continue
 
-            # ✅ 訊號偵測與技術分數
-            signal_type, strategy_name, signal_note, direction, score, \
-                rrov_score, trend_score, mean_score = evaluate_signal_and_score(symbol, df, indicators, latest_price)
+            # ✅ 三策略命中率統計
+            trend_long, trend_short = get_strategy_match_score(df, indicators, "順勢")
+            rrov_long, rrov_short   = get_strategy_match_score(df, indicators, "RROV")
+            mean_long, mean_short   = get_strategy_match_score(df, indicators, "均值")
 
-            # ✅ 命中率補充
-            trend_long, trend_short = get_strategy_match_score(symbol, df, indicators, "順勢")
-            rrov_long, rrov_short   = get_strategy_match_score(symbol, df, indicators, "RROV")
-            mean_long, mean_short   = get_strategy_match_score(symbol, df, indicators, "均值")
+            rrov_score  = rrov_long if direction == "多" else rrov_short
+            trend_score = trend_long if direction == "多" else trend_short
+            mean_score  = mean_long if direction == "多" else mean_short
+
+            # ✅ 組裝技術摘要
+            signal_note = (
+                f"🎯 命中率 ➜ 順勢：{trend_long:.2f}/{trend_short:.2f}｜"
+                f"RROV：{rrov_long:.2f}/{rrov_short:.2f}｜"
+                f"均值：{mean_long:.2f}/{mean_short:.2f}\n"
+                f"📌 採用策略：{strategy_name}（方向：{direction}）"
+            )
 
             # ✅ 顯示技術摘要
             print_debug_summary(
-                symbol, indicators, latest_price, score,
+                symbol, indicators, latest_price, strategy_score,
                 rrov_score, trend_score,
                 strategy_name, direction, rrov_score,
                 trend_long, trend_short, rrov_long, rrov_short, mean_long, mean_short
             )
 
-            if signal_type is None:
-                print(f"[略過] {symbol} ➜ 無明確訊號")
-                continue
-
             # ✅ 嘗試建倉
             shares, capital_used, capital_left = execute_entry(
-                symbol, latest_price, direction, score, strategy_name, indicators, capital_left
+                symbol, latest_price, direction, strategy_score, strategy_name, indicators, capital_left
             )
             if shares is None:
                 print(f"[略過] {symbol} ➜ 建倉失敗")
@@ -89,12 +93,12 @@ def scan_market(symbol_list):
 
             print(f"[✅ 建倉成功] {symbol} ➜ 股數：{shares}｜花費資金：${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
 
-            # ✅ 組裝並推播進場訊息
+            # ✅ 推播
             message = build_entry_message(
                 symbol=symbol,
                 direction=direction,
                 strategy_name=strategy_name,
-                score=score,
+                score=strategy_score,
                 rrov_score=rrov_score,
                 trend_score=trend_score,
                 mean_score=mean_score,
@@ -102,7 +106,7 @@ def scan_market(symbol_list):
                 rsi=indicators["rsi"].iloc[-1],
                 zscore=indicators["zscore"].iloc[-1],
                 signal_note=signal_note,
-                confidence_score=score,
+                confidence_score=strategy_score,
                 shares=shares,
                 capital_used=capital_used,
                 capital_left=capital_left
