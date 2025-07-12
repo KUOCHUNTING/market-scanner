@@ -11,6 +11,7 @@ def scan_market(symbol_list):
     from modules.notify.build_discord_message import build_entry_message
     from modules.notify.discord_push import send_discord_message
     from modules.config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
+    from modules.build_discord_message import build_entry_message
     import traceback
     import pandas as pd
     import random
