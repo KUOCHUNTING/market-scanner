@@ -15,3 +15,21 @@ def build_entry_message(
     message += f"策略名稱：{strategy_name}\n"
     message += f"股數：{shares} 股｜進場資金：${capital_used:.0f}｜剩餘資金：${capital_left:,.0f}"
     return message
+    
+def build_breakout_message(squeeze_result):
+    symbol = squeeze_result["symbol"]
+    direction = squeeze_result["direction"]
+    direction_label = "多單" if direction == "做多" else "空單"
+    score = squeeze_result["score"]
+    close = squeeze_result["close"]
+    rsi = squeeze_result.get("rsi", 0)
+    zscore = squeeze_result.get("zscore", 0)
+    conditions = ", ".join(squeeze_result.get("conditions_met", []))
+
+    message = f"💥【{symbol} 擠壓突破策略】\n"
+    message += f"方向：{direction_label}｜收盤價：${close:.2f}\n"
+    message += f"技術信心分數：{score:.2f}｜RSI：{rsi:.1f}｜Z-score：{zscore:.2f}\n"
+    message += f"✅ 命中條件：{conditions}\n"
+    message += f"📌 策略：擠壓突破（Squeeze Breakout）"
+
+    return message
