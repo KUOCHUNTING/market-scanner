@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def detect_trading_signal(symbol, df, indicators, latest_price=None):
+def detect_trading_signal(symbol, df, indicators, latest_price=None, debug=False):
     if 'volume' not in df.columns:
         print(f"[跳過] {symbol} 缺少 volume 欄位")
         return None, None, None, None
@@ -15,7 +15,9 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
         print(f"[跳過] {symbol} ➜ close 欄位無效")
         return None, None, None, None
 
-    latest_price = df['close'].iloc[-1]
+    if latest_price is None:
+        latest_price = df['close'].iloc[-1]
+
     prev_close = df['close'].iloc[-2]
     if pd.isna(latest_price) or latest_price <= 0:
         print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
@@ -61,7 +63,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
         price_change < 0.015
     ):
         return "BUY", "🐸 多單建倉（順勢）：RSI轉強、VWAP上方、EMA 多頭排列", "多", "順勢多單"
-        
+
     if debug:
         print(f"[DEBUG] {symbol} ➜ Zscore={zscore:.2f}, RSI={rsi:.1f}, EMA5>EMA20={ema5 > ema20}, latest_price={latest_price:.2f}, lower_band={lower_band:.2f}")
     if (
@@ -91,7 +93,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
         price_change < 0.015
     ):
         return "SELL", "🐶 空單建倉（順勢）：RSI轉弱、VWAP下方、EMA死叉", "空", "順勢空單"
-        
+
     if debug:
         print(f"[DEBUG] {symbol} ➜ Zscore={zscore:.2f}, RSI={rsi:.1f}, EMA5<EMA20={ema5 < ema20}, latest_price={latest_price:.2f}, upper_band={upper_band:.2f}")
     if (
