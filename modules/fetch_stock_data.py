@@ -108,8 +108,8 @@ def fetch_stock_data(symbol, api_key):
             else:
                 print(f"[補抓] 第 {retry_days} 天無資料")
 
-        if len(df_all) < 60:
-            print(f"[❌終止] {symbol} 最終仍不足 60 根（僅 {len(df_all)}），跳過")
+        if df_all is None or len(df_all) < 60:
+            print(f"[❌終止] {symbol} ➜ 資料不足（僅 {len(df_all)} 根），無法進行策略判斷，已略過")
             return None
 
         df_all["timestamp"] = pd.to_datetime(df_all["timestamp"], unit="ms")
