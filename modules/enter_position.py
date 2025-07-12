@@ -1,16 +1,16 @@
 from datetime import datetime
-from modules.connect_to_gsheet import write_entry_to_sheet  # ✅ 寫入 Sheets
-from modules.notify.discord_push import send_discord_message  # ✅ 推播用
-from modules.config import WEBHOOK_URL  # ✅ Webhook 設定
+from modules.connect_to_gsheet import write_entry_to_sheet
+from modules.notify.discord_push import send_discord_message
+from modules.config import WEBHOOK_URL
 
 # === 📦 全域變數（資金與持倉）===
 entered_positions = set()
-capital_left = 100000  # ✅ 可改由 config 載入
+capital_left = 100000  # 可改由 config 載入
 positions = {}
 
 # ✅ 計算建倉股數與資金
 def compute_position_size(price):
-    shares = int(1000 // price)  # 例：每檔最多花 $1000，可調整
+    shares = int(1000 // price)  # 每檔最多花 $1000
     capital_used = shares * price
     return shares, capital_used
 
@@ -20,27 +20,27 @@ def enter_position(symbol, price, direction, signal_note,
                    ema5=None, ema20=None, upper_band=None, lower_band=None, mid_band=None,
                    roc=None, obv=None, vwap=None, confidence_score=None,
                    strategy_display=None, match_score=None, ema_trend=None,
-                   up_count=None, down_count=None):
+                   up_count=None, down_count=None,
+                   close_price=None,  # ✅ 收盤價
+                   mean_hit_rate=None,  # ✅ 均值回歸命中率
+                   trend_hit_rate=None  # ✅ 順勢策略命中率
+                   ):
     global capital_left, positions
 
-    # 防呆：價格不合法
     if price is None or price <= 0:
         print(f"[錯誤] {symbol} 建倉失敗 ➜ 價格無效：{price}")
         return
 
-    # 防重複建倉
     if symbol in entered_positions:
         print(f"⛔ 已建倉過：{symbol}，略過")
         return
     entered_positions.add(symbol)
 
-    # 計算建倉數量與成本
     shares, capital_used = compute_position_size(price)
     if shares <= 0 or capital_used <= 0:
         print(f"[跳過] {symbol} ➜ 建倉失敗：股數={shares}｜資金=${capital_used:.2f}")
         return
 
-    # 扣除資金
     capital_left -= capital_used
     print(f"[資金變化] {symbol} ➜ 花費 ${capital_used:.2f}｜剩餘資金 ${capital_left:,.2f}")
 
@@ -65,6 +65,9 @@ def enter_position(symbol, price, direction, signal_note,
         "obv": obv,
         "vwap": vwap,
         "confidence_score": confidence_score,
+        "close_price": close_price,
+        "mean_hit_rate": mean_hit_rate,
+        "trend_hit_rate": trend_hit_rate
     }
 
     # ✅ 寫入 Google Sheets
@@ -91,18 +94,19 @@ def enter_position(symbol, price, direction, signal_note,
 
         message  = f"🚀【技術策略 訊號】{symbol}\n\n"
         message += f"📊 類型：策略（方向：{direction}）\n"
-        message += f"🧠 信心分數：{confidence_score:.2f}｜RROV 命中率：{win_rate:.2f}%\n\n"
+        message += f"💵 收盤價：${close_price:.2f}\n"
+        message += f"🧠 信心分數：{confidence_score:.2f}\n"
+        message += f"🎯 RROV 命中率：{win_rate:.2f}%｜均值：{(mean_hit_rate or 0)*100:.2f}%｜順勢：{(trend_hit_rate or 0)*100:.2f}%\n\n"
         message += f"📈 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
         message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n\n"
         message += f"📋 訊號說明：\n{signal_note}\n\n"
         message += f"🧠 策略：{strategy_display or strategy_name}\n\n"
         message += f"📦 股數：{shares} 股\n"
         message += f"💰 進場資金：${int(capital_used):,}\n"
-        message += f"💼 剩餘資金：${int(capital_used):,}"
+        message += f"💼 剩餘資金：${int(capital_left):,}"
 
         send_discord_message(WEBHOOK_URL, message)
 
-    # ✅ 結尾日誌
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
     print(f"✅【建倉成功】{symbol} ➜ 價格：${price:.2f}｜方向：{direction}｜股數：{shares}")
 
