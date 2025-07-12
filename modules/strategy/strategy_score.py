@@ -1,4 +1,4 @@
-# modules/strategy/strategy_score.py
+from modules.compute_confidence_score import get_strategy_match_score
 def get_rrov_score(indicators, latest_price):
     is_breakout = latest_price > indicators['bb_upper'].iloc[-1]
     volume_surge = indicators['curr_volume'] > indicators['avg_volume'] * 1.2
