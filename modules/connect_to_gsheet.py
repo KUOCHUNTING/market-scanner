@@ -4,7 +4,6 @@ import base64
 import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
-from modules.connect_to_gsheet import connect_to_gsheet  # 確保你有這個模組
 # === ✅ 建立 Google Sheets 連線 ===
 def connect_to_gsheet():
     b64_json = os.getenv("GCP_KEY_BASE64")
