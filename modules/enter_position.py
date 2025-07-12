@@ -83,35 +83,6 @@ def enter_position(symbol, price, direction, signal_note,
     except Exception as e:
         print(f"❌【寫入失敗】{symbol} ➜ {e}")
 
-    # ✅ 成功推播
-    if match_score is not None and up_count is not None and down_count is not None:
-        trend_emoji = "🟢" if ema_trend == "多" else "🔴" if ema_trend == "空" else "⚪"
-        trend_text = ema_trend or "未知"
-        win_rate = match_score * 100
-
-        # 三策略命中率
-        rrov_rate = f"{(match_score * 100):.2f}%" if match_score is not None else "N/A"
-        trend_rate = f"{(positions[symbol].get('trend_score', 0) * 100):.2f}%"
-        mean_rate = f"{(positions[symbol].get('mean_score', 0) * 100):.2f}%"
-
-        # 收盤價
-        close_price = price  # 或 latest_price，如果你傳的是那個變數名
-
-        message  = f"🚀【技術策略 訊號】{symbol}\n\n"
-        message += f"📊 類型：{direction.upper()}（方向：{direction}）\n"
-        message += f"🧠 信心分數：{confidence_score:.2f}\n"
-        message += f"📈 命中率 ➜ 順勢：{trend_rate}｜RROV：{rrov_rate}｜均值：{mean_rate}\n"
-        message += f"💵 收盤價：${close_price:.2f}\n\n"
-        message += f"📊 技術傾向：{trend_emoji} 技術偏{trend_text}\n"
-        message += f"📉 EMA 趨勢：上漲 {up_count} 次｜下跌 {down_count} 次（偏{ema_trend}）\n\n"
-        message += f"📋 訊號說明：\n{signal_note}\n\n"
-        message += f"🧠 策略：{strategy_display or strategy_name}\n\n"
-        message += f"📦 股數：{shares} 股\n"
-        message += f"💰 進場資金：${int(capital_used):,}\n"
-        message += f"💼 剩餘資金：${int(capital_left):,}"
-
-        send_discord_message(WEBHOOK_URL, message)
-
     # ✅ 結尾日誌
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
     print(f"✅【建倉成功】{symbol} ➜ 價格：${price:.2f}｜方向：{direction}｜股數：{shares}")
