@@ -1,9 +1,9 @@
+from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
 import os
 import json
 import base64
-import gspread
-from google.oauth2.service_account import Credentials
-from datetime import datetime
 
 # === ✅ 建立 Google Sheets 連線 ===
 def connect_to_gsheet():
@@ -20,7 +20,37 @@ def connect_to_gsheet():
     client = gspread.authorize(creds)
     return client
 
-# === ✅ 寫入出場紀錄至 Google Sheets ===
+def write_entry_to_sheet(
+    symbol,
+    direction,
+    shares,
+    entry_capital,
+    strategy_name,
+    confidence_score,
+    capital_left
+):
+    try:
+        client = connect_to_gsheet()
+        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit") \
+                      .worksheet("建倉紀錄")  # 🔁 依照你設定的分頁名
+
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        row = [
+            now,
+            symbol,
+            direction,
+            shares,
+            entry_capital,
+            strategy_name,
+            confidence_score,
+            capital_left
+        ]
+
+        sheet.append_row(row)
+    except Exception as e:
+        print(f"❌ [寫入失敗] {symbol} ➜ {e}")
+
 def write_exit_to_sheet(
     symbol,
     entry_time,
@@ -34,56 +64,33 @@ def write_exit_to_sheet(
     roc=None,
     obv=None,
     vwap=None,
-    ema5=None,
-    ema20=None,
-    strategy_name="未知策略"
+    strategy_name="未標記",
+    confidence_score=None
 ):
     try:
-        # ✅ 開啟 Google Sheets 並選定分頁
         client = connect_to_gsheet()
-        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("出場紀錄")  # 請確認有這個分頁
+        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit") \
+                      .worksheet("出場紀錄")  # 🔁 分頁名
 
-        # ✅ 準備寫入資料
         row = [
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             symbol,
-            entry_time.strftime("%Y-%m-%d %H:%M:%S") if isinstance(entry_time, datetime) else str(entry_time),
-            exit_time.strftime("%Y-%m-%d %H:%M:%S") if isinstance(exit_time, datetime) else str(exit_time),
-            f"{return_rate:.2f}%",
+            entry_time.strftime("%Y-%m-%d %H:%M:%S") if entry_time else "",
+            exit_time.strftime("%Y-%m-%d %H:%M:%S") if exit_time else "",
+            f"{return_rate:.2%}",
             f"${pnl:.2f}",
-            f"{holding_minutes:.1f}",
-            exit_price,
-            rsi, zscore, roc, obv, vwap, ema5, ema20,
-            strategy_name
+            holding_minutes,
+            f"${exit_price:.2f}",
+            rsi,
+            zscore,
+            roc,
+            obv,
+            vwap,
+            strategy_name,
+            confidence_score
         ]
 
-        worksheet.append_row(row, value_input_option="USER_ENTERED")
-        print(f"✅ 已寫入出場紀錄：{symbol}")
-
+        sheet.append_row(row)
+        print(f"✅【出場寫入成功】{symbol} ➜ 已寫入 Google Sheets 出場紀錄")
     except Exception as e:
-        print(f"[❌ Google Sheets 寫入失敗] {symbol} ➜ {e}")
-
-# === ✅ 寫入建倉紀錄至 Google Sheets ===
-def write_entry_to_sheet(entry):
-    try:
-        client = connect_to_gsheet()
-        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit")
-        worksheet = sheet.worksheet("建倉紀錄")  # 請確認這個分頁名稱存在
-
-        # ✅ 對應欄位順序（依你表單：A~H）
-        row = [
-            entry["建倉時間"],
-            entry["建倉日期"],
-            entry["股票代號"],
-            entry["方向"],
-            entry["股數"],
-            entry["投入資金"],
-            entry["建倉價格"],
-            entry["策略名稱"]
-        ]
-
-        worksheet.append_row(row, value_input_option="USER_ENTERED")
-        print(f"✅ 已寫入建倉紀錄：{entry['股票代號']}")
-
-    except Exception as e:
-        print(f"[❌ 建倉紀錄寫入失敗] {entry['股票代號']} ➜ {e}")
+        print(f"❌【出場寫入失敗】{symbol} ➜ {e}")
