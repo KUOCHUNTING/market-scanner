@@ -33,7 +33,9 @@ def build_entry_message(symbol, price, strategy_name, direction,
     message += f"🔄 OBV：{obv_str}\n\n"
 
     message += f"📊 命中率 ➜ 順勢：{(trend_score or 0) * 100:.2f}%｜RROV：{(rrov_score or 0) * 100:.2f}%｜均值：{(mean_score or 0) * 100:.2f}%\n"
-    message += f"🧠 技術信心：{confidence_score:.2f if confidence_score is not None else 'N/A'}｜策略分數：{score:.2f if score is not None else 'N/A'}\n"
+    confidence_str = f"{confidence_score:.2f}" if confidence_score is not None else "N/A"
+    score_str = f"{score:.2f}" if score is not None else "N/A"
+    message += f"🧠 技術信心：{confidence_str}｜策略分數：{score_str}\n"
 
     if trend_text:
         message += f"\n📊 趨勢摘要：{trend_text} {trend_emoji or ''}\n"
