@@ -10,7 +10,7 @@ from modules.utils.file_loader import load_stock_list, load_api_keys
 from modules.fetch_stock_data import fetch_stock_data
 from modules.get_fundamentals import get_fundamentals
 from modules.filter_fundamentals import filter_fundamentals
-from modules.detect_trading_signal import detect_trading_signal
+from modules.logic.detect_trading_signal import detect_trading_signal
 from modules.compute_confidence_score import compute_confidence_score
 from modules.load_stock_list import load_stock_list
 from modules.config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
