@@ -1,4 +1,4 @@
- from modules.utils.format import safe_float
+from modules.utils.format import safe_float
 
 # ✅ 建倉訊息組裝
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
