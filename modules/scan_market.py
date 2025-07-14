@@ -118,7 +118,7 @@ def scan_market(symbol_list):
                 signal_note=signal_note,
                 direction=direction,
                 score=score,
-                confidence_score=confidence_score,
+                confidence_score=score
                 rsi=indicators.get("rsi", [None])[-1],
                 zscore=indicators.get("zscore", [None])[-1],
                 ema5=indicators.get("ema_5", [None])[-1],
