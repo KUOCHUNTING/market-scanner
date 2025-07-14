@@ -224,6 +224,7 @@ def scan_market(symbol_list):
             shares, capital_used = result[:2]
             message = build_entry_message(
                 symbol=symbol,
+                price=latest_price,
                 strategy_type="📌 技術選股",
                 signal_type=signal_type,
                 direction=direction,
