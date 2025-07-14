@@ -49,6 +49,11 @@ def fetch_stock_data(symbol, api_key, restrict_to_today=False):
 
         if not bars or len(bars) == 0:
             print(f"[❌錯誤] {symbol} ➜ 無 bars 資料（API 回傳空）")
+            print(f"🔍 檢查代碼是否有效 / 是否停牌 / 是否冷門股 / 是否當天無交易")
+            return None
+
+        if not bars or len(bars) == 0:
+            print(f"[❌錯誤] {symbol} ➜ 無 bars 資料（API 回傳空）")
             return None
 
         df_all = pd.DataFrame([{
