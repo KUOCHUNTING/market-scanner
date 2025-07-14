@@ -11,10 +11,11 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
     ema5 = indicators.get("ema_5", [None])[-1]
     ema20 = indicators.get("ema_20", [None])[-1]
     bb_upper = indicators.get("bb_upper", [None])[-1]
+    bb_lower = indicators.get("bb_lower", [None])[-1]
     curr_volume = indicators.get("curr_volume", None)
     avg_volume = indicators.get("avg_volume", None)
 
-    # === RROV 策略：突破布林上軌 + 放量 + 短期強勢 ===
+    # === RROV 多單策略 ===
     if (
         latest_price is not None and
         bb_upper is not None and
@@ -31,7 +32,24 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
         direction = "做多"
         return signal_type, strategy_name, signal_note, direction, extra
 
-    # === 順勢策略：RSI 強 + EMA 多頭排列 ===
+    # === RROV 空單策略 ===
+    if (
+        latest_price is not None and
+        bb_lower is not None and
+        curr_volume is not None and
+        avg_volume is not None and
+        ema5 is not None and
+        latest_price < bb_lower and
+        curr_volume > avg_volume * 1.2 and
+        latest_price < ema5
+    ):
+        signal_type = "技術策略"
+        strategy_name = "RROV 策略"
+        signal_note = "跌破布林下軌 + 放量 + EMA 跌破"
+        direction = "做空"
+        return signal_type, strategy_name, signal_note, direction, extra
+
+    # === 順勢策略：多單 ===
     if (
         rsi is not None and
         ema5 is not None and
@@ -45,7 +63,21 @@ def detect_trading_signal(symbol, df, indicators, latest_price=None):
         direction = "做多"
         return signal_type, strategy_name, signal_note, direction, extra
 
-    # === 均值回歸策略：Z-score 極端值 ===
+    # === 順勢策略：空單 ===
+    if (
+        rsi is not None and
+        ema5 is not None and
+        ema20 is not None and
+        rsi < 40 and
+        ema5 < ema20
+    ):
+        signal_type = "技術策略"
+        strategy_name = "順勢策略"
+        signal_note = "EMA 空頭排列 + RSI 虛弱"
+        direction = "做空"
+        return signal_type, strategy_name, signal_note, direction, extra
+
+    # === 均值回歸策略 ===
     if zscore is not None:
         if zscore < -1.5:
             signal_type = "技術策略"
