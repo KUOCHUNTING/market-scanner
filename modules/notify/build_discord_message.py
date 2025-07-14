@@ -6,7 +6,8 @@ def build_entry_message(symbol, price, strategy_name, direction,
                         strategy_type=None, signal_type=None,
                         trend_score=None, rrov_score=None, mean_score=None,
                         signal_note="", shares=None, capital_used=None, capital_left=None,
-                        trend_text=None, trend_emoji=None):  # ✅ 加在最後
+                        trend_text=None, trend_emoji=None,
+                        up_count=None, down_count=None):  # ✅ 新增這裡
 
     direction_label = "多單" if direction == "多" else "空單"
     signal_type_label = f"【{direction_label} 技術策略 訊號】{symbol}"
@@ -22,7 +23,11 @@ def build_entry_message(symbol, price, strategy_name, direction,
     message += f"🧠 技術信心：{confidence_score:.2f if confidence_score is not None else 'N/A'}｜策略分數：{score:.2f if score is not None else 'N/A'}\n"
 
     if trend_text:
-        message += f"\n📊 趨勢摘要：{trend_text} {trend_emoji or ''}\n"  # ✅ 顯示 emoji（若有）
+        message += f"\n📊 趨勢摘要：{trend_text} {trend_emoji or ''}\n"
+
+    # ✅ 顯示近 10 根 K 線漲跌統計
+    if up_count is not None and down_count is not None:
+        message += f"📈 近10根K線：上漲 {up_count} 根｜下跌 {down_count} 根\n"
 
     message += f"\n📋 訊號摘要：{signal_note}\n"
     message += f"🧠 策略名稱：{strategy_name}\n\n"
