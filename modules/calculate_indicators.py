@@ -4,7 +4,7 @@ from ta.trend import EMAIndicator
 from ta.volatility import BollingerBands
 from ta.volume import OnBalanceVolumeIndicator
 
-def calculate_indicators(df):
+def calculate_indicators(df, symbol=None):
     if df is None or len(df) < 60:
         print("[⚠️ 警告] 技術指標計算時資料不足（小於 60 筆），跳過")
         return None
@@ -24,6 +24,9 @@ def calculate_indicators(df):
 
         # === 技術指標計算 ===
         rsi = RSIIndicator(close=close, window=15).rsi()
+        # ✅ 加這兩行 debug 印出
+        print(f"[DEBUG] {symbol} ➜ RSI 最後 10 根：\n{rsi.tail(10)}")
+        print(f"[DEBUG] {symbol} ➜ Close 最後 10 根：\n{close.tail(10)}")
         roc = ROCIndicator(close=close, window=10).roc()
         obv = OnBalanceVolumeIndicator(close=close, volume=volume).on_balance_volume()
 
