@@ -212,7 +212,7 @@ def scan_market(symbol_list):
                     print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
 
             # 技術策略
-            signal_type, strategy_name, signal_note, direction = detect_trading_signal(symbol, df, indicators, latest_price)
+            signal_type, strategy_name, signal_note, direction, extra = detect_trading_signal(symbol, df, indicators, latest_price)
             if signal_type is None:
                 print(f"[略過] {symbol} ➜ 無明確訊號")
                 continue
