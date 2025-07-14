@@ -1,3 +1,5 @@
+from modules.utils.format import safe_float
+
 def build_entry_message(symbol, price, strategy_name, direction,
                         confidence_score=None, score=None,
                         rsi=None, zscore=None,
