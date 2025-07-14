@@ -34,15 +34,14 @@ def write_entry_to_sheet(
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit") \
                       .worksheet("建倉紀錄")
 
-        # ✅ 加入清空，只清空內容（保留欄位名稱）
-        if sheet.row_count > 2:  # 第二行起是資料列
-            sheet.resize(rows=2)  # 保留前兩列（標題列）
+        # 🧠 自動延展行數（避免顯示「新增 1000」）
+        if sheet.row_count <= len(sheet.get_all_values()):
+            sheet.resize(rows=sheet.row_count + 100)
 
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+        now = datetime.now()
         row = [
-            now,
-            datetime.now().strftime("%Y-%m-%d"),  # 建倉日期
+            now.strftime("%Y-%m-%d %H:%M:%S"),   # 建倉時間
+            now.strftime("%Y-%m-%d"),            # 建倉日期
             symbol,
             direction,
             shares,
