@@ -30,7 +30,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
 
     # === 2️⃣ RROV 策略（突破 / 跌破）===
     rrov_score = get_rrov_score(indicators, latest_price)
-    if rrov_score >= 0.9:
+    if rrov_score >= 0.7:
         if latest_price > indicators['bb_upper'].iloc[-1]:
             candidates.append((
                 rrov_score,
@@ -52,7 +52,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
 
     # === 3️⃣ 順勢策略 ===
     trend_score = get_trend_score(indicators)
-    if trend_score >= 0.9:
+    if trend_score >= 0.7:
         direction = "做多" if indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1] else "做空"
         candidates.append((
             trend_score,
@@ -65,7 +65,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
 
     # === 4️⃣ 均值回歸策略 ===
     mean_score = get_mean_score(indicators, latest_price)
-    if mean_score >= 0.9:
+    if mean_score >= 0.7:
         z = indicators['zscore'].iloc[-1]
         direction = "做多" if z < -1.5 else "做空" if z > 1.5 else None
         if direction:
