@@ -6,7 +6,7 @@ from ta.momentum import RSIIndicator, ROCIndicator
 from ta.trend import EMAIndicator
 from ta.volatility import BollingerBands
 from ta.volume import OnBalanceVolumeIndicator
-
+from modules.utils.file_loader import load_stock_list, load_api_keys
 from modules.fetch_stock_data import fetch_stock_data
 from modules.get_fundamentals import get_fundamentals
 from modules.filter_fundamentals import filter_fundamentals
