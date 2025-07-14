@@ -17,7 +17,6 @@ from modules.config import POLYGON_API_KEY, capital_left, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
 from modules.enter_position import enter_position
 from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
-from modules.notify.build_discord_message import build_entry_message, build_breakout_message
 from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
 from modules.utils.validate_indicators import is_invalid
 from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
