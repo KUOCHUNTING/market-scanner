@@ -14,7 +14,7 @@ positions = {}
 
 # ✅ 計算建倉股數與資金
 def compute_position_size(price, direction="做多"):
-    max_capital = 1000  # 可依方向設定不同上限
+    max_capital = 1000
     shares = int(max_capital // price)
     capital_used = shares * price
     return shares, capital_used
@@ -25,10 +25,9 @@ def enter_position(symbol, price, direction, signal_note,
                    ema5=None, ema20=None, bb_upper=None, bb_lower=None,
                    obv=None, vwap=None, confidence_score=None,
                    strategy_display=None, match_score=None, ema_trend=None,
-                   up_count=None, down_count=None,
-                   close_price=None,
-                   mean_hit_rate=None,
-                   trend_hit_rate=None):
+                   up_count=None, down_count=None, close_price=None,
+                   mean_hit_rate=None, trend_hit_rate=None,
+                   signal_type="技術策略"):  # ✅ 補上 signal_type
     global capital_left, positions
 
     if price is None or price <= 0:
@@ -117,6 +116,7 @@ def enter_position(symbol, price, direction, signal_note,
         message = build_entry_message(
             symbol=symbol,
             price=price,
+            signal_type=signal_type,  # ✅ 補上這一行
             strategy_name=strategy_name,
             direction=direction,
             confidence_score=confidence_score,
