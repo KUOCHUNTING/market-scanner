@@ -1,57 +1,50 @@
 from modules.utils.format import safe_float
 
-def build_entry_message(symbol, price, strategy_name, direction,
-                        confidence_score=None, score=None,
-                        rsi=None, zscore=None,
-                        ema5=None, ema20=None,
+def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
+                        signal_note, direction, score=None, confidence_score=None,
+                        rsi=None, zscore=None, ema5=None, ema20=None,
                         bb_upper=None, bb_lower=None, obv=None,
-                        strategy_type=None, signal_type=None,
                         trend_score=None, rrov_score=None, mean_score=None,
-                        signal_note="", shares=None, capital_used=None, capital_left=None,
-                        trend_text=None, trend_emoji=None,
-                        up_count=None, down_count=None,
-                        ema_trend=None):
+                        shares=None, capital_used=None, capital_left=None):
+    # === 🎯 標題區 ===
+    message = f"📌 {direction} 技術策略 ➤ `{symbol}`\n"
+    message += f"🔖 類型：{strategy_type}\n"
+    message += f"📈 收盤價：{safe_float(price, 2, prefix='$')}"
+    if rsi:     message += f" | RSI：{safe_float(rsi)}"
+    if zscore:  message += f" | Z-score：{safe_float(zscore)}"
+    message += "\n"
 
-    # 🧾 安全格式處理
-    price_str = safe_float(price, 2, prefix="$")
-    rsi_str = safe_float(rsi, 1)
-    zscore_str = safe_float(zscore, 2)
-    ema5_str = safe_float(ema5, 2)
-    ema20_str = safe_float(ema20, 2)
-    bb_upper_str = safe_float(bb_upper, 2)
-    bb_lower_str = safe_float(bb_lower, 2)
-    obv_str = f"{int(obv)}" if obv is not None else "N/A"
-    confidence_str = safe_float(confidence_score)
-    score_str = safe_float(score)
+    # === 📊 技術摘要 ===
+    message += f"🧠 訊號摘要：{signal_note}\n"
+    message += f"🎯 策略名稱：{strategy_name}\n"
 
-    # 🧭 標題
-    direction_label = "多單" if direction == "多" else "空單"
-    signal_type_label = f"【{direction_label} 技術策略 訊號】{symbol}"
+    if ema5 and ema20:
+        message += f"📏 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}\n"
+    if bb_upper and bb_lower:
+        message += f"📊 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}\n"
+    if obv:
+        message += f"📶 OBV：{safe_float(obv)}\n"
 
-    # 📦 建立訊息內容
-    message = f"{signal_type_label}\n"
-    message += f"📌 類型：{strategy_type or '未分類'}（方向：{direction}）\n"
-    message += f"📉 收盤價：{price_str}｜RSI：{rsi_str}｜Z-score：{zscore_str}\n"
-    message += f"📈 EMA5：{ema5_str}｜EMA20：{ema20_str}\n"
-    message += f"🎯 布林通道上：{bb_upper_str}｜下：{bb_lower_str}\n"
-    message += f"🔄 OBV：{obv_str}\n\n"
+    # === 📉 命中率區（只顯示觸發策略）
+    triggered_score = None
+    if signal_type == "trend":
+        triggered_score = trend_score
+    elif signal_type == "rrov":
+        triggered_score = rrov_score
+    elif signal_type == "mean":
+        triggered_score = mean_score
+    if triggered_score is not None:
+        message += f"📊 命中率 ➤ {strategy_name}：{triggered_score * 100:.2f}%\n"
 
-    message += f"📊 命中率 ➜ 順勢：{(trend_score or 0) * 100:.2f}%｜RROV：{(rrov_score or 0) * 100:.2f}%｜均值：{(mean_score or 0) * 100:.2f}%\n"
-    message += f"🧠 技術信心：{confidence_str}｜策略分數：{score_str}\n"
+    # === 🧠 信心與策略分數 ===
+    if confidence_score is not None:
+        message += f"🧠 技術信心：{safe_float(confidence_score)}｜策略分數：{safe_float(score)}\n"
 
-    if trend_text:
-        message += f"\n📊 趨勢摘要：{trend_text} {trend_emoji or ''}\n"
-
-    if ema_trend:
-        message += f"📈 均線排列：{ema_trend}\n"
-
-    if up_count is not None and down_count is not None:
-        message += f"📊 近10根K線：上漲 {up_count} 根｜下跌 {down_count} 根\n"
-
-    message += f"\n📋 訊號摘要：{signal_note}\n"
-    message += f"🧠 策略名稱：{strategy_name}\n\n"
-    message += f"📦 股數：{shares if shares is not None else 0} 股｜💰 進場資金：{safe_float(capital_used, 0, prefix='$')}\n"
-    message += f"💼 剩餘資金：{safe_float(capital_left, 0, prefix='$')}"
+    # === 🧾 建倉資訊 ===
+    if shares and capital_used:
+        message += f"📦 股數：{shares} 股｜💰 進場資金：${safe_float(capital_used)}\n"
+    if capital_left is not None:
+        message += f"📤 剩餘資金：${safe_float(capital_left)}\n"
 
     return message
 
