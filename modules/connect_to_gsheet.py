@@ -32,12 +32,17 @@ def write_entry_to_sheet(
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit") \
-                      .worksheet("建倉紀錄")  # 🔁 依照你設定的分頁名
+                      .worksheet("建倉紀錄")
+
+        # ✅ 加入清空，只清空內容（保留欄位名稱）
+        if sheet.row_count > 2:  # 第二行起是資料列
+            sheet.resize(rows=2)  # 保留前兩列（標題列）
 
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         row = [
             now,
+            datetime.now().strftime("%Y-%m-%d"),  # 建倉日期
             symbol,
             direction,
             shares,
