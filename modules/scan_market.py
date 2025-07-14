@@ -66,7 +66,7 @@ def calculate_indicators(df, symbol=None):
 
         rsi = RSIIndicator(close=close, window=15).rsi()
         if symbol:
-            print(f"[DEBUG] {symbol} ➜ RSI 最後 10 根：\n{rsi.tail(10)}"
+            print(f"[DEBUG] {symbol} ➜ RSI 最後 10 根：\n{rsi.tail(10)}")
         roc = ROCIndicator(close=close, window=10).roc()
         obv = OnBalanceVolumeIndicator(close=close, volume=volume).on_balance_volume()
 
