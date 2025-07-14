@@ -46,7 +46,7 @@ def log_invalid_indicator(message):
         f.write(f"{message}\n")
 
 # ✅ 計算技術指標
-def calculate_indicators(df):
+def calculate_indicators(df, symbol=None):
     if df is None or len(df) < 60:
         print("[⚠️ 警告] 技術指標計算時資料不足（小於 60 筆），跳過")
         return None
@@ -65,6 +65,8 @@ def calculate_indicators(df):
         volume = df['volume']
 
         rsi = RSIIndicator(close=close, window=15).rsi()
+        if symbol:
+            print(f"[DEBUG] {symbol} ➜ RSI 最後 10 根：\n{rsi.tail(10)}"
         roc = ROCIndicator(close=close, window=10).roc()
         obv = OnBalanceVolumeIndicator(close=close, volume=volume).on_balance_volume()
 
@@ -182,7 +184,7 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ {reason}")
                 continue
 
-            indicators = calculate_indicators(df)
+            indicators = calculate_indicators(df, symbol)
             if indicators is None or is_invalid(indicators):
                 print(f"[跳過] {symbol} ➜ 指標無效")
                 continue
