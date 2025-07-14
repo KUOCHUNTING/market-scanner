@@ -1,5 +1,3 @@
-# 📂 modules/notify/check_exit_and_notify.py
-
 from datetime import datetime, timedelta
 from modules.notify.discord_push import send_discord_message
 from modules.exit_position import exit_position
@@ -135,7 +133,7 @@ def check_exit_and_notify(symbol, latest_price):
         del positions[symbol]
 
 import threading
-from modules.should_exit import should_exit
+from modules.logic.should_exit import should_exit
 from modules.logic.execute_exit import execute_exit  # ← 你要實作
 from modules.market_data import get_latest_price     # ← 你要實作
 
