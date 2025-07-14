@@ -15,7 +15,7 @@ def build_entry_message(symbol, price, strategy_name, direction,
 
     message = f"{signal_type_label}\n"
     message += f"📌 類型：{strategy_type or '未分類'}（方向：{direction}）\n"
-    message += f"📉 收盤價：${price:.2f}｜RSI：{rsi:.1f if rsi is not None else 'N/A'}｜Z-score：{zscore:.2f if zscore is not None else 'N/A'}\n"
+    message += f"📉 收盤價：${price:.2f if price is not None else 'N/A'}｜RSI：{rsi:.1f if rsi is not None else 'N/A'}｜Z-score：{zscore:.2f if zscore is not None else 'N/A'}\n"
     message += f"📈 EMA5：{ema5:.2f if ema5 is not None else 'N/A'}｜EMA20：{ema20:.2f if ema20 is not None else 'N/A'}\n"
     message += f"🎯 布林通道上：{bb_upper:.2f if bb_upper is not None else 'N/A'}｜下：{bb_lower:.2f if bb_lower is not None else 'N/A'}\n"
     message += f"🔄 OBV：{int(obv) if obv is not None else 'N/A'}\n\n"
