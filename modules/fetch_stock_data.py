@@ -99,6 +99,10 @@ def fetch_stock_data(symbol, api_key, restrict_to_today=False):
                     adjusted=True
                 )
 
+                if not bars or len(bars) == 0:
+                    print(f"[❌錯誤] {symbol} ➜ 無 bars 資料（API 回傳空）")
+                    return None
+                
                 if bars_retry:
                     df_retry = pd.DataFrame([{
                         "timestamp": bar.timestamp,
