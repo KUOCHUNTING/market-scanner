@@ -1,7 +1,10 @@
 from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
-from modules.notify.build_discord_message import build_entry_message
+from modules.notify.build_discord_message import (
+    build_entry_message, build_mean_reversion_message,
+    build_rrov_message, build_trend_message
+)
 from modules.config import WEBHOOK_URL
 
 # === 📦 全域變數（資金與持倉）===
@@ -86,21 +89,39 @@ def enter_position(symbol, price, direction, signal_note,
     except Exception as e:
         print(f"❌【寫入失敗】{symbol} ➜ {e}")
 
-    # ✅ 使用統一格式推播訊息
-    if match_score is not None and up_count is not None and down_count is not None:
+    # ✅ 使用對應策略推播格式
+    strategy_name = strategy_name or ""
+    if strategy_name == "均值回歸":
+        message = build_mean_reversion_message(
+            symbol=symbol, price=price, rsi=rsi, zscore=zscore,
+            ema5=ema5, ema20=ema20, bb_upper=bb_upper, bb_lower=bb_lower,
+            obv=obv, score=match_score, confidence_score=confidence_score,
+            direction=direction, shares=shares, capital_used=capital_used,
+            capital_left=capital_left, signal_note=signal_note
+        )
+    elif "RROV" in strategy_name:
+        message = build_rrov_message(
+            symbol=symbol, price=price, ema5=ema5, bb_upper=bb_upper,
+            obv=obv, score=match_score, confidence_score=confidence_score,
+            direction=direction, shares=shares, capital_used=capital_used,
+            capital_left=capital_left, signal_note=signal_note
+        )
+    elif "順勢" in strategy_name:
+        message = build_trend_message(
+            symbol=symbol, price=price, rsi=rsi, ema5=ema5, ema20=ema20,
+            obv=obv, score=match_score, confidence_score=confidence_score,
+            direction=direction, shares=shares, capital_used=capital_used,
+            capital_left=capital_left, signal_note=signal_note
+        )
+    else:
         message = build_entry_message(
             symbol=symbol,
             price=price,
             strategy_name=strategy_name,
-            direction="多" if direction == "做多" else "空",
+            direction=direction,
             confidence_score=confidence_score,
-            rsi=rsi,
-            zscore=zscore,
-            ema5=ema5,
-            ema20=ema20,
-            bb_upper=bb_upper,
-            bb_lower=bb_lower,
-            obv=obv,
+            rsi=rsi, zscore=zscore, ema5=ema5, ema20=ema20,
+            bb_upper=bb_upper, bb_lower=bb_lower, obv=obv,
             strategy_type=strategy_display or "技術策略",
             trend_score=trend_hit_rate,
             rrov_score=match_score,
@@ -110,8 +131,8 @@ def enter_position(symbol, price, direction, signal_note,
             capital_used=capital_used,
             capital_left=capital_left
         )
-        send_discord_message(WEBHOOK_URL, message)
 
+    send_discord_message(WEBHOOK_URL, message)
     print(f"[✅紀錄] 已建倉：{symbol} @ ${price:.2f}｜方向：{direction}｜股數：{shares}｜策略：{strategy_display or strategy_name}")
     print(f"✅【建倉成功】{symbol} ➜ 價格：${price:.2f}｜方向：{direction}｜股數：{shares}")
 
