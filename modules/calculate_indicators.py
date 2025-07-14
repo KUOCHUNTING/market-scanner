@@ -3,6 +3,7 @@ from ta.momentum import RSIIndicator, ROCIndicator
 from ta.trend import EMAIndicator
 from ta.volatility import BollingerBands
 from ta.volume import OnBalanceVolumeIndicator
+from modules.utils.log import log_error
 
 def calculate_indicators(df, symbol=None):
     if df is None or len(df) < 60:
