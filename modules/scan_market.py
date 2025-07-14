@@ -228,7 +228,7 @@ def scan_market(symbol_list):
                 signal_type=signal_type,
                 direction=direction,
                 score=score,
-                win_rate=rrov_score,
+                rrov_score=rrov_score,
                 trend_text=direction,
                 trend_emoji="📈" if direction == "做多" else "📉",
                 up_count=result[2] if len(result) > 2 else 0,
