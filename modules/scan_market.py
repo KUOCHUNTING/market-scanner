@@ -227,19 +227,24 @@ def scan_market(symbol_list):
                 price=latest_price,
                 strategy_type="📌 技術選股",
                 signal_type=signal_type,
+                strategy_name=strategy_name,
+                signal_note=signal_note,
                 direction=direction,
                 score=score,
+                confidence_score=confidence_score,
+                rsi=indicators.get("rsi", [None])[-1],
+                zscore=indicators.get("zscore", [None])[-1],
+                ema5=indicators.get("ema_5", [None])[-1],
+                ema20=indicators.get("ema_20", [None])[-1],
+                bb_upper=indicators.get("bb_upper", [None])[-1],
+                bb_lower=indicators.get("bb_lower", [None])[-1],
+                obv=indicators.get("obv", [None])[-1],
+                trend_score=trend_score,
                 rrov_score=rrov_score,
-                trend_text=direction,
-                trend_emoji="📈" if direction == "做多" else "📉",
-                up_count=result[2] if len(result) > 2 else 0,
-                down_count=result[3] if len(result) > 3 else 0,
-                ema_trend="多頭" if indicators['ema_5'].iloc[-1] > indicators['ema_20'].iloc[-1] else "空頭",
-                signal_note=signal_note,
-                strategy_name=strategy_name,
+                mean_score=mean_score,
                 shares=shares,
-                capital_used=int(capital_used),
-                capital_left=int(capital_left)
+                capital_used=capital_used,
+                capital_left=capital_left
             )
             send_discord_message(WEBHOOK_URL, message)
 
