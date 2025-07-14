@@ -2,7 +2,7 @@ def build_entry_message(symbol, price, strategy_name, direction, confidence_scor
                         rsi=None, zscore=None,
                         ema5=None, ema20=None,
                         bb_upper=None, bb_lower=None, obv=None,
-                        strategy_type=None,
+                        strategy_type=None, signal_type=None,   # ← 加這行
                         trend_score=None, rrov_score=None, mean_score=None,
                         signal_note="", shares=None, capital_used=None, capital_left=None):
     
