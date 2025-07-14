@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import json
 from .path_utils import get_project_root
+from modules.utils.path_utils import get_project_root
 
 def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     file_path = os.path.join(get_project_root(), filepath)
