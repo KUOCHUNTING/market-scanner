@@ -1,8 +1,6 @@
-def build_entry_message(
-    symbol, direction, signal_note, latest_price, score,
-    strategy_name, rsi, zscore, shares, capital_used,
-    capital_left, rrov_score, trend_score, mean_score
-):
+def build_entry_message(symbol, price, strategy_name, direction, confidence_score,
+                        rsi=None, ema5=None, ema20=None, bb_upper=None, bb_lower=None,
+                        obv=None, strategy_type=None):
     direction_label = "多單" if direction == "多" else "空單"
     signal_type_label = f"【 {direction_label} 技術策略 訊號】{symbol}"
 
