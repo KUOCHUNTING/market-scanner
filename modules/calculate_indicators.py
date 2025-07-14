@@ -6,53 +6,43 @@ from ta.volume import OnBalanceVolumeIndicator
 
 def calculate_indicators(df):
     if df is None or len(df) < 60:
-        print("[警告] 技術指標計算時資料不足，跳過")
+        print("[⚠️ 警告] 技術指標計算時資料不足（小於 60 筆），跳過")
         return None
 
-    required_columns = ['close', 'volume']
+    required_columns = ['close', 'volume', 'open', 'high', 'low']
     for col in required_columns:
         if col not in df.columns:
             print(f"⚠️ [警告] 缺少必要欄位：{col}，跳過該股票")
             return None
         if df[col].isnull().all():
-            print(f"⚠️ [警告] 欄位 {col} 全為空 ➜ 跳過")
+            print(f"⚠️ [警告] 欄位 {col} 全部是空值 ➜ 跳過")
             return None
 
     try:
-        # === 基礎欄位 ===
         close = df['close']
         volume = df['volume']
 
-        # === RSI（14）===
+        # === 技術指標計算 ===
         rsi = RSIIndicator(close=close, window=15).rsi()
-
-        # === ROC（9）===
         roc = ROCIndicator(close=close, window=10).roc()
-
-        # === OBV ===
         obv = OnBalanceVolumeIndicator(close=close, volume=volume).on_balance_volume()
 
-        # === Z-score（20）===
         rolling_mean = close.rolling(21).mean()
         rolling_std = close.rolling(21).std()
         zscore = (close - rolling_mean) / rolling_std
 
-        # === Bollinger Bands（20, 2x）===
         bb = BollingerBands(close=close, window=20, window_dev=2)
         lower_band = bb.bollinger_lband()
         upper_band = bb.bollinger_hband()
         mid_band = bb.bollinger_mavg()
 
-        # === VWAP（成交量加權平均價）===
         df['cum_vol'] = volume.cumsum()
         df['cum_vwap'] = (close * volume).cumsum()
         vwap = df['cum_vwap'] / df['cum_vol']
 
-        # === EMA（5日與 20日）===
         ema_5 = EMAIndicator(close=close, window=5).ema_indicator()
         ema_20 = EMAIndicator(close=close, window=20).ema_indicator()
 
-        # === EMA 趨勢判斷（上彎、下彎、糾結）===
         ema_5_slope = ema_5.diff()
         ema_20_slope = ema_20.diff()
         ema_trend = []
@@ -64,15 +54,12 @@ def calculate_indicators(df):
             else:
                 ema_trend.append("糾結")
 
-        # === 成交量資訊 ===
         curr_volume = volume.iloc[-1]
         avg_volume = volume.rolling(20).mean().iloc[-1]
         volume_ratio = curr_volume / avg_volume if avg_volume > 0 else 1.0
 
-        # === EMA 上穿 / 下彎 狀態判斷 ===
         ema_status = (ema_5 > ema_20).replace({True: "上穿", False: "下彎"})
 
-        # === K 棒型態判斷（簡化）===
         last_open = df['open'].iloc[-1]
         last_close = df['close'].iloc[-1]
         last_high = df['high'].iloc[-1]
@@ -93,7 +80,7 @@ def calculate_indicators(df):
         else:
             candle_type = "陰線"
 
-        # === 防呆：關鍵指標尾端不能是 NaN ===
+        # === 防呆檢查：指標尾端不能是空值 ===
         key_checks = {
             "RSI": rsi,
             "Z-score": zscore,
@@ -104,11 +91,10 @@ def calculate_indicators(df):
         }
 
         for name, series in key_checks.items():
-            if series is None or series.isna().iloc[-1]:
-                print(f"[❌錯誤] 指標 {name} 為 NaN ➜ 跳過")
+            if series is None or series.dropna().empty or pd.isna(series.iloc[-1]):
+                print(f"[❌ 錯誤] 指標 {name} 為 NaN 或尾端無值 ➜ 跳過")
                 return None
 
-        # === 回傳所有指標 ===
         return {
             'rsi': rsi,
             'roc': roc,
@@ -129,5 +115,5 @@ def calculate_indicators(df):
         }
 
     except Exception as e:
-        print(f"[❌例外] 技術指標計算失敗：{e}")
+        print(f"[❌ 例外] 技術指標計算失敗：{e}")
         return None
