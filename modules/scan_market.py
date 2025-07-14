@@ -22,7 +22,7 @@ from modules.utils.validate_indicators import is_invalid
 from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
 from modules.indicators.calculate_indicators import calculate_indicators
 from modules.utils.format import get_last_value
-
+from modules.notify.build_discord_message import build_entry_message
 # ✅ 股票清單
 stock_list = load_stock_list()
 
