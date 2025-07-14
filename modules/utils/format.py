@@ -27,3 +27,10 @@ def safe_percent(value, decimals=1):
         return f"{percent:.{decimals}f}%"
     except (TypeError, ValueError):
         return "N/A"
+
+def get_last_value(series):
+    if series is None or not hasattr(series, 'iloc'):
+        return None
+    if len(series) == 0:
+        return None
+    return series.iloc[-1]
