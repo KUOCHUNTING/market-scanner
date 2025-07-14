@@ -1,53 +1,52 @@
 from modules.utils.format import safe_float
 
-# ✅ 建倉訊息組裝
-def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
-                        signal_note, direction, score=None, confidence_score=None,
-                        rsi=None, zscore=None, ema5=None, ema20=None,
-                        bb_upper=None, bb_lower=None, obv=None,
-                        trend_score=None, rrov_score=None, mean_score=None,
-                        shares=None, capital_used=None, capital_left=None):
-    # === 🎯 標題區 ===
-    message = f"📌 {direction} 技術策略 ➤ `{symbol}`\n"
-    message += f"🔖 類型：{strategy_type}\n"
-    message += f"📈 收盤價：{safe_float(price, 2, prefix='$')}"
-    if rsi is not None:     message += f" | RSI：{safe_float(rsi)}"
-    if zscore is not None:  message += f" | Z-score：{safe_float(zscore)}"
-    message += "\n"
+def build_mean_reversion_message(symbol, price, rsi, zscore, ema5, ema20,
+                                  bb_upper, bb_lower, obv, score, confidence_score,
+                                  direction, shares, capital_used, capital_left, signal_note):
+    return f"""【均值回歸策略觸發】{symbol}
 
-    # === 📊 技術摘要 ===
-    message += f"🧠 訊號摘要：{signal_note}\n"
-    message += f"🎯 策略名稱：{strategy_name}\n"
+收盤價：${price:.2f}｜Z-score：{safe_float(zscore)}
+EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}
+布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}
+OBV：{safe_float(obv)}
 
-    if ema5 is not None and ema20 is not None:
-        message += f"📏 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}\n"
-    if bb_upper is not None and bb_lower is not None:
-        message += f"📊 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}\n"
-    if obv is not None:
-        message += f"📶 OBV：{safe_float(obv)}\n"
+策略摘要：{signal_note}
+策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
 
-    # === 📉 命中率區（只顯示觸發策略）
-    triggered_score = None
-    if signal_type == "trend":
-        triggered_score = trend_score
-    elif signal_type == "rrov":
-        triggered_score = rrov_score
-    elif signal_type == "mean":
-        triggered_score = mean_score
-    if triggered_score is not None:
-        message += f"📊 命中率 ➤ {strategy_name}：{safe_float(triggered_score * 100, 2, suffix='%')}\n"
+方向：{direction}
+股數：{shares} 股｜資金：${capital_used:.2f}
+剩餘資金：${capital_left:.2f}
+"""
 
-    # === 🧠 信心與策略分數 ===
-    if confidence_score is not None:
-        message += f"🧠 技術信心：{safe_float(confidence_score)}｜策略分數：{safe_float(score)}\n"
+def build_rrov_message(symbol, price, ema5, bb_upper, obv, score, confidence_score,
+                       direction, shares, capital_used, capital_left, signal_note):
+    return f"""【RROV 突破策略觸發】{symbol}
 
-    # === 🧾 建倉資訊 ===
-    if shares is not None and capital_used is not None:
-        message += f"📦 股數：{shares} 股｜💰 進場資金：{safe_float(capital_used, 2, prefix='$')}\n"
-    if capital_left is not None:
-        message += f"📤 剩餘資金：{safe_float(capital_left, 2, prefix='$')}\n"
+收盤價：${price:.2f}｜EMA5：{safe_float(ema5)}｜布林上軌：{safe_float(bb_upper)}
+OBV：{safe_float(obv)}
 
-    return message
+策略摘要：{signal_note}
+策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
+
+方向：{direction}
+股數：{shares} 股｜資金：${capital_used:.2f}
+剩餘資金：${capital_left:.2f}
+"""
+
+def build_trend_message(symbol, price, rsi, ema5, ema20, obv, score, confidence_score,
+                        direction, shares, capital_used, capital_left, signal_note):
+    return f"""【順勢策略觸發】{symbol}
+
+收盤價：${price:.2f}｜RSI：{safe_float(rsi)}｜EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}
+OBV：{safe_float(obv)}
+
+策略摘要：{signal_note}
+策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
+
+方向：{direction}
+股數：{shares} 股｜資金：${capital_used:.2f}
+剩餘資金：${capital_left:.2f}
+"""
 
 
 # ✅ 擠壓策略訊息
