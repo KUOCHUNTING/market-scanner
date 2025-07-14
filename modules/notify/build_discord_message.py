@@ -13,14 +13,16 @@ def build_entry_message(symbol, price, strategy_name, direction,
                         ema_trend=None):
 
     # 🧾 安全格式處理
-    price_str = f"{price:.2f}" if price is not None else "N/A"
-    rsi_str = f"{rsi:.1f}" if rsi is not None else "N/A"
-    zscore_str = f"{zscore:.2f}" if zscore is not None else "N/A"
-    ema5_str = f"{ema5:.2f}" if ema5 is not None else "N/A"
-    ema20_str = f"{ema20:.2f}" if ema20 is not None else "N/A"
-    bb_upper_str = f"{bb_upper:.2f}" if bb_upper is not None else "N/A"
-    bb_lower_str = f"{bb_lower:.2f}" if bb_lower is not None else "N/A"
+    price_str = safe_float(price, 2, prefix="$")
+    rsi_str = safe_float(rsi, 1)
+    zscore_str = safe_float(zscore, 2)
+    ema5_str = safe_float(ema5, 2)
+    ema20_str = safe_float(ema20, 2)
+    bb_upper_str = safe_float(bb_upper, 2)
+    bb_lower_str = safe_float(bb_lower, 2)
     obv_str = f"{int(obv)}" if obv is not None else "N/A"
+    confidence_str = safe_float(confidence_score)
+    score_str = safe_float(score)
 
     # 🧭 標題
     direction_label = "多單" if direction == "多" else "空單"
@@ -29,14 +31,12 @@ def build_entry_message(symbol, price, strategy_name, direction,
     # 📦 建立訊息內容
     message = f"{signal_type_label}\n"
     message += f"📌 類型：{strategy_type or '未分類'}（方向：{direction}）\n"
-    message += f"📉 收盤價：${price_str}｜RSI：{rsi_str}｜Z-score：{zscore_str}\n"
+    message += f"📉 收盤價：{price_str}｜RSI：{rsi_str}｜Z-score：{zscore_str}\n"
     message += f"📈 EMA5：{ema5_str}｜EMA20：{ema20_str}\n"
     message += f"🎯 布林通道上：{bb_upper_str}｜下：{bb_lower_str}\n"
     message += f"🔄 OBV：{obv_str}\n\n"
 
     message += f"📊 命中率 ➜ 順勢：{(trend_score or 0) * 100:.2f}%｜RROV：{(rrov_score or 0) * 100:.2f}%｜均值：{(mean_score or 0) * 100:.2f}%\n"
-    confidence_str = f"{confidence_score:.2f}" if confidence_score is not None else "N/A"
-    score_str = f"{score:.2f}" if score is not None else "N/A"
     message += f"🧠 技術信心：{confidence_str}｜策略分數：{score_str}\n"
 
     if trend_text:
@@ -50,18 +50,20 @@ def build_entry_message(symbol, price, strategy_name, direction,
 
     message += f"\n📋 訊號摘要：{signal_note}\n"
     message += f"🧠 策略名稱：{strategy_name}\n\n"
-    message += f"📦 股數：{shares if shares is not None else 0} 股｜💰 進場資金：${capital_used:,.0f if capital_used is not None else 0}\n"
-    message += f"💼 剩餘資金：${capital_left:,.0f if capital_left is not None else 0}"
+    message += f"📦 股數：{shares if shares is not None else 0} 股｜💰 進場資金：{safe_float(capital_used, 0, prefix='$')}\n"
+    message += f"💼 剩餘資金：{safe_float(capital_left, 0, prefix='$')}"
 
     return message
-    
+
 # ✅ 擠壓策略推播訊息（多空雙向皆可）
 def build_breakout_message(result):
+    from modules.utils.format import safe_float
+
     symbol = result.get("symbol", "未知代號")
     direction = result.get("direction", "未知方向")
     score = result.get("score", 0)
     conditions = result.get("conditions_met", [])
-    close = result.get("close", 0)
+    close = result.get("close", None)
     rsi = result.get("rsi", None)
     ema_5 = result.get("ema_5", None)
     ema_20 = result.get("ema_20", None)
@@ -70,8 +72,8 @@ def build_breakout_message(result):
     emoji = "🚀" if direction == "做多" else "💥"
 
     message  = f"{emoji}【擠壓策略觸發】{symbol}｜{strategy_name}\n\n"
-    message += f"📌 收盤價：${close:.2f}｜RSI：{rsi:.1f}\n"
-    message += f"📈 EMA5：{ema_5:.2f}｜EMA20：{ema_20:.2f}\n"
+    message += f"📌 收盤價：{safe_float(close, 2, prefix='$')}｜RSI：{safe_float(rsi, 1)}\n"
+    message += f"📈 EMA5：{safe_float(ema_5)}｜EMA20：{safe_float(ema_20)}\n"
     message += f"🎯 命中條件（{score}）項：\n"
     message += "\n".join([f"- {c}" for c in conditions]) + "\n\n"
     message += f"📊 判定方向：{direction}"
