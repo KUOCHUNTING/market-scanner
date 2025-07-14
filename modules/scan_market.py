@@ -139,8 +139,6 @@ def calculate_indicators(df, symbol=None):
         log_invalid_indicator(f"Exception: {e}")
         return None
 
-confidence_score = compute_confidence_score(indicators)
-
 # ✅ 主掃描函數
 def scan_market(symbol_list):
     global capital_left
