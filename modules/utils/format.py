@@ -1,15 +1,29 @@
-# modules/utils/format.py
-
-def safe_float(val, digits=2, prefix="$", suffix=""):
+def safe_float(value, decimals=2, prefix="", suffix=""):
     """
-    安全格式化浮點數：
-    - val 為 None 時回傳 'N/A'
-    - digits 控制小數位數
-    - 可選擇加上 $、%、等符號
+    安全格式化浮點數（防止 NoneType、格式錯誤）
     """
-    if val is None:
-        return "N/A"
     try:
-        return f"{prefix}{val:.{digits}f}{suffix}"
-    except:
+        f = round(float(value), decimals)
+        return f"{prefix}{f:.{decimals}f}{suffix}"
+    except (TypeError, ValueError):
+        return "N/A"
+
+def safe_int(value, prefix="", suffix=""):
+    """
+    安全格式化整數
+    """
+    try:
+        i = int(round(float(value)))
+        return f"{prefix}{i}{suffix}"
+    except (TypeError, ValueError):
+        return "N/A"
+
+def safe_percent(value, decimals=1):
+    """
+    安全格式化為百分比字串（乘 100 後加上 %）
+    """
+    try:
+        percent = round(float(value) * 100, decimals)
+        return f"{percent:.{decimals}f}%"
+    except (TypeError, ValueError):
         return "N/A"
