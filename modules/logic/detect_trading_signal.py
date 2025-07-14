@@ -1,5 +1,3 @@
-# modules/logic/detect_trading_signal.py
-
 from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
 from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
 from modules.compute_confidence_score import compute_confidence_score
