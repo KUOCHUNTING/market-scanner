@@ -18,6 +18,20 @@ from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
 # ✅ 載入股票清單
 stock_list = load_stock_list()
 
+def is_invalid(indicators):
+    import pandas as pd
+    import math
+
+    for val in indicators.values():
+        if val is None:
+            return True
+        if isinstance(val, pd.Series):
+            if val.isna().any():
+                return True
+        elif isinstance(val, (float, int)) and math.isnan(val):
+            return True
+    return False
+
 # ✅ 技術面摘要輸出
 def print_debug_summary(symbol, indicators, latest_price, score, rrov_score, trend_score, mean_score):
     rsi = indicators['rsi'].iloc[-1]
@@ -65,7 +79,7 @@ def scan_market(symbol_list):
                 continue
 
             indicators = calculate_indicators(df)
-            if indicators is None or indicators.isna().any().any():
+            if indicators is None or is_invalid(indicators):
                 print(f"[跳過] {symbol} ➜ 指標無效")
                 continue
 
