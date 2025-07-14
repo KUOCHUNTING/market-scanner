@@ -8,17 +8,29 @@ def build_entry_message(symbol, price, strategy_name, direction,
                         signal_note="", shares=None, capital_used=None, capital_left=None,
                         trend_text=None, trend_emoji=None,
                         up_count=None, down_count=None,
-                        ema_trend=None):  # ✅ 新增 ema_trend
+                        ema_trend=None):
 
+    # 🧾 安全格式處理
+    price_str = f"{price:.2f}" if price is not None else "N/A"
+    rsi_str = f"{rsi:.1f}" if rsi is not None else "N/A"
+    zscore_str = f"{zscore:.2f}" if zscore is not None else "N/A"
+    ema5_str = f"{ema5:.2f}" if ema5 is not None else "N/A"
+    ema20_str = f"{ema20:.2f}" if ema20 is not None else "N/A"
+    bb_upper_str = f"{bb_upper:.2f}" if bb_upper is not None else "N/A"
+    bb_lower_str = f"{bb_lower:.2f}" if bb_lower is not None else "N/A"
+    obv_str = f"{int(obv)}" if obv is not None else "N/A"
+
+    # 🧭 標題
     direction_label = "多單" if direction == "多" else "空單"
     signal_type_label = f"【{direction_label} 技術策略 訊號】{symbol}"
 
+    # 📦 建立訊息內容
     message = f"{signal_type_label}\n"
     message += f"📌 類型：{strategy_type or '未分類'}（方向：{direction}）\n"
-    message += f"📉 收盤價：${price:.2f if price is not None else 'N/A'}｜RSI：{rsi:.1f if rsi is not None else 'N/A'}｜Z-score：{zscore:.2f if zscore is not None else 'N/A'}\n"
-    message += f"📈 EMA5：{ema5:.2f if ema5 is not None else 'N/A'}｜EMA20：{ema20:.2f if ema20 is not None else 'N/A'}\n"
-    message += f"🎯 布林通道上：{bb_upper:.2f if bb_upper is not None else 'N/A'}｜下：{bb_lower:.2f if bb_lower is not None else 'N/A'}\n"
-    message += f"🔄 OBV：{int(obv) if obv is not None else 'N/A'}\n\n"
+    message += f"📉 收盤價：${price_str}｜RSI：{rsi_str}｜Z-score：{zscore_str}\n"
+    message += f"📈 EMA5：{ema5_str}｜EMA20：{ema20_str}\n"
+    message += f"🎯 布林通道上：{bb_upper_str}｜下：{bb_lower_str}\n"
+    message += f"🔄 OBV：{obv_str}\n\n"
 
     message += f"📊 命中率 ➜ 順勢：{(trend_score or 0) * 100:.2f}%｜RROV：{(rrov_score or 0) * 100:.2f}%｜均值：{(mean_score or 0) * 100:.2f}%\n"
     message += f"🧠 技術信心：{confidence_score:.2f if confidence_score is not None else 'N/A'}｜策略分數：{score:.2f if score is not None else 'N/A'}\n"
