@@ -1,6 +1,6 @@
 from modules.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN
 
-def should_exit(position, current_price):
+def should_exit(symbol, position, current_price):
     entry_price = position["entry_price"]
     direction = position["direction"]
     sell_stage = position.get("sell_stage", 0)
