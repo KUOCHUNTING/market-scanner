@@ -1,9 +1,13 @@
-from modules.notify.check_exit_and_notify import check_exit_and_notify
-from modules.market_data import get_latest_price  # 你要自己實作
+from modules.notify.discord_push import send_discord_message
+from modules.connect_to_gsheet import write_exit_to_sheet
 
-def execute_exit(symbol):
-    try:
-        latest_price = get_latest_price(symbol)
-        check_exit_and_notify(symbol, latest_price)
-    except Exception as e:
-        print(f"[錯誤] execute_exit 失敗：{symbol} ➜ {e}")
+def execute_exit(symbol, position, current_price, reason):
+    message = f"📤 出場通知｜{symbol}\n"
+    message += f"💰 建倉價：{position['entry_price']:.2f} ➜ 現價：{current_price:.2f}\n"
+    message += f"📊 方向：{position['direction']}｜原因：{reason}"
+
+    # 推播
+    send_discord_message(message)
+
+    # 寫入紀錄
+    write_exit_to_sheet(symbol, current_price, reason)
