@@ -1,17 +1,26 @@
 import pandas as pd
 import traceback
 import random
+
 from modules.utils.file_loader import load_stock_list
 from modules.fetch_stock_data import fetch_stock_data
 from modules.get_fundamentals import get_fundamentals
 from modules.filter_fundamentals import filter_fundamentals
 from modules.indicators.calculate_indicators import calculate_indicators
-from modules.strategy.detect_squeeze_breakout import detect_squeeze_breakout
-from modules.strategy.strategy_score import get_rrov_score, get_trend_score, get_mean_score
-from modules.compute_confidence_score import compute_confidence_score
-from modules.logic.detect_trading_signal import detect_trading_signal
 from modules.utils.validate_indicators import is_invalid
 from modules.config import POLYGON_API_KEY, capital_left
+
+# 🧠 統一策略邏輯
+from modules.strategy import (
+    detect_trading_signal,
+    get_rrov_score,
+    get_trend_score,
+    get_mean_score,
+    compute_confidence_score,
+    detect_squeeze_breakout
+)
+
+# 💼 建倉模組
 from modules.entry.handle_squeeze_entry import handle_squeeze_entry
 from modules.entry.handle_signal_entry import handle_signal_entry
 
@@ -52,7 +61,7 @@ def scan_market(symbol_list):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # === 評分模組 ===
+            # ✅ 評分與策略得分
             rrov_score = get_rrov_score(indicators, latest_price)
             trend_score = get_trend_score(indicators)
             mean_score = get_mean_score(indicators, latest_price)
@@ -69,11 +78,11 @@ def scan_market(symbol_list):
                 ema20=indicators["ema_20"].iloc[-1],
             )
 
-            # === 擠壓策略建倉 ===
+            # ✅ 擠壓策略建倉處理
             squeeze_result = detect_squeeze_breakout(symbol)
             handle_squeeze_entry(symbol, squeeze_result)
 
-            # === 技術策略建倉 ===
+            # ✅ 技術策略建倉處理
             signal_type, strategy_name, signal_note, direction, extra = detect_trading_signal(
                 symbol, df, indicators, latest_price
             )
