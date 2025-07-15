@@ -1,62 +1,54 @@
 from datetime import datetime
-from modules.config import positions, capital_left
 from modules.notify.discord_push import send_discord_message
 from modules.connect_to_gsheet import write_exit_to_sheet
+from modules.indicator_cache import get_cached_indicators
 
-def execute_exit(symbol):
-    pos = positions[symbol]
-    latest_price = pos["latest_price"]
-    direction = pos["direction"]
-    entry_price = pos["entry_price"]
-    entry_time = pos["entry_time"]
-    quantity = pos["quantity"]
-    exit_ratio = pos.get("exit_ratio", 1.0)
-    reason = pos.get("exit_reason", "未提供原因")
-    strategy_name = pos.get("strategy", "未標記")
+def execute_exit(symbol, position, current_price, reason):
+    entry_price = position["entry_price"]
+    entry_time = position["entry_time"]
+    direction = position["direction"]
+    strategy_name = position.get("strategy", "未標記策略")
+    quantity = position["quantity"]
 
-    exit_qty = int(quantity * exit_ratio)
-    if exit_qty <= 0:
-        return
-
-    # 計算損益
-    pnl = (latest_price - entry_price) if "多" in direction else (entry_price - latest_price)
-    profit = pnl * exit_qty
-    return_rate = (pnl / entry_price) * 100
+    # 報酬率與損益
+    return_rate = (current_price - entry_price) / entry_price if "多" in direction else (entry_price - current_price) / entry_price
+    pnl = return_rate * entry_price * quantity
     holding_minutes = int((datetime.now() - entry_time).total_seconds() / 60)
 
-    # 推播
+    # 指標讀取（從 cache 抓）
+    indicators = get_cached_indicators(symbol)
+    rsi = indicators.get("rsi", [None])[-1]
+    zscore = indicators.get("zscore", [None])[-1]
+    roc = indicators.get("roc", [None])[-1]
+    obv = indicators.get("obv", [None])[-1]
+    vwap = indicators.get("vwap", [None])[-1]
+    ema5 = indicators.get("ema_5", [None])[-1]
+    ema20 = indicators.get("ema_20", [None])[-1]
+
+    # 推播訊息
     emoji = "✅" if return_rate >= 0 else "⚠️"
-    msg = (
-        f"{emoji} **[出場通知｜{strategy_name}｜{direction}]** {symbol}\n"
-        f"📈 出場價格：${latest_price:.2f}｜數量：{exit_qty}\n"
-        f"📊 報酬率：{return_rate:.2f}%｜損益：${profit:.2f}\n"
-        f"🔄 原因：{reason}｜持倉：{holding_minutes} 分鐘"
+    message = (
+        f"{emoji} **[出場通知｜{strategy_name}]** {symbol}\n"
+        f"📈 出場價：${current_price:.2f}｜方向：{direction}\n"
+        f"📊 報酬率：{return_rate:.2%}｜損益：${pnl:.2f}\n"
+        f"🕒 持倉時間：{holding_minutes} 分鐘\n"
+        f"🔄 出場原因：{reason}"
     )
-    send_discord_message(msg)
+    send_discord_message(message)
 
-    # Sheets 寫入
-    from modules.indicator_cache import indicator_cache
-    indicators = indicator_cache.get(symbol, {})  # 可補技術指標
-
+    # 寫入 Google Sheets
     write_exit_to_sheet(
         symbol=symbol,
         entry_time=entry_time,
         exit_time=datetime.now(),
-        return_rate=return_rate / 100,
-        pnl=profit,
+        return_rate=return_rate,
+        pnl=pnl,
         holding_minutes=holding_minutes,
-        exit_price=latest_price,
-        rsi=indicators.get("rsi"),
-        zscore=indicators.get("zscore"),
-        roc=indicators.get("roc"),
-        obv=indicators.get("obv"),
-        vwap=indicators.get("vwap"),
+        exit_price=current_price,
+        rsi=rsi,
+        zscore=zscore,
+        roc=roc,
+        obv=obv,
+        vwap=vwap,
         strategy_name=strategy_name
     )
-
-    # 更新持倉與資金
-    pos["quantity"] -= exit_qty
-    capital_left += latest_price * exit_qty
-
-    if pos["quantity"] <= 0:
-        del positions[symbol]
