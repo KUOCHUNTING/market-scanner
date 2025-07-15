@@ -1,9 +1,9 @@
 import os
 import pandas as pd
 import json
-from .path_utils import get_project_root
-from modules.utils.path_utils import get_project_root
+from modules.utils.path_utils import get_project_root  # 建議統一這一行，移除重複導入
 
+# ✅ 載入股票清單（CSV）
 def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     file_path = os.path.join(get_project_root(), filepath)
     try:
@@ -17,6 +17,7 @@ def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
         print(f"❌ 無法載入股票清單：{e}")
         return []
 
+# ✅ 載入 API 金鑰設定（JSON）
 def load_api_keys(filepath="config/api_keys.json"):
     full_path = os.path.join(get_project_root(), filepath)
     try:
