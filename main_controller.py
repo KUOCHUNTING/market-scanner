@@ -6,15 +6,17 @@ from modules.config import stock_list
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import is_us_market_open  # ⏰ 盤中判斷
-
-# ✅ 載入 .env 環境變數
-load_dotenv()
+from modules.utils.market_time import is_us_market_open, get_market_phase
 
 def main():
     print("🚀 啟動主控系統：scan_market + 出場排程")
 
-    # ✅ 若非盤中 ➜ 直接跳出
-    if not is_us_market_open():
+    # ✅ 判斷市場階段（盤前 / 盤中 / 盤後）
+    phase = get_market_phase()
+    print(f"🕒 當前市場階段：{phase}")
+
+    # ✅ 非盤中跳過掃描（可根據 phase 寫不同邏輯）
+    if phase != "盤中":
         print("⏰ 非美股盤中時間 ➜ 跳過掃描")
         return
 
