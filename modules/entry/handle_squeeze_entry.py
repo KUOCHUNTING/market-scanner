@@ -1,6 +1,6 @@
 from modules.notify.build_discord_message import build_breakout_message
 from modules.notify.discord_push import send_discord_message
-from modules.entry.handle_entry import enter_position  ✅（合併後正確路徑）
+from modules.entry.handle_entry import enter_position
 from modules.config import WEBHOOK_URL
 
 def handle_squeeze_entry(symbol, squeeze_result):
