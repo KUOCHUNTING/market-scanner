@@ -24,12 +24,12 @@ def enter_position(symbol, price, direction, signal_note,
 
     if symbol in entered_positions:
         print(f"⚠️ 已建倉過 ➜ 略過 {symbol}")
-        return
+        return None, None, None  # ✅ 統一格式
 
     shares, capital_used = compute_position_size(price)
     if shares <= 0 or capital_used > capital_left:
         print(f"⚠️ 資金不足 ➜ 略過 {symbol}｜需要 ${capital_used:.2f}，剩餘 ${capital_left:.2f}")
-        return
+        return None, None, None  # ✅ 統一格式
 
     capital_left -= capital_used
     entry_time = datetime.now()
@@ -89,3 +89,4 @@ def enter_position(symbol, price, direction, signal_note,
     )
 
     print(f"✅【建倉成功】{symbol} ➜ {shares} 股｜${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
+    return shares, capital_used, shares  # 或者其他你希望的第三個欄位
