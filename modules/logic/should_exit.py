@@ -1,4 +1,3 @@
-# ✅ 出場條件邏輯（停損、鎖利、追蹤停利）
 from modules.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN
 
 def should_exit(position, current_price):
@@ -7,30 +6,35 @@ def should_exit(position, current_price):
     sell_stage = position.get("sell_stage", 0)
     max_gain = position.get("max_gain", 0)
 
-    if direction == "做多":
+    # === 計算報酬率 ===
+    if "多" in direction:
         return_rate = (current_price - entry_price) / entry_price * 100
-    elif direction == "做空":
-        return_rate = (entry_price - current_price) / entry_price * 100
     else:
-        return False, "❌ 無效方向"
+        return_rate = (entry_price - current_price) / entry_price * 100
 
-    # 更新最高報酬
+    # ✅ 更新最大報酬
     if return_rate > max_gain:
         position["max_gain"] = return_rate
         max_gain = return_rate
 
-    # 出場邏輯
+    # === 停損 / 鎖利 / 追蹤停利判斷 ===
+    reason, exit_ratio = None, 0
     if return_rate <= -DEFAULT_STOP_LOSS:
-        return True, f"🛑 停損觸發：報酬率 {return_rate:.2f}%"
+        reason = f"🛑 停損觸發：{return_rate:.2f}%"
+        exit_ratio = 1.0
+        position["sell_stage"] = -1
     elif return_rate >= DEFAULT_TAKE_PROFIT and sell_stage == 0:
+        reason = f"🔒 第一段鎖利：{return_rate:.2f}%"
+        exit_ratio = 0.5
         position["sell_stage"] = 1
-        return True, f"🔒 第一段鎖利：報酬率 {return_rate:.2f}%"
-    elif return_rate >= 8 and sell_stage <= 1:
+    elif return_rate >= 8.0 and sell_stage <= 1:
+        reason = f"🔒 第二段鎖利：{return_rate:.2f}%"
+        exit_ratio = 1.0
         position["sell_stage"] = 2
-        return True, f"🔒 第二段鎖利：報酬率 {return_rate:.2f}%"
-    elif max_gain >= TRAIL_TRIGGER and (max_gain - return_rate) >= TRAIL_MARGIN and sell_stage <= 2:
+    elif max_gain >= TRAIL_TRIGGER and (max_gain - return_rate) >= TRAIL_MARGIN and sell_stage <= 1:
+        drop = max_gain - return_rate
+        reason = f"🔃 追蹤停利：回落 {drop:.2f}%"
+        exit_ratio = 1.0
         position["sell_stage"] = 3
-        drop = round(max_gain - return_rate, 2)
-        return True, f"🔃 追蹤停利觸發（回落 {drop:.2f}%）"
 
-    return False, None
+    return exit_ratio > 0, reason
