@@ -7,5 +7,5 @@ from modules.get_fundamentals import get_fundamentals
 import pandas as pd
 
 def load_stock_list():
-    df = pd.read_csv("data/filtered_us_stocks_common_only.csv")
+    df = pd.read_csv("modules/data/filtered_us_stocks_common_only.csv")
     return df["symbol"].dropna().unique().tolist()
