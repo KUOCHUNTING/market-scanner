@@ -3,6 +3,7 @@ from modules.notify.discord_push import send_discord_message
 from modules.config import WEBHOOK_URL
 from modules.connect_to_gsheet import write_exit_to_sheet
 from modules.indicator_cache import get_cached_indicators
+from modules.utils.connect_to_gsheet import write_exit_to_sheet
 
 def execute_exit(symbol, position, current_price, reason):
     entry_price = position["entry_price"]
