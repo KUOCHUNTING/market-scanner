@@ -83,9 +83,10 @@ def enter_position(symbol, price, direction, signal_note,
     # 寫入 Google Sheets
     write_entry_to_sheet(
         symbol=symbol,
+        entry_time=entry_time,
+        entry_price=price,
         direction=direction,
-        shares=shares,
-        entry_capital=capital_used,
+        quantity=shares,
         strategy_name=strategy_name,
         confidence_score=confidence_score,
         capital_left=capital_left
