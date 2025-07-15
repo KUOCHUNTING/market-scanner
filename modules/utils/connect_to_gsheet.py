@@ -9,10 +9,8 @@ from google.oauth2.service_account import Credentials
 def get_credentials_from_base64(base64_key):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
-    return Credentials.from_service_account_info(
-        key_dict,
-        scopes=["https://www.googleapis.com/auth/spreadsheets"]
-    )
+    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
 # ✅ 連線 Google Sheets（傳入 base64 金鑰與 Sheet URL）
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
