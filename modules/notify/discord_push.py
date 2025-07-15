@@ -1,10 +1,7 @@
-from modules.config import WEBHOOK_URL
 import requests
 
-# ✅ 支援傳入 Webhook URL 的推播函數
 def send_discord_message(message, webhook_url):
     payload = {"content": message}
-
     try:
         response = requests.post(webhook_url, json=payload)
         if response.status_code == 204:
