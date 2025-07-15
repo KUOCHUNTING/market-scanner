@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from modules.notify.discord_push import send_discord_message
-from modules.exit.execute_exit import execute_exit
+from modules.notify.execute_exit import execute_exit
 from modules.config import (
     DEFAULT_STOP_LOSS,
     DEFAULT_TAKE_PROFIT,
