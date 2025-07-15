@@ -146,3 +146,5 @@ def enter_position(symbol, price, direction, signal_note,
         "mean_score": mean_score,
         "confidence_score": confidence_score
     })
+
+    return symbol, capital_used, quantity
