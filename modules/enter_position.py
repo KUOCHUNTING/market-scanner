@@ -42,6 +42,10 @@ def enter_position(symbol, price, direction, signal_note,
         "策略": strategy_name
     }
 
+    if not WEBHOOK_URL.startswith("https://discord.com/api/webhooks/"):
+        print(f"❌ 錯誤：WEBHOOK_URL 被覆蓋為 ➜ {WEBHOOK_URL}")
+        raise ValueError("WEBHOOK_URL 格式錯誤，請檢查是否被錯誤覆蓋")
+    
     message = build_entry_message(
         symbol=symbol,
         price=price,
