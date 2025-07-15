@@ -1,2 +1,1 @@
-# modules/entry/__init__.py
-# Init file for entry package
+from .handle_entry import enter_position
