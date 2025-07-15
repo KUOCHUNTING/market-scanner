@@ -16,6 +16,7 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
     client = gspread.authorize(creds)
     spreadsheet = client.open_by_url(sheet_url)
+    print("📄 分頁清單：", [ws.title for ws in spreadsheet.worksheets()])
 
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
