@@ -12,12 +12,18 @@ def get_credentials_from_base64(base64_key: str):
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
-# ✅ 建立 Google Sheets 客戶端
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
     client = gspread.authorize(creds)
-    worksheet = client.open_by_url(sheet_url).worksheet(sheet_name) 
-    return sheet
+    spreadsheet = client.open_by_url(sheet_url)
+
+    try:
+        worksheet = spreadsheet.worksheet(sheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
+        print(f"🆕 分頁 {sheet_name} 不存在，已自動建立")
+    
+    return worksheet
 
 # ✅ 寫入建倉記錄
 def write_entry_to_sheet(entry: dict):
