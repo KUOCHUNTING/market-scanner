@@ -2,49 +2,83 @@ from datetime import datetime
 from modules.notify.discord_push import send_discord_message
 from modules.connect_to_gsheet import write_exit_to_sheet
 
+def check_exit_condition(position, current_price):
+    """
+    出場判斷邏輯（鎖利 & 停損）
+    三段鎖利條件：
+    - +5%、+10%、+15% 分別觸發不同條件
+    停損條件：
+    - 跌破 -3% 強制出場
+    """
+    entry_price = position["entry_price"]
+    direction = position["direction"]
+    gain = (current_price - entry_price) / entry_price if direction == "做多" else (entry_price - current_price) / entry_price
+
+    if gain <= -0.03:
+        return True, "🔻 停損出場（-3%）"
+    elif gain >= 0.15:
+        return True, "💰 第三段鎖利（+15%）"
+    elif gain >= 0.10:
+        return True, "💰 第二段鎖利（+10%）"
+    elif gain >= 0.05:
+        return True, "💰 第一段鎖利（+5%）"
+    return False, None
+
 def execute_exit(symbol, position, current_price, indicators, reason="策略觸發出場"):
-    try:
-        now = datetime.now()
-        entry_price = position["entry_price"]
-        direction = position["direction"]
-        shares = position["shares"]
-        entry_time = position["entry_time"]
+    """
+    出場處理流程：
+    1. 推播 Discord
+    2. 計算報酬率、損益、持倉時間
+    3. 寫入 Google Sheets
+    """
+    entry_price = position["entry_price"]
+    direction = position["direction"]
+    shares = position["shares"]
+    entry_time = position.get("entry_time")
+    strategy_name = position.get("strategy_name", "未標記策略")
+    confidence_score = position.get("confidence_score")
 
-        # === 📊 計算損益與報酬率 ===
-        if direction == "做多":
-            pnl = (current_price - entry_price) * shares
-            return_pct = (current_price - entry_price) / entry_price * 100
-        else:  # 做空
-            pnl = (entry_price - current_price) * shares
-            return_pct = (entry_price - current_price) / entry_price * 100
+    # 計算報酬與損益
+    return_rate = (current_price - entry_price) / entry_price if direction == "做多" else (entry_price - current_price) / entry_price
+    pnl = return_rate * entry_price * shares
 
-        # === 📩 推播格式 ===
-        msg = f"📤 出場通知｜{symbol}\n"
-        msg += f"📈 建倉價：{entry_price:.2f} ➜ 出場價：{current_price:.2f}\n"
-        msg += f"🎯 方向：{direction}｜策略：{position.get('strategy_name', '未標記')}\n"
-        msg += f"💰 報酬率：{return_pct:.2f}%｜損益：${pnl:.2f}\n"
-        msg += f"⏳ 持倉時間：{str(now - entry_time)}｜出場原因：{reason}"
+    # 計算持倉時間（分鐘）
+    if entry_time:
+        holding_minutes = int((datetime.now() - entry_time).total_seconds() // 60)
+    else:
+        holding_minutes = None
 
-        send_discord_message(msg)
+    # 構建訊息
+    message = f"📤 出場通知｜`{symbol}`\n"
+    message += f"📈 出場價：${current_price:.2f}（{reason}）\n"
+    message += f"📉 報酬率：{return_rate:.2%}｜損益：${pnl:.2f}\n"
+    message += f"⏱️ 持倉時間：{holding_minutes} 分鐘｜方向：{direction}｜策略：{strategy_name}"
 
-        # === ✅ 寫入 Google Sheets 出場紀錄 ===
-        write_exit_to_sheet(
-            symbol=symbol,
-            entry_time=entry_time,
-            exit_time=now,
-            return_rate=return_pct,
-            pnl=pnl,
-            holding_time_str=str(now - entry_time),
-            exit_price=current_price,
-            rsi=indicators.get("rsi", [None])[-1],
-            zscore=indicators.get("zscore", [None])[-1],
-            roc=indicators.get("roc", [None])[-1],
-            obv=indicators.get("obv", [None])[-1],
-            vwap=indicators.get("vwap", [None])[-1],
-            ema5=indicators.get("ema_5", [None])[-1],
-            ema20=indicators.get("ema_20", [None])[-1],
-            strategy_name=position.get("strategy_name", "未標記策略")
-        )
+    send_discord_message(message)
 
-    except Exception as e:
-        print(f"❌ [出場錯誤] {symbol} ➜ {e}")
+    # 指標資料
+    rsi = indicators.get("rsi").iloc[-1] if indicators.get("rsi") is not None else None
+    zscore = indicators.get("zscore").iloc[-1] if indicators.get("zscore") is not None else None
+    roc = indicators.get("roc").iloc[-1] if indicators.get("roc") is not None else None
+    obv = indicators.get("obv").iloc[-1] if indicators.get("obv") is not None else None
+    vwap = indicators.get("vwap").iloc[-1] if indicators.get("vwap") is not None else None
+    ema5 = indicators.get("ema_5").iloc[-1] if indicators.get("ema_5") is not None else None
+    ema20 = indicators.get("ema_20").iloc[-1] if indicators.get("ema_20") is not None else None
+
+    # 寫入 Google Sheets
+    write_exit_to_sheet(
+        symbol=symbol,
+        entry_time=entry_time,
+        exit_time=datetime.now(),
+        return_rate=return_rate,
+        pnl=pnl,
+        holding_minutes=holding_minutes,
+        exit_price=current_price,
+        rsi=rsi,
+        zscore=zscore,
+        roc=roc,
+        obv=obv,
+        vwap=vwap,
+        strategy_name=strategy_name,
+        confidence_score=confidence_score
+    )
