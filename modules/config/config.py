@@ -1,6 +1,7 @@
 import os
 
 # === 💰 資金與風控參數 ===
+DEFAULT_TAKE_PROFIT = 5.0  # 鎖利門檻（例如 +5%）
 DEFAULT_STOP_LOSS = 3.0            # ➤ 停損（百分比）
 DEFAULT_TAKE_PROFIT = 5.0          # ➤ 第一段鎖利
 TRAIL_TRIGGER = 8.0                # ➤ 第二段鎖利啟動點
