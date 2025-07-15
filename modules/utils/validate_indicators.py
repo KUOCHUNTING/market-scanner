@@ -2,10 +2,18 @@ import pandas as pd
 import math
 
 def log_invalid_indicator(message):
-    with open("invalid_indicators_log.txt", "a") as f:
-        f.write(f"{message}\n")
+    try:
+        with open("invalid_indicators_log.txt", "a") as f:
+            f.write(f"{message}\n")
+    except Exception as e:
+        print(f"[Log 錯誤] 無法寫入 log：{e}")
 
 def is_invalid(indicators):
+    if indicators is None or not isinstance(indicators, dict):
+        print("[指標錯誤] indicators 為 None 或不是字典")
+        log_invalid_indicator("indicators 無效格式")
+        return True
+
     for key, val in indicators.items():
         if val is None:
             print(f"[指標錯誤] {key} 是 None ➜ 無效")
