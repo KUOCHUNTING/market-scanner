@@ -22,18 +22,51 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     return sheet
 
 # ✅ 寫入建倉記錄
-def write_entry_to_sheet(sheet, symbol, entry_time, entry_price, direction, quantity, strategy_name):
-    sheet.append_row([
-        symbol,
-        entry_time.strftime("%Y-%m-%d %H:%M:%S"),
-        "",  # 出場時間
-        "",  # 報酬率
-        "",  # 損益
-        "",  # 持倉時間
-        "",  # 出場價
-        "", "", "", "", "", "", "",  # 技術指標預留
-        strategy_name
-    ])
+# modules/connect_to_gsheet.py
+
+def write_entry_to_sheet(entry: dict):
+    import gspread
+    from google.oauth2.service_account import Credentials
+    from datetime import datetime
+    import os
+    import base64
+    import json
+
+    # 取得 Google Sheets 金鑰
+    key_base64 = os.getenv("GCP_KEY_BASE64")
+    sheet_url = os.getenv("GSHEET_URL")
+    decoded = base64.b64decode(key_base64)
+    creds_dict = json.loads(decoded.decode("utf-8"))
+    creds = Credentials.from_service_account_info(creds_dict)
+    client = gspread.authorize(creds)
+    sheet = client.open_by_url(sheet_url).worksheet("建倉紀錄")  # ← 替換為你的分頁名稱
+
+    # 準備寫入的資料列
+    row = [
+        entry["symbol"],
+        entry["entry_time"],
+        entry["price"],
+        entry["direction"],
+        entry["shares"],
+        entry["strategy_name"],
+        entry.get("signal_note", ""),
+        entry.get("capital_used", ""),
+        entry.get("rsi", ""),
+        entry.get("zscore", ""),
+        entry.get("obv", ""),
+        entry.get("vwap", ""),
+        entry.get("ema5", ""),
+        entry.get("ema20", ""),
+        entry.get("bb_upper", ""),
+        entry.get("bb_lower", ""),
+        entry.get("trend_score", ""),
+        entry.get("rrov_score", ""),
+        entry.get("mean_score", ""),
+        entry.get("confidence_score", "")
+    ]
+
+    # 寫入資料
+    sheet.append_row(row, value_input_option="USER_ENTERED")
 
 # ✅ 寫入出場記錄
 def write_exit_to_sheet(symbol, entry_time, exit_time, return_rate, pnl, holding_minutes,
