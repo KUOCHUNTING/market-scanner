@@ -12,3 +12,5 @@ GSHEET_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
 
 # ✅ 初始資金設定
 capital_left = 100000
+
+DEFAULT_STOP_LOSS = 0.03  # 或其他你設定的停損值
