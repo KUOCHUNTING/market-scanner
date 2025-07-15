@@ -1,3 +1,4 @@
+from datetime import datetime
 from modules.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN
 
 def should_exit(symbol, position, current_price):
@@ -5,6 +6,8 @@ def should_exit(symbol, position, current_price):
     direction = position["direction"]
     sell_stage = position.get("sell_stage", 0)
     max_gain = position.get("max_gain", 0)
+    entry_time = position.get("entry_time")
+    holding_minutes = int((datetime.now() - entry_time).total_seconds() / 60) if entry_time else 0
 
     # === 計算報酬率 ===
     if "多" in direction:
@@ -17,7 +20,7 @@ def should_exit(symbol, position, current_price):
         position["max_gain"] = return_rate
         max_gain = return_rate
 
-    # === 停損 / 鎖利 / 追蹤停利判斷 ===
+    # ✅ 判斷是否出場
     reason, exit_ratio = None, 0
     if return_rate <= -DEFAULT_STOP_LOSS:
         reason = f"🛑 停損觸發：{return_rate:.2f}%"
