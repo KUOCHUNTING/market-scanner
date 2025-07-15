@@ -3,6 +3,9 @@ from modules.config import stock_list
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check  # ← ✅ 加這行
 from dotenv import load_dotenv
+# === 啟動出場排程（建議放在 main_controller.py）
+from modules.notify.check_exit_and_notify import schedule_exit_check
+schedule_exit_check()
 load_dotenv()
 
 if __name__ == "__main__":
