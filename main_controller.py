@@ -1,23 +1,25 @@
+# main_controller.py
+
 import time
 import traceback
 from dotenv import load_dotenv
 
+# === 設定與功能模組 ===
 from modules.config import stock_list
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
-from modules.utils.market_time import is_us_market_open  # ⏰ 盤中判斷
-from modules.utils.market_time import is_us_market_open, get_market_phase
+from modules.utils.market_time import get_market_phase  # ⏰ 盤前/盤中/盤後 判斷
+
+# ✅ 載入 .env 環境變數
+load_dotenv()
 
 def main():
     print("🚀 啟動主控系統：scan_market + 出場排程")
 
-    # ✅ 判斷市場階段（盤前 / 盤中 / 盤後）
+    # ✅ 市場時段判斷
     phase = get_market_phase()
-    print(f"🕒 當前市場階段：{phase}")
-
-    # ✅ 非盤中跳過掃描（可根據 phase 寫不同邏輯）
-    if phase != "盤中":
-        print("⏰ 非美股盤中時間 ➜ 跳過掃描")
+    if phase != "open":
+        print(f"⏰ 當前市場為 {phase} ➜ 暫停掃描與建倉")
         return
 
     # ✅ 掃描市場並建倉
