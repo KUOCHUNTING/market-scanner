@@ -1,7 +1,7 @@
 from datetime import datetime
 from modules.connect_to_gsheet import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
-from modules.config import WEBHOOK_URL
+from modules.config.config import WEBHOOK_URL
 from modules.utils.format import safe_float
 
 # === 📦 出場執行模組 ===
