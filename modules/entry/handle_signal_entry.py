@@ -1,4 +1,4 @@
-from modules.enter_position import enter_position
+from modules.entry.handle_entry import enter_position  ✅
 from modules.utils.format import get_last_value
 from modules.notify.build_discord_message import build_entry_message
 from modules.notify.discord_push import send_discord_message
