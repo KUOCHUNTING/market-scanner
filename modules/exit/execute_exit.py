@@ -1,5 +1,5 @@
 from datetime import datetime
-from modules.utils.connect_to_gsheet import write_exit_to_sheet
+from modules.utils.connect_to_gsheet import connect_to_gsheet, write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
 from modules.utils.format import safe_float
