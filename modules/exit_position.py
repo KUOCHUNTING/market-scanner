@@ -1,66 +1,50 @@
 from datetime import datetime
-from modules.calculate_exit_metrics import calculate_exit_metrics
 from modules.notify.discord_push import send_discord_message
-from modules.connect_to_gsheet import write_exit_to_sheet  # ← 根據你的寫入函數位置調整
+from modules.connect_to_gsheet import write_exit_to_sheet
 
-def exit_position(symbol, current_price, position_data):
-    exit_time = datetime.now()
+def execute_exit(symbol, position, current_price, indicators, reason="策略觸發出場"):
+    try:
+        now = datetime.now()
+        entry_price = position["entry_price"]
+        direction = position["direction"]
+        shares = position["shares"]
+        entry_time = position["entry_time"]
 
-    # 提取持倉資訊
-    entry_price = position_data['entry_price']
-    shares = position_data['shares']
-    entry_time = position_data['entry_time']
+        # === 📊 計算損益與報酬率 ===
+        if direction == "做多":
+            pnl = (current_price - entry_price) * shares
+            return_pct = (current_price - entry_price) / entry_price * 100
+        else:  # 做空
+            pnl = (entry_price - current_price) * shares
+            return_pct = (entry_price - current_price) / entry_price * 100
 
-    # 若 entry_time 是字串，轉為 datetime 物件
-    if isinstance(entry_time, str):
-        try:
-            entry_time = datetime.fromisoformat(entry_time)
-        except Exception:
-            print(f"[錯誤] entry_time 無法轉換：{entry_time}")
-            return
+        # === 📩 推播格式 ===
+        msg = f"📤 出場通知｜{symbol}\n"
+        msg += f"📈 建倉價：{entry_price:.2f} ➜ 出場價：{current_price:.2f}\n"
+        msg += f"🎯 方向：{direction}｜策略：{position.get('strategy_name', '未標記')}\n"
+        msg += f"💰 報酬率：{return_pct:.2f}%｜損益：${pnl:.2f}\n"
+        msg += f"⏳ 持倉時間：{str(now - entry_time)}｜出場原因：{reason}"
 
-    # 防呆：價格或股數異常
-    if entry_price is None or entry_price <= 0.05 or shares <= 0:
-        print(f"[跳過] {symbol} ➜ 出場無效（entry_price={entry_price}, shares={shares}）")
-        return
+        send_discord_message(msg)
 
-    # 計算績效
-    return_rate, pnl, holding_minutes = calculate_exit_metrics(
-        entry_price=entry_price,
-        exit_price=current_price,
-        shares=shares,
-        entry_time=entry_time,
-        exit_time=exit_time,
-        direction=position_data['direction'],
-        symbol=symbol
-    )
+        # === ✅ 寫入 Google Sheets 出場紀錄 ===
+        write_exit_to_sheet(
+            symbol=symbol,
+            entry_time=entry_time,
+            exit_time=now,
+            return_rate=return_pct,
+            pnl=pnl,
+            holding_time_str=str(now - entry_time),
+            exit_price=current_price,
+            rsi=indicators.get("rsi", [None])[-1],
+            zscore=indicators.get("zscore", [None])[-1],
+            roc=indicators.get("roc", [None])[-1],
+            obv=indicators.get("obv", [None])[-1],
+            vwap=indicators.get("vwap", [None])[-1],
+            ema5=indicators.get("ema_5", [None])[-1],
+            ema20=indicators.get("ema_20", [None])[-1],
+            strategy_name=position.get("strategy_name", "未標記策略")
+        )
 
-    # 報酬率檢查
-    if return_rate is None:
-        print(f"[❌ 報酬率無效] {symbol} ➜ 可能被過濾或價格異常")
-        return
-    elif return_rate < -90 or return_rate > 500:
-        print(f"[跳過] {symbol} ➜ 報酬率異常（{return_rate:.2f}%），可能是假價格")
-        return
-
-    # 寫入出場記錄
-    write_exit_to_sheet(
-        symbol=symbol,
-        entry_time=entry_time,
-        exit_time=exit_time,
-        return_rate=return_rate,
-        pnl=pnl,
-        holding_minutes=holding_minutes,
-        exit_price=current_price,
-        rsi=position_data.get("rsi"),
-        zscore=position_data.get("zscore"),
-        roc=position_data.get("roc"),
-        obv=position_data.get("obv"),
-        vwap=position_data.get("vwap"),
-        ema5=position_data.get("ema5"),
-        ema20=position_data.get("ema20"),
-        strategy_name=position_data.get("strategy_display", "未知策略")
-    )
-
-    # 出場提示
-    print(f"[📤 出場完成] {symbol} ➜ 損益：${pnl:.2f}｜報酬率：{return_rate:.2f}%｜持倉：{holding_minutes:.1f} 分鐘")
+    except Exception as e:
+        print(f"❌ [出場錯誤] {symbol} ➜ {e}")
