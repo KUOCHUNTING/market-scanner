@@ -1,8 +1,15 @@
 # modules/utils/market_time.py
+
 import pytz
 from datetime import datetime, time as dtime
 
 def get_us_market_times():
+    """
+    回傳美東時間下：
+    - now_est：目前時間
+    - market_open：當日開盤時間（09:30）
+    - market_close：當日收盤時間（16:00）
+    """
     est = pytz.timezone("US/Eastern")
     now_est = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(est)
 
@@ -12,12 +19,17 @@ def get_us_market_times():
 
 def get_market_phase():
     """
-    回傳當前市場時段：
+    回傳當前市場階段：
+    - "weekend"：週末
     - "premarket"：盤前（< 09:30）
     - "open"：盤中（09:30 ~ 16:00）
     - "afterhours"：盤後（> 16:00）
     """
     now_est, market_open, market_close = get_us_market_times()
+
+    # 檢查是否為週末（週六=5、週日=6）
+    if now_est.weekday() >= 5:
+        return "weekend"
 
     if now_est < market_open:
         return "premarket"
@@ -28,6 +40,6 @@ def get_market_phase():
 
 def is_us_market_open():
     """
-    是否為盤中時段（09:30 ~ 16:00）
+    是否為美股盤中交易時間
     """
     return get_market_phase() == "open"
