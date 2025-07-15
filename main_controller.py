@@ -5,7 +5,7 @@ import traceback
 from dotenv import load_dotenv
 
 # === 設定與功能模組 ===
-from modules.config import stock_list
+from modules.config.config import stock_list  # ✅ 明確指向 config.py
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import get_market_phase  # ⏰ 盤前/盤中/盤後 判斷
