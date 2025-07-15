@@ -1,33 +1,51 @@
-def should_exit(position, current_price):
-    entry_price = position["entry_price"]
-    direction = position["direction"]
+from modules.config import DEFAULT_STOP_LOSS, DEFAULT_TAKE_PROFIT, TRAIL_TRIGGER, TRAIL_MARGIN
+from modules.config import positions
 
-    # === 計算報酬率 ===
-    if direction == "做多":
-        change = (current_price - entry_price) / entry_price
-    else:  # 做空
-        change = (entry_price - current_price) / entry_price
+def should_exit(symbol):
+    pos = positions.get(symbol)
+    if not pos:
+        return False
 
-    # === 三段鎖利 / 停損邏輯 ===
-    stop_loss = -0.05
-    first_lock = 0.05
-    second_lock = 0.08
-    third_lock = 0.12
+    entry_price = pos["entry_price"]
+    direction = pos["direction"]
+    latest_price = pos["latest_price"]
+    sell_stage = pos["sell_stage"]
+    max_gain = pos["max_gain"]
 
-    # === 第 1 段鎖利（漲超過 5%，回檔 2%）===
-    if change >= first_lock and position.get("max_profit", 0) - change >= 0.02:
-        return True, "🔒 第一段鎖利（回檔 2%）"
+    if not all([entry_price, latest_price, direction]):
+        return False
 
-    # === 第 2 段鎖利（漲超過 8%，回檔 3%）===
-    if change >= second_lock and position.get("max_profit", 0) - change >= 0.03:
-        return True, "🔒 第二段鎖利（回檔 3%）"
+    # 計算報酬率
+    if "多" in direction:
+        return_rate = (latest_price - entry_price) / entry_price * 100
+    else:
+        return_rate = (entry_price - latest_price) / entry_price * 100
 
-    # === 第 3 段鎖利（漲超過 12%，回檔 4%）===
-    if change >= third_lock and position.get("max_profit", 0) - change >= 0.04:
-        return True, "🔒 第三段鎖利（回檔 4%）"
+    # 記錄最高報酬
+    if return_rate > max_gain:
+        pos["max_gain"] = return_rate
+        max_gain = return_rate
 
-    # === 停損邏輯 ===
-    if change <= stop_loss:
-        return True, "❌ 停損觸發"
+    # 出場條件
+    if return_rate <= -DEFAULT_STOP_LOSS:
+        pos["exit_reason"] = f"🛑 停損觸發：{return_rate:.2f}%"
+        pos["exit_ratio"] = 1.0
+        return True
+    elif return_rate >= DEFAULT_TAKE_PROFIT and sell_stage == 0:
+        pos["exit_reason"] = f"🔒 第一段鎖利：{return_rate:.2f}%"
+        pos["exit_ratio"] = 0.5
+        pos["sell_stage"] = 1
+        return True
+    elif return_rate >= 8.0 and sell_stage <= 1:
+        pos["exit_reason"] = f"🔒 第二段鎖利：{return_rate:.2f}%"
+        pos["exit_ratio"] = 1.0
+        pos["sell_stage"] = 2
+        return True
+    elif max_gain >= TRAIL_TRIGGER and (max_gain - return_rate) >= TRAIL_MARGIN and sell_stage <= 1:
+        drop = max_gain - return_rate
+        pos["exit_reason"] = f"🔃 追蹤停利：回落 {drop:.2f}%"
+        pos["exit_ratio"] = 1.0
+        pos["sell_stage"] = 3
+        return True
 
-    return False, ""
+    return False
