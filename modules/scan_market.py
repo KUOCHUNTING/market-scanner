@@ -94,8 +94,7 @@ def scan_market(symbol_list):
                     rsi=squeeze_result.get("rsi"),
                     ema5=squeeze_result.get("ema_5"),
                     ema20=squeeze_result.get("ema_20"),
-                    signal_note="Squeeze OFF + 技術條件命中",
-                    close_price=squeeze_result["close"]
+                    signal_note="Squeeze OFF + 技術條件命中"
                 )
                 if shares:
                     print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
