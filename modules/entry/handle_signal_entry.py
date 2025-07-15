@@ -2,7 +2,7 @@ from modules.entry.handle_entry import enter_position
 from modules.utils.format import get_last_value
 from modules.notify.build_discord_message import build_entry_message
 from modules.notify.discord_push import send_discord_message
-from modules.config import WEBHOOK_URL
+from modules.config.config import WEBHOOK_URL
 
 def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
