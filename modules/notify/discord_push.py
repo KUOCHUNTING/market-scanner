@@ -1,4 +1,3 @@
-from modules.notify.discord_push import send_discord_message
 from modules.config import WEBHOOK_URL
 import requests
 
