@@ -1,6 +1,9 @@
+import requests
+from modules.config import WEBHOOK_URL  # ✅ 加這行，從 config 匯入 webhook
+
 def send_discord_message(message):
     try:
-        print("[推播內容] >>>\n", message)  # ✅ 加這行除錯
+        print("[推播內容] >>>\n", message)
         data = {"content": message}
         response = requests.post(WEBHOOK_URL, json=data)
         if response.status_code != 204:
