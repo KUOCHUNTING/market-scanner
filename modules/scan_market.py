@@ -30,14 +30,15 @@ stock_list = load_stock_list()
 # ✅ 主掃描函數
 def scan_market(symbol_list):
     global capital_left
-    
+
+    # ✅ 處理 symbol_list 為 DataFrame 或 list
     if isinstance(symbol_list, pd.DataFrame):
         symbol_list = symbol_list["symbol"].dropna().tolist()
     elif not isinstance(symbol_list, list):
         raise TypeError("❌ 傳入的 symbol_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
-    random.shuffle(symbol_list）
-                   
+    random.shuffle(symbol_list)  # ✅ 半形括號
+
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f}，暫停掃描")
