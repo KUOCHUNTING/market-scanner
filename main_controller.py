@@ -1,24 +1,21 @@
-import os
 import time
 import traceback
-from datetime import datetime
 from dotenv import load_dotenv
 
-# ✅ 載入環境變數（最一開始執行）
-load_dotenv()
-
-# ✅ 載入功能模組
-from modules.utils.market_time import is_us_market_open
 from modules.config import stock_list
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
+from modules.utils.market_time import is_us_market_open  # ⏰ 盤中判斷
+
+# ✅ 載入 .env 環境變數
+load_dotenv()
 
 def main():
-    print(f"🚀 啟動主控系統：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # ✅ 檢查盤中時間
+    print("🚀 啟動主控系統：scan_market + 出場排程")
+
+    # ✅ 若非盤中 ➜ 直接跳出
     if not is_us_market_open():
-        print("[⏰ 跳過] 非美股盤中時間，掃描已跳過")
+        print("⏰ 非美股盤中時間 ➜ 跳過掃描")
         return
 
     # ✅ 掃描市場並建倉
@@ -35,7 +32,7 @@ def main():
         print(f"[錯誤] schedule_exit_check 啟動失敗：{e}")
         traceback.print_exc()
 
-    # ✅ 持續運行（未來可整合 websocket / 即時監控）
+    # ✅ 持續執行主程式
     while True:
         time.sleep(60)
 
