@@ -1,5 +1,6 @@
 from datetime import datetime
 from modules.notify.discord_push import send_discord_message
+from modules.config import WEBHOOK_URL
 from modules.connect_to_gsheet import write_exit_to_sheet
 from modules.indicator_cache import get_cached_indicators
 
@@ -11,13 +12,13 @@ def execute_exit(symbol, position, current_price, reason):
     confidence_score = position.get("confidence_score")
     quantity = position["quantity"]
 
-    # 報酬率與損益
+    # === 報酬率與損益 ===
     return_rate = (current_price - entry_price) / entry_price if "多" in direction else (entry_price - current_price) / entry_price
     pnl = round(return_rate * entry_price * quantity, 2)
     return_rate = round(return_rate, 4)
     holding_minutes = int((datetime.now() - entry_time).total_seconds() / 60)
 
-    # 指標讀取（從 cache 抓）
+    # === 指標讀取（從 cache）===
     indicators = get_cached_indicators(symbol)
     def safe_get(key): return indicators.get(key, [None])[-1]
 
@@ -29,7 +30,7 @@ def execute_exit(symbol, position, current_price, reason):
     ema5 = safe_get("ema_5")
     ema20 = safe_get("ema_20")
 
-    # 推播訊息
+    # === 推播訊息 ===
     emoji = "✅" if return_rate >= 0 else "⚠️"
     message = (
         f"{emoji} **[出場通知｜{strategy_name}]** `{symbol}`\n"
@@ -38,9 +39,9 @@ def execute_exit(symbol, position, current_price, reason):
         f"⏱️ 持倉時間：{holding_minutes} 分鐘\n"
         f"📌 原因：{reason}"
     )
-    send_discord_message(message)
+    send_discord_message(WEBHOOK_URL, message)
 
-    # ✅ 寫入 Google Sheets
+    # === 寫入 Google Sheets ===
     write_exit_to_sheet(
         symbol=symbol,
         entry_time=entry_time,
@@ -54,6 +55,8 @@ def execute_exit(symbol, position, current_price, reason):
         roc=roc,
         obv=obv,
         vwap=vwap,
+        ema5=ema5,
+        ema20=ema20,
         strategy_name=strategy_name,
         confidence_score=confidence_score
     )
