@@ -9,7 +9,7 @@ from google.oauth2.service_account import Credentials
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    scopes = ["https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit?gid=535125383#gid=535125383"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
 # ✅ 建立 Google Sheets 客戶端
