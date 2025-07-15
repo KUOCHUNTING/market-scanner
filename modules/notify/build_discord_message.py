@@ -1,39 +1,5 @@
 from modules.utils.format import safe_float
 
-def build_breakout_message(squeeze_result):
-    """
-    擠壓突破推播訊息格式組裝
-    squeeze_result 為 dict，包含以下欄位：
-    - symbol, price, direction, score, note
-    - trigger_type（例如：'BB突破'）
-    - rsi, obv, ema5, ema20, bb_upper, bb_lower
-    """
-    symbol = squeeze_result.get("symbol", "未知")
-    price = safe_float(squeeze_result.get("price"))
-    direction = squeeze_result.get("direction", "做多")
-    score = safe_float(squeeze_result.get("score"))
-    note = squeeze_result.get("note", "")
-    rsi = safe_float(squeeze_result.get("rsi"))
-    obv = safe_float(squeeze_result.get("obv"))
-    ema5 = safe_float(squeeze_result.get("ema5"))
-    ema20 = safe_float(squeeze_result.get("ema20"))
-    bb_upper = safe_float(squeeze_result.get("bb_upper"))
-    bb_lower = safe_float(squeeze_result.get("bb_lower"))
-    trigger = squeeze_result.get("trigger_type", "突破")
-
-    # === 🎯 訊息主體 ===
-    message = f"💥 擠壓突破 ➤ `{symbol}`\n"
-    message += f"📈 方向：**{direction}** ｜收盤價：${price}\n"
-    message += f"🎯 訊號類型：{trigger}\n"
-    message += f"🧠 信心分數：`{score}`\n"
-    message += f"📌 條件摘要：{note}\n"
-    message += f"───────────── 技術指標 ─────────────\n"
-    message += f"📊 RSI：{rsi} ｜OBV：{obv}\n"
-    message += f"📉 EMA5：{ema5} ｜EMA20：{ema20}\n"
-    message += f"🎯 BB上：{bb_upper} ｜BB下：{bb_lower}"
-
-    return message
-
 def build_mean_reversion_message(symbol, price, rsi, zscore, ema5, ema20,
                                   bb_upper, bb_lower, obv, score, confidence_score,
                                   direction, shares, capital_used, capital_left, signal_note):
