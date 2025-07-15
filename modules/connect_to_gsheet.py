@@ -1,13 +1,24 @@
+import os
+import base64
+import json
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from google.oauth2.service_account import Credentials
 
-# ✅ 設定認證與工作表
-def connect_to_gsheet(sheet_url, sheet_name, credentials_path):
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
-    gc = gspread.authorize(credentials)
-    sheet = gc.open_by_url(sheet_url).worksheet(sheet_name)
+# ✅ 取得憑證（從 base64 環境變數）
+def get_credentials_from_base64(base64_key):
+    decoded = base64.b64decode(base64_key)
+    key_dict = json.loads(decoded.decode("utf-8"))
+    return Credentials.from_service_account_info(
+        key_dict,
+        scopes=["https://www.googleapis.com/auth/spreadsheets"]
+    )
+
+# ✅ 連線 Google Sheets（傳入 base64 金鑰與 Sheet URL）
+def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
+    creds = get_credentials_from_base64(base64_key)
+    client = gspread.authorize(creds)
+    sheet = client.open_by_url(sheet_url).worksheet(sheet_name)
     return sheet
 
 # ✅ 寫入建倉記錄
@@ -15,12 +26,12 @@ def write_entry_to_sheet(sheet, symbol, entry_time, entry_price, direction, quan
     sheet.append_row([
         symbol,
         entry_time.strftime("%Y-%m-%d %H:%M:%S"),
-        "",  # 出場時間暫留空
+        "",  # 出場時間
         "",  # 報酬率
         "",  # 損益
         "",  # 持倉時間
         "",  # 出場價
-        "", "", "", "", "", "", "",  # 技術指標暫留空
+        "", "", "", "", "", "", "",  # 技術指標預留
         strategy_name
     ])
 
@@ -28,8 +39,8 @@ def write_entry_to_sheet(sheet, symbol, entry_time, entry_price, direction, quan
 def write_exit_to_sheet(symbol, entry_time, exit_time, return_rate, pnl, holding_minutes,
                         exit_price, rsi=None, zscore=None, roc=None, obv=None,
                         vwap=None, ema5=None, ema20=None, strategy_name="未標記"):
-    from modules.config import GSHEET_URL, GCP_KEY_PATH
-    sheet = connect_to_gsheet(GSHEET_URL, "出場記錄", GCP_KEY_PATH)
+    from modules.config import GSHEET_URL, GSHEET_KEY_BASE64
+    sheet = connect_to_gsheet(GSHEET_URL, "出場記錄", GSHEET_KEY_BASE64)
     sheet.append_row([
         symbol,
         entry_time.strftime("%Y-%m-%d %H:%M:%S"),
