@@ -8,7 +8,7 @@ from modules.notify.build_discord_message import (
     build_trend_message,
     build_breakout_message
 )
-from modules.config import WEBHOOK_URL
+from modules.config.config import WEBHOOK_URL  
 
 # === 📦 全域變數（資金與持倉）===
 entered_positions = set()
