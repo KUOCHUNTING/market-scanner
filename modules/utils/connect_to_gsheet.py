@@ -4,6 +4,10 @@ import json
 import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
+ # 讀取 .env 中的金鑰與網址
+key_base64 = os.getenv("GCP_KEY_BASE64")
+sheet_url = os.getenv("GSHEET_URL")
+
 
 # ✅ 取得憑證（從 base64 環境變數或參數）
 def get_credentials_from_base64(base64_key: str):
