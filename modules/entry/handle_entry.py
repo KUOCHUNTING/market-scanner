@@ -1,7 +1,7 @@
 # 模組位置：modules/entry/handle_entry.py
 from modules.utils.connect_to_gsheet import write_entry_to_sheet, connect_to_gsheet
 from datetime import datetime
-from modules.connect_to_gsheet import write_entry_to_sheet
+from modules.utils.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import (
     build_entry_message,
