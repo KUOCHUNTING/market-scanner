@@ -61,40 +61,43 @@ def write_exit_to_sheet(
     exit_time,
     return_rate,
     pnl,
-    holding_minutes,
+    holding_time_str,
     exit_price,
     rsi=None,
     zscore=None,
     roc=None,
     obv=None,
     vwap=None,
-    strategy_name="未標記",
-    confidence_score=None
+    ema5=None,
+    ema20=None,
+    strategy_name="未標記策略"
 ):
     try:
         client = connect_to_gsheet()
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/14SSmjk2Ae3rqx0VyiVoVWBXpq0NVNvsLs1RWckuX4Ko/edit") \
-                      .worksheet("出場紀錄")  # 🔁 分頁名
+                      .worksheet("出場紀錄")
 
+        # === 🧾 排序與欄位依序如下 ===
         row = [
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            symbol,
-            entry_time.strftime("%Y-%m-%d %H:%M:%S") if entry_time else "",
-            exit_time.strftime("%Y-%m-%d %H:%M:%S") if exit_time else "",
-            f"{return_rate:.2%}",
-            f"${pnl:.2f}",
-            holding_minutes,
-            f"${exit_price:.2f}",
-            rsi,
-            zscore,
-            roc,
-            obv,
-            vwap,
-            strategy_name,
-            confidence_score
+            symbol,                                        # 1. 股票代號
+            entry_time.strftime("%Y-%m-%d %H:%M:%S"),      # 2. 進場時間
+            exit_time.strftime("%Y-%m-%d %H:%M:%S"),       # 3. 出場時間
+            round(return_rate, 2),                         # 4. 報酬率 (%)
+            round(pnl, 2),                                 # 5. 損益 ($)
+            holding_time_str,                              # 6. 持倉時間（格式：0:31:00）
+            round(exit_price, 2),                          # 7. 出場價 ($)
+            round(rsi, 2) if rsi is not None else "",      # 8. RSI
+            round(zscore, 2) if zscore is not None else "",# 9. Z-score
+            round(roc, 2) if roc is not None else "",      # 10. ROC
+            round(obv, 2) if obv is not None else "",      # 11. OBV
+            round(vwap, 2) if vwap is not None else "",    # 12. VWAP
+            round(ema5, 2) if ema5 is not None else "",    # 13. EMA5
+            round(ema20, 2) if ema20 is not None else "",  # 14. EMA20
+            strategy_name                                  # 15. 策略名稱
         ]
 
-        sheet.append_row(row)
+        sheet.append_row(row, value_input_option="USER_ENTERED")
         print(f"✅【出場寫入成功】{symbol} ➜ 已寫入 Google Sheets 出場紀錄")
+
     except Exception as e:
         print(f"❌【出場寫入失敗】{symbol} ➜ {e}")
