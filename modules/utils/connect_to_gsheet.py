@@ -16,7 +16,7 @@ def get_credentials_from_base64(base64_key: str):
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
     client = gspread.authorize(creds)
-    sheet = client.open_by_url(sheet_url).worksheet(sheet_name)
+    worksheet = client.open_by_url(sheet_url).worksheet(sheet_name) 
     return sheet
 
 # ✅ 寫入建倉記錄
