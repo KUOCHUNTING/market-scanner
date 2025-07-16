@@ -1,5 +1,7 @@
 import requests
 from modules.config import POLYGON_API_KEY
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ✅ 抓取最新收盤價（支援單檔或多檔）
 def fetch_latest_price(symbols, api_key=POLYGON_API_KEY):
