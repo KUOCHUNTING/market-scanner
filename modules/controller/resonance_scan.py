@@ -1,11 +1,14 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# ✅ 加入上層目錄到系統路徑
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
 import time
-import os
 import pandas as pd
 import requests
 from datetime import datetime
+
 from modules.data.sector_etf_map import sector_etf_map, get_etf_by_sector, get_chinese_by_sector
 from modules.strategy.resonance_detector import detect_sector_resonance
 from modules.connect_to_gsheet import write_resonance_to_sheet
