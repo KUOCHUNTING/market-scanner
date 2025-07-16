@@ -50,29 +50,24 @@ OBV：{safe_float(obv)}
 
 
 # ✅ 擠壓策略訊息
-def build_breakout_message(ticker, direction, price, volume, rsi):
-    from modules.utils.format import safe_float
-
-    symbol = ticker  # 或 symbol = ticker if ticker is the input name
+def build_breakout_message(result, ticker=None):
+    symbol = result.get("symbol", ticker) or "未知代號"
     direction = result.get("direction", "未知方向")
     score = result.get("score", 0)
-    conditions = result.get("conditions_met", [])
-    close = result.get("close", None)
-    rsi = result.get("rsi", None)
-    ema_5 = result.get("ema_5", None)
-    ema_20 = result.get("ema_20", None)
-    strategy_name = result.get("strategy_name", "擠壓策略")
+    strategy = result.get("strategy_name", "未知策略")
+    rsi = result.get("rsi")
+    ema_5 = result.get("ema_5")
+    ema_20 = result.get("ema_20")
+    signal_note = result.get("note") or result.get("signal_note", "")
 
-    emoji = "🚀" if direction == "做多" else "💥"
+    # 格式化推播內容
+    msg = f"📈 **擠壓突破策略觸發：{symbol}**\n"
+    msg += f"> 方向：`{direction}`｜信心分數：`{score}`｜策略：`{strategy}`\n"
+    if signal_note:
+        msg += f"> 訊號說明：{signal_note}\n"
+    msg += f"> RSI：{round(rsi,2) if rsi else 'N/A'}｜EMA5：{round(ema_5,2) if ema_5 else 'N/A'}｜EMA20：{round(ema_20,2) if ema_20 else 'N/A'}"
 
-    message = f"{emoji}【擠壓策略觸發】{symbol}｜{strategy_name}\n\n"
-    message += f"📌 收盤價：{safe_float(close, 2, prefix='$')}｜RSI：{safe_float(rsi, 1)}\n"
-    message += f"📈 EMA5：{safe_float(ema_5)}｜EMA20：{safe_float(ema_20)}\n"
-    message += f"🎯 命中條件（{score}）項：\n"
-    message += "\n".join([f"- {c}" for c in conditions]) + "\n\n"
-    message += f"📊 判定方向：{direction}"
-
-    return message  # ✅ 改成正確的變數
+    return msg
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
