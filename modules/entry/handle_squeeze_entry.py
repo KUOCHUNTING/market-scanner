@@ -14,7 +14,7 @@ def handle_squeeze_entry(symbol, squeeze_result):
     msg = build_breakout_message(squeeze_result)
     send_discord_message(WEBHOOK_URL, msg)
 
-    shares, capital_used, _ = enter_position(
+    result = enter_position(
         symbol=symbol,
         price=squeeze_result["close"],
         direction=squeeze_result["direction"],
@@ -25,6 +25,12 @@ def handle_squeeze_entry(symbol, squeeze_result):
         ema20=squeeze_result.get("ema_20"),
         signal_note="Squeeze OFF + 技術條件命中"
     )
+
+    if result is None:
+        print(f"❌ 無法建倉：{symbol}，enter_position 回傳 None")
+        return None
+
+    shares, capital_used, _ = result
 
     if shares:
         print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
