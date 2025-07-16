@@ -1,5 +1,4 @@
 # controller/resonance_scan.py
-
 import time
 import os
 import pandas as pd
@@ -7,6 +6,11 @@ import requests
 from datetime import datetime
 from modules.data.sector_etf_map import sector_etf_map, get_etf_by_sector, get_chinese_by_sector
 from modules.strategy.resonance_detector import detect_sector_resonance
+from modules.connect_to_gsheet import write_resonance_to_sheet
+
+GSHEET_URL = os.getenv("GSHEET_URL")
+GSHEET_TAB = os.getenv("GSHEET_TAB") or "共振紀錄"
+GCP_KEY = os.getenv("GCP_KEY_BASE64")
 
 # ✅ 讀取 Discord Webhook
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK") or "https://your-webhook-url"
