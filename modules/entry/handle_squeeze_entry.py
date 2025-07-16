@@ -31,7 +31,5 @@ def handle_squeeze_entry(symbol, squeeze_result):
         return None
 
     shares, capital_used, _ = result
-
-    if shares:
-        print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
+    print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
     return shares, capital_used
