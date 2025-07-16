@@ -1,5 +1,6 @@
 # modules/connect_to_gsheet.py
-
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import os
 import base64
 import json
