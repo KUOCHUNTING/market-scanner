@@ -3,6 +3,10 @@ from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
+from dotenv import load_dotenv
+
+load_dotenv()
+print("✅ GCP_KEY_BASE64:", os.getenv("GCP_KEY_BASE64"))
 
 # ✅ 全域資金與持倉管理
 capital_left = float(os.getenv("CAPITAL_LEFT", "100000"))
