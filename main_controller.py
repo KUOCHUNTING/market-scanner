@@ -22,6 +22,10 @@ def main():
         print(f"⏰ 當前市場為 {phase} ➜ 暫停掃描與建倉")
         return
 
+    from controller.resonance_scan import run_sector_resonance
+    import threading
+    threading.Thread(target=run_sector_resonance, kwargs={"interval": 30}, daemon=True).start()
+
     # ✅ 掃描市場並建倉
     try:
         scan_market(stock_list)
