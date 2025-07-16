@@ -1,56 +1,91 @@
-# modules/strategy/resonance_detector.py
-
-import yfinance as yf
+import requests
+import numpy as np
 import pandas as pd
-from ta.momentum import RSIIndicator
-from ta.volume import OnBalanceVolumeIndicator
+from datetime import datetime, timedelta
+import os
 
-def fetch_rsi_obv(symbol: str, interval="15m", lookback="2d"):
-    """抓取最近資料並計算 RSI 與 OBV"""
+# ✅ 讀取 Polygon API 金鑰
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY") or "your-api-key"
+
+# ✅ 抓取 Polygon 歷史價格資料（回傳 DataFrame）
+def fetch_polygon_ohlc(symbol, days=30):
+    end_date = datetime.today()
+    start_date = end_date - timedelta(days=days * 2)  # 多抓一點保險
+
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/1/day/{start_date.strftime('%Y-%m-%d')}/{end_date.strftime('%Y-%m-%d')}"
+    params = {
+        "adjusted": "true",
+        "sort": "asc",
+        "limit": 5000,
+        "apiKey": POLYGON_API_KEY
+    }
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        raise ValueError(f"Polygon API 回應錯誤：{response.text}")
+
+    data = response.json().get("results", [])
+    if not data or len(data) < days:
+        raise ValueError(f"{symbol} 資料不足（僅取得 {len(data)} 筆）")
+
+    df = pd.DataFrame(data)
+    df["t"] = pd.to_datetime(df["t"], unit="ms")
+    df.set_index("t", inplace=True)
+    df.rename(columns={"c": "close", "v": "volume"}, inplace=True)
+    return df[["close", "volume"]].tail(days)
+
+# ✅ 計算 RSI（14）
+def calculate_rsi(series, period=14):
+    delta = series.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
+
+# ✅ 計算 OBV
+def calculate_obv(close, volume):
+    obv = [0]
+    for i in range(1, len(close)):
+        if close[i] > close[i - 1]:
+            obv.append(obv[-1] + volume[i])
+        elif close[i] < close[i - 1]:
+            obv.append(obv[-1] - volume[i])
+        else:
+            obv.append(obv[-1])
+    return pd.Series(obv, index=close.index)
+
+# ✅ 主邏輯：板塊共振偵測
+def detect_sector_resonance(etf_symbol, stock_list, min_confirmed=3):
     try:
-        data = yf.download(symbol, interval=interval, period=lookback, progress=False)
-        data.dropna(inplace=True)
-        if len(data) < 10:
-            return None
+        # ✅ 抓 ETF 資料
+        df_etf = fetch_polygon_ohlc(etf_symbol)
+        rsi_etf = calculate_rsi(df_etf["close"])
+        obv_etf = calculate_obv(df_etf["close"].values, df_etf["volume"].values)
 
-        data["rsi"] = RSIIndicator(close=data["Close"]).rsi()
-        data["obv"] = OnBalanceVolumeIndicator(close=data["Close"], volume=data["Volume"]).on_balance_volume()
-        return data[["Close", "rsi", "obv"]]
+        # ✅ 判斷 ETF 是否轉強（RSI > 50 且 OBV 上升）
+        etf_rsi_value = rsi_etf.iloc[-1]
+        etf_obv_up = obv_etf.iloc[-1] > obv_etf.iloc[-5]
+        etf_is_strong = (etf_rsi_value > 50) and etf_obv_up
+
+        if not etf_is_strong:
+            return False, []
+
+        # ✅ 掃描成分股是否共振
+        resonant_stocks = []
+        for symbol in stock_list:
+            try:
+                df = fetch_polygon_ohlc(symbol)
+                rsi = calculate_rsi(df["close"])
+                obv = calculate_obv(df["close"].values, df["volume"].values)
+                rsi_val = rsi.iloc[-1]
+                obv_up = obv.iloc[-1] > obv.iloc[-5]
+                if rsi_val > 50 and obv_up:
+                    resonant_stocks.append(symbol)
+            except Exception as e:
+                print(f"⚠️ {symbol} 資料錯誤：{e}")
+
+        return len(resonant_stocks) >= min_confirmed, resonant_stocks
+
     except Exception as e:
-        print(f"❌ {symbol} 抓取失敗：{e}")
-        return None
-
-def is_rsi_obv_turning_positive(df: pd.DataFrame) -> bool:
-    """判斷 RSI 與 OBV 是否剛剛轉為上升"""
-    if df is None or len(df) < 5:
-        return False
-
-    recent = df.iloc[-3:]  # 最近 3 根
-    rsi_trend = recent["rsi"].diff().iloc[-2:].tolist()
-    obv_trend = recent["obv"].diff().iloc[-2:].tolist()
-
-    rsi_up = all(x > 0 for x in rsi_trend)
-    obv_up = all(x > 0 for x in obv_trend)
-
-    return rsi_up and obv_up
-
-def detect_sector_resonance(etf_symbol: str, constituent_symbols: list, min_ratio: float = 0.6):
-    """
-    檢查 ETF 是否轉強 + 成分股共振
-    :param etf_symbol: 板塊 ETF 代碼（如 XLK）
-    :param constituent_symbols: 該板塊的成分股清單
-    :param min_ratio: 幾成成分股需共振（預設 60%）
-    :return: 是否共振（True/False）、共振股票列表
-    """
-    etf_df = fetch_rsi_obv(etf_symbol)
-    if not is_rsi_obv_turning_positive(etf_df):
+        print(f"❌ 共振檢查失敗：{e}")
         return False, []
-
-    resonant_stocks = []
-    for symbol in constituent_symbols:
-        stock_df = fetch_rsi_obv(symbol)
-        if is_rsi_obv_turning_positive(stock_df):
-            resonant_stocks.append(symbol)
-
-    ratio = len(resonant_stocks) / max(1, len(constituent_symbols))
-    return ratio >= min_ratio, resonant_stocks
