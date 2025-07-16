@@ -50,7 +50,7 @@ OBV：{safe_float(obv)}
 
 
 # ✅ 擠壓策略訊息
-def build_breakout_message(result):
+def build_breakout_message(ticker, direction, price, volume, rsi):
     from modules.utils.format import safe_float
 
     symbol = result.get("symbol", "未知代號")
