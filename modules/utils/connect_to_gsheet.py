@@ -37,15 +37,20 @@ def write_entry_to_sheet(entry: dict):
 
     sheet = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 
+    entry_time = entry["entry_time"]
+    if isinstance(entry_time, datetime):
+        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
+
     row = [
+        entry_time,
         entry["symbol"],
-        entry["entry_time"].strftime("%Y-%m-%d %H:%M:%S") if isinstance(entry["entry_time"], datetime) else entry["entry_time"],
-        entry["price"],
         entry["direction"],
+        entry["price"],
         entry["shares"],
-        entry["strategy_name"],
-        entry.get("signal_note", ""),
         entry.get("capital_used", ""),
+        entry["strategy_name"],
+        entry.get("confidence_score", ""),
+        entry.get("signal_note", ""),
         entry.get("rsi", ""),
         entry.get("zscore", ""),
         entry.get("obv", ""),
@@ -56,8 +61,7 @@ def write_entry_to_sheet(entry: dict):
         entry.get("bb_lower", ""),
         entry.get("trend_score", ""),
         entry.get("rrov_score", ""),
-        entry.get("mean_score", ""),
-        entry.get("confidence_score", "")
+        entry.get("mean_score", "")
     ]
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
