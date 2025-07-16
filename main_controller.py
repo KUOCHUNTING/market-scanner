@@ -14,6 +14,7 @@ from modules.data.loaders import load_stock_list  # ✅ 改用載入函數
 stock_list = load_stock_list()
 # ✅ 載入 .env 環境變數
 load_dotenv()
+print("✅ GCP_KEY_BASE64:", os.getenv("GCP_KEY_BASE64"))
 
 def main():
     print("🚀 啟動主控系統：scan_market + 出場排程")
