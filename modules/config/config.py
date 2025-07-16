@@ -15,5 +15,5 @@ WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK") or "https://your-default-webhook-url"
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY") or "your-polygon-api-key"
 
 # === 📄 Google Sheets 設定 ===
-GSHEET_URL = os.getenv("GSHEET_URL") or "https://docs.google.com/spreadsheets/xxx"
-GSHEET_KEY_BASE64 = os.getenv("GCP_KEY_BASE64") or None  # base64 編碼的 GCP 憑證內容
+GSHEET_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
+GSHEET_URL = os.getenv("GSHEET_URL")
