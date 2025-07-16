@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pandas as pd
 from datetime import datetime
 from modules.connect_to_gsheet import connect_to_gsheet
