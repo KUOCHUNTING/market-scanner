@@ -4,10 +4,11 @@ from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
 
-# ✅ 資金控管（環境變數或 config 中）
+# ✅ 全域資金與持倉管理
 capital_left = float(os.getenv("CAPITAL_LEFT", "100000"))
+positions = {}  # symbol -> position dict
 
-# ✅ 建倉主函式
+# ✅ 主建倉函數
 def enter_position(
     symbol: str,
     price: float,
@@ -26,12 +27,19 @@ def enter_position(
     signal_note=None,
     trend_score=None,
     rrov_score=None,
-    mean_score=None
+    mean_score=None,
+    take_profit_pct=0.08,
+    stop_loss_pct=0.03
 ):
-    global capital_left
+    global capital_left, positions
 
-    # ✅ 建倉資金比例與股數
-    allocation = 0.1  # 每筆使用 10%
+    # ✅ 重複建倉檢查
+    if symbol in positions:
+        print(f"⚠️ 已持有 {symbol}，跳過建倉")
+        return None, 0, 0
+
+    # ✅ 資金與股數計算
+    allocation = 0.1
     capital_used = capital_left * allocation
     if capital_used < price:
         print(f"⚠️ 資金不足，無法建倉 {symbol}")
@@ -45,17 +53,19 @@ def enter_position(
     capital_used = quantity * price
     capital_left -= capital_used
 
-    # ✅ 整理建倉紀錄
-    entry = {
-        "entry_time": datetime.now(),
+    # ✅ 建立持倉物件
+    entry_time = datetime.now()
+    position = {
         "symbol": symbol,
-        "price": price,
-        "shares": quantity,
-        "capital_used": capital_used,
+        "entry_time": entry_time,
+        "entry_price": price,
         "direction": direction,
-        "strategy_name": strategy_name,
+        "quantity": quantity,
+        "capital_used": capital_used,
+        "strategy": strategy_name,
         "confidence_score": score,
-        "signal_note": signal_note,
+        "take_profit_pct": take_profit_pct,
+        "stop_loss_pct": stop_loss_pct,
         "rsi": rsi,
         "zscore": zscore,
         "roc": roc,
@@ -67,14 +77,19 @@ def enter_position(
         "bb_lower": bb_lower,
         "trend_score": trend_score,
         "rrov_score": rrov_score,
-        "mean_score": mean_score
+        "mean_score": mean_score,
+        "signal_note": signal_note
     }
 
     # ✅ 寫入 Google Sheets
-    write_entry_to_sheet(entry)
+    write_entry_to_sheet(position)
 
     # ✅ 推播 Discord
-    msg = build_entry_message(entry)
+    msg = build_entry_message(position)
     send_discord_message(msg)
 
+    # ✅ 儲存持倉資訊
+    positions[symbol] = position
+
+    print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}")
     return symbol, capital_used, quantity
