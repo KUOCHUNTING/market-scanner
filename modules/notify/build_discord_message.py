@@ -53,7 +53,7 @@ OBV：{safe_float(obv)}
 def build_breakout_message(ticker, direction, price, volume, rsi):
     from modules.utils.format import safe_float
 
-    symbol = result.get("symbol", "未知代號")
+    symbol = ticker  # 或 symbol = ticker if ticker is the input name
     direction = result.get("direction", "未知方向")
     score = result.get("score", 0)
     conditions = result.get("conditions_met", [])
