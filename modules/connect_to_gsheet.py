@@ -52,7 +52,7 @@ def write_entry_to_sheet(entry: dict):
         entry_time,
         entry["symbol"],
         entry["direction"],
-        entry["price"],
+        entry["entry_price"],
         entry["shares"],
         entry.get("capital_used", ""),
         entry["strategy_name"],
