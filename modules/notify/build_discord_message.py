@@ -65,14 +65,14 @@ def build_breakout_message(result):
 
     emoji = "🚀" if direction == "做多" else "💥"
 
-    message  = f"{emoji}【擠壓策略觸發】{symbol}｜{strategy_name}\n\n"
+    message = f"{emoji}【擠壓策略觸發】{symbol}｜{strategy_name}\n\n"
     message += f"📌 收盤價：{safe_float(close, 2, prefix='$')}｜RSI：{safe_float(rsi, 1)}\n"
     message += f"📈 EMA5：{safe_float(ema_5)}｜EMA20：{safe_float(ema_20)}\n"
     message += f"🎯 命中條件（{score}）項：\n"
     message += "\n".join([f"- {c}" for c in conditions]) + "\n\n"
     message += f"📊 判定方向：{direction}"
 
-    return message_string
+    return message  # ✅ 改成正確的變數
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
