@@ -52,48 +52,67 @@ def enter_position(
 
     capital_used = quantity * price
     capital_left -= capital_used
-
-    # ✅ 建立持倉物件
     entry_time = datetime.now()
 
-position = {
-    "symbol": symbol,
-    "entry_time": entry_time,
-    "entry_price": price,
-    "direction": direction,
-    "shares": quantity,              # ✅ 統一為 shares，與 Sheets 寫入一致
-    "capital_used": capital_used,
-    "strategy": strategy_name,
-    "confidence_score": score,
-    "take_profit_pct": take_profit_pct,
-    "stop_loss_pct": stop_loss_pct,
-    "rsi": rsi,
-    "zscore": zscore,
-    "roc": roc,
-    "obv": obv,
-    "vwap": vwap,
-    "ema5": ema5,
-    "ema20": ema20,
-    "bb_upper": bb_upper,
-    "bb_lower": bb_lower,
-    "trend_score": trend_score,
-    "rrov_score": rrov_score,
-    "mean_score": mean_score,
-    "signal_note": signal_note
-}
-
-    # ✅ 寫入 Google Sheets
-    write_entry_to_sheet(position)
-
-    print(f"✅【建倉成功】{symbol} ➜ {shares} 股｜${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
-    return shares, capital_used, shares
-
-    # ✅ 推播 Discord
-    msg = build_entry_message(position)
-    send_discord_message(msg)
+    # ✅ 建立持倉物件
+    position = {
+        "symbol": symbol,
+        "entry_time": entry_time,
+        "entry_price": price,
+        "direction": direction,
+        "shares": quantity,  # ✅ 統一名稱
+        "capital_used": capital_used,
+        "strategy": strategy_name,
+        "confidence_score": score,
+        "take_profit_pct": take_profit_pct,
+        "stop_loss_pct": stop_loss_pct,
+        "rsi": rsi,
+        "zscore": zscore,
+        "roc": roc,
+        "obv": obv,
+        "vwap": vwap,
+        "ema5": ema5,
+        "ema20": ema20,
+        "bb_upper": bb_upper,
+        "bb_lower": bb_lower,
+        "trend_score": trend_score,
+        "rrov_score": rrov_score,
+        "mean_score": mean_score,
+        "signal_note": signal_note
+    }
 
     # ✅ 儲存持倉資訊
     positions[symbol] = position
 
-    print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}")
+    # ✅ 寫入 Google Sheets
+    write_entry_to_sheet(position)
+
+    # ✅ 推播 Discord
+    msg = build_entry_message(
+        symbol=symbol,
+        price=price,
+        strategy_type="技術選股",
+        signal_type=strategy_name,
+        strategy_name=strategy_name,
+        signal_note=signal_note,
+        direction=direction,
+        score=score,
+        confidence_score=score,
+        rsi=rsi,
+        zscore=zscore,
+        ema5=ema5,
+        ema20=ema20,
+        bb_upper=bb_upper,
+        bb_lower=bb_lower,
+        obv=obv,
+        trend_score=trend_score,
+        rrov_score=rrov_score,
+        mean_score=mean_score,
+        shares=quantity,
+        capital_used=capital_used,
+        capital_left=capital_left
+    )
+    send_discord_message(msg)
+
+    print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}｜剩餘資金 ${capital_left:.2f}")
     return symbol, capital_used, quantity
