@@ -1,6 +1,8 @@
 import pandas as pd
 from modules.fetch_stock_data import fetch_stock_data
 from modules.config import POLYGON_API_KEY
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # ✅ 取得最新收盤價（Polygon API 或快取）
 def get_latest_price(symbol):
