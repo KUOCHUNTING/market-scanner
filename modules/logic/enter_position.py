@@ -38,10 +38,10 @@ def enter_position(symbol, price, direction, signal_note,
     positions[symbol] = {
         "entry_price": price,
         "entry_time": entry_time,
-        "quantity": shares,
+        "shares": shares,                     # ✅ 改為 shares
         "capital_used": capital_used,
         "direction": direction,
-        "strategy": strategy_name,
+        "strategy_name": strategy_name,       # ✅ 重點：欄位名稱必須正確
         "confidence_score": confidence_score,
         "signal_note": signal_note,
         "sell_stage": 0,
@@ -76,17 +76,8 @@ def enter_position(symbol, price, direction, signal_note,
     )
     send_discord_message(WEBHOOK_URL, message)
 
-    # ✅ Sheets 寫入（這裡才連線）
-    sheet = connect_to_gsheet(GSHEET_URL, "建倉記錄", GSHEET_KEY_BASE64)
-    write_entry_to_sheet(
-        sheet,
-        symbol,
-        entry_time,
-        price,
-        direction,
-        shares,
-        strategy_name
-    )
+    # ✅ Sheets 寫入（直接用完整 dict）
+    write_entry_to_sheet(positions[symbol])
 
     print(f"✅【建倉成功】{symbol} ➜ {shares} 股｜${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
     return shares, capital_used, shares  # 或者其他你希望的第三個欄位
