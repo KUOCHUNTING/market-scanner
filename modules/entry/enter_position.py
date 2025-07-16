@@ -58,7 +58,7 @@ def enter_position(
     position = {
         "symbol": symbol,
         "entry_time": entry_time,
-        "entry_price": entry_price,
+        "entry_price": price,
         "direction": direction,
         "quantity": quantity,
         "capital_used": capital_used,
