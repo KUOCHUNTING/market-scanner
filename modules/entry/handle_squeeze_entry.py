@@ -11,13 +11,7 @@ def handle_squeeze_entry(symbol, squeeze_result):
         return None
 
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
-    msg = build_breakout_message(
-        ticker=symbol,
-        direction=squeeze_result["direction"],
-        price=squeeze_result["close"],
-        volume=squeeze_result.get("volume"),
-        rsi=squeeze_result.get("rsi")
-    )
+    msg = build_breakout_message(squeeze_result, ticker=symbol)
     send_discord_message(WEBHOOK_URL, msg)
 
     result = enter_position(
