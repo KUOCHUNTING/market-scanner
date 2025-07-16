@@ -85,6 +85,9 @@ position = {
     # ✅ 寫入 Google Sheets
     write_entry_to_sheet(position)
 
+    print(f"✅【建倉成功】{symbol} ➜ {shares} 股｜${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
+    return shares, capital_used, shares
+
     # ✅ 推播 Discord
     msg = build_entry_message(position)
     send_discord_message(msg)
