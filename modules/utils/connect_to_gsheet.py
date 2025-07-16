@@ -67,31 +67,53 @@ def write_entry_to_sheet(entry: dict):
     sheet.append_row(row, value_input_option="USER_ENTERED")
 
 # ✅ 寫入出場記錄
-def write_exit_to_sheet(exit: dict):
+def write_exit_to_sheet(
+    symbol,
+    entry_time,
+    exit_time,
+    return_rate,
+    pnl,
+    holding_minutes,
+    exit_price,
+    rsi=None,
+    zscore=None,
+    roc=None,
+    obv=None,
+    vwap=None,
+    ema5=None,
+    ema20=None,
+    strategy_name=None,
+    confidence_score=None
+):
     key_base64 = os.getenv("GCP_KEY_BASE64")
     sheet_url = os.getenv("GSHEET_URL")
-
     if not key_base64 or not sheet_url:
         raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
 
     sheet = connect_to_gsheet(sheet_url, "出場紀錄", key_base64)
 
+    # 處理時間格式
+    if isinstance(entry_time, datetime):
+        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(exit_time, datetime):
+        exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
+
     row = [
-        exit["symbol"],
-        exit["entry_time"],
-        exit["exit_time"],
-        exit.get("return_pct", ""),
-        exit.get("pnl", ""),
-        exit.get("holding_time", ""),
-        exit.get("exit_price", ""),
-        exit.get("rsi", ""),
-        exit.get("zscore", ""),
-        exit.get("roc", ""),
-        exit.get("obv", ""),
-        exit.get("vwap", ""),
-        exit.get("ema5", ""),
-        exit.get("ema20", ""),
-        exit.get("strategy_name", "")
+        symbol,
+        entry_time,
+        exit_time,
+        f"{return_rate*100:.2f}%",
+        pnl,
+        holding_minutes,
+        exit_price,
+        rsi,
+        zscore,
+        roc,
+        obv,
+        vwap,
+        ema5,
+        ema20,
+        strategy_name
     ]
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
