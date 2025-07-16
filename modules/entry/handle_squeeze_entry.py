@@ -1,7 +1,7 @@
 from modules.notify.build_discord_message import build_breakout_message
 from modules.notify.discord_push import send_discord_message
-from modules.entry.handle_entry import enter_position
-from modules.config.config import WEBHOOK_URL, capital_left, POLYGON_API_KEY
+from modules.entry.enter_position import enter_position  # ✅ 用新版的
+from modules.config.config import WEBHOOK_URL
 
 def handle_squeeze_entry(symbol, squeeze_result):
     """
