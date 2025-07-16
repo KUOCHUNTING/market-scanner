@@ -1,8 +1,3 @@
-from modules.notify.build_discord_message import build_breakout_message
-from modules.notify.discord_push import send_discord_message
-from modules.entry.enter_position import enter_position  # ✅ 用新版的
-from modules.config.config import WEBHOOK_URL
-
 def handle_squeeze_entry(symbol, squeeze_result):
     """
     擠壓突破策略建倉流程
@@ -11,7 +6,9 @@ def handle_squeeze_entry(symbol, squeeze_result):
         return None
 
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
-    msg = build_breakout_message(squeeze_result, ticker=symbol)
+
+    # ✅ 修正這裡 → 傳入 symbol 作為第二個參數
+    msg = build_breakout_message(squeeze_result, symbol)
     send_discord_message(WEBHOOK_URL, msg)
 
     result = enter_position(
