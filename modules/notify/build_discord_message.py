@@ -72,7 +72,7 @@ def build_breakout_message(result):
     message += "\n".join([f"- {c}" for c in conditions]) + "\n\n"
     message += f"📊 判定方向：{direction}"
 
-    return message
+    return message_string
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
