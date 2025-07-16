@@ -61,6 +61,22 @@ def run_sector_resonance(interval=30, csv_path="data/stocks_with_sector.csv"):
                         f"📈 股票：{', '.join(stocks[:10])}...\n"
                         f"🕒 {timestamp}"
                     )
+
+                    # ✅ 推播到 Discord
+                    send_discord_message(content)
+
+                    # ✅ 寫入 Google Sheets
+                    write_resonance_to_sheet(
+                        timestamp=timestamp,
+                        etf=etf,
+                        sector_ch=chinese,
+                        count=len(stocks),
+                        stock_list=stocks[:10],
+                        sheet_url=GSHEET_URL,
+                        sheet_name=GSHEET_TAB,
+                        base64_key=GCP_KEY
+                    )
+                    
                     send_discord_message(content)
                 else:
                     print(f"❌ [無共振] {chinese}（{etf}）")
