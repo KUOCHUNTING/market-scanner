@@ -55,31 +55,32 @@ def enter_position(
 
     # ✅ 建立持倉物件
     entry_time = datetime.now()
-    position = {
-        "symbol": symbol,
-        "entry_time": entry_time,
-        "entry_price": price,
-        "direction": direction,
-        "quantity": quantity,
-        "capital_used": capital_used,
-        "strategy": strategy_name,
-        "confidence_score": score,
-        "take_profit_pct": take_profit_pct,
-        "stop_loss_pct": stop_loss_pct,
-        "rsi": rsi,
-        "zscore": zscore,
-        "roc": roc,
-        "obv": obv,
-        "vwap": vwap,
-        "ema5": ema5,
-        "ema20": ema20,
-        "bb_upper": bb_upper,
-        "bb_lower": bb_lower,
-        "trend_score": trend_score,
-        "rrov_score": rrov_score,
-        "mean_score": mean_score,
-        "signal_note": signal_note
-    }
+
+position = {
+    "symbol": symbol,
+    "entry_time": entry_time,
+    "entry_price": price,
+    "direction": direction,
+    "shares": quantity,              # ✅ 統一為 shares，與 Sheets 寫入一致
+    "capital_used": capital_used,
+    "strategy": strategy_name,
+    "confidence_score": score,
+    "take_profit_pct": take_profit_pct,
+    "stop_loss_pct": stop_loss_pct,
+    "rsi": rsi,
+    "zscore": zscore,
+    "roc": roc,
+    "obv": obv,
+    "vwap": vwap,
+    "ema5": ema5,
+    "ema20": ema20,
+    "bb_upper": bb_upper,
+    "bb_lower": bb_lower,
+    "trend_score": trend_score,
+    "rrov_score": rrov_score,
+    "mean_score": mean_score,
+    "signal_note": signal_note
+}
 
     # ✅ 寫入 Google Sheets
     write_entry_to_sheet(position)
