@@ -70,7 +70,6 @@ def run_sector_resonance(interval=30, csv_path="data/stocks_with_sector.csv"):
                         timestamp=timestamp,
                         etf=etf,
                         sector_ch=chinese,
-                        count=len(stocks),
                         stock_list=stocks[:10],
                         sheet_url=GSHEET_URL,
                         sheet_name=GSHEET_TAB,
