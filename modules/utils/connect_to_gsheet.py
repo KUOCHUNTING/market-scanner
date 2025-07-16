@@ -1,3 +1,4 @@
+import difflib  # ✅ 加入模糊比對功能
 import os
 import base64
 import json
@@ -17,14 +18,27 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
     client = gspread.authorize(creds)
     spreadsheet = client.open_by_url(sheet_url)
-    print("📄 分頁清單：", [ws.title for ws in spreadsheet.worksheets()])
 
+    # ✅ 取得所有分頁名稱
+    sheet_names = [ws.title for ws in spreadsheet.worksheets()]
+    print("📄 現有分頁：", sheet_names)
+
+    # ✅ 模糊比對名稱是否接近
+    if sheet_name not in sheet_names:
+        close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
+        print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
+        if close_matches:
+            print(f"🔍 你是不是想找這些？👉 {close_matches}")
+        else:
+            print("🚫 找不到任何相似分頁名稱，將建立新分頁")
+
+    # ✅ 嘗試載入 / 建立分頁
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
         worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
-        print(f"🆕 分頁 {sheet_name} 不存在，已自動建立")
-    
+        print(f"🆕 分頁 {sheet_name} 不存在，已自動建立 ✅")
+
     return worksheet
 
 # ✅ 寫入建倉記錄
