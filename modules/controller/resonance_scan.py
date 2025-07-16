@@ -77,7 +77,6 @@ def run_sector_resonance(interval=30, csv_path="data/stocks_with_sector.csv"):
                         base64_key=GCP_KEY
                     )
                     
-                    send_discord_message(content)
                 else:
                     print(f"❌ [無共振] {chinese}（{etf}）")
             except Exception as e:
