@@ -66,7 +66,7 @@ def enter_position(
         "direction": direction,
         "shares": quantity,  # ✅ 統一名稱
         "capital_used": capital_used,
-        "strategy": strategy_name,
+        "strategy_name": strategy_name
         "confidence_score": score,
         "take_profit_pct": take_profit_pct,
         "stop_loss_pct": stop_loss_pct,
