@@ -1,1 +1,1 @@
-from .config import *
+from modules.config.config import *
