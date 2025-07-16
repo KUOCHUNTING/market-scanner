@@ -1,3 +1,5 @@
+# modules/entry/handle_squeeze_entry.py
+
 from modules.notify.build_discord_message import build_breakout_message
 from modules.notify.discord_push import send_discord_message
 from modules.entry.enter_position import enter_position
@@ -5,17 +7,21 @@ from modules.config.config import WEBHOOK_URL
 
 def handle_squeeze_entry(symbol, squeeze_result):
     """
-    擠壓突破策略建倉流程
+    擠壓突破策略建倉流程：
+    - 觸發條件：進入擠壓區後突破且符合技術指標
+    - 推播：格式化訊息推送至 Discord
+    - 建倉：調用 enter_position() 並寫入 Google Sheets
     """
     if not squeeze_result:
         return None
 
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
 
-    # ✅ 修正這裡 → 傳入 symbol 作為第二個參數
+    # ✅ 組裝推播訊息（帶入 symbol 與 squeeze 結果）
     msg = build_breakout_message(squeeze_result, symbol)
     send_discord_message(WEBHOOK_URL, msg)
 
+    # ✅ 嘗試建倉
     result = enter_position(
         symbol=symbol,
         price=squeeze_result["close"],
