@@ -81,27 +81,3 @@ def write_entry_to_sheet(entry: dict):
 
     # ✅ 寫入 Google Sheets
     sheet.append_row(row, value_input_option="USER_ENTERED")
-
-# ✅ modules/connect_to_gsheet.py
-
-from modules.utils.connect_to_gsheet import connect_to_gsheet
-from modules.config import GSHEET_URL, GSHEET_KEY_BASE64
-
-# ✅ 建倉寫入
-def write_entry_to_sheet(entry: dict):
-    sheet = connect_to_gsheet(GSHEET_URL, "建倉記錄", GSHEET_KEY_BASE64)
-
-    # ⛑️ 防呆檢查（確保必要欄位都有）
-    required_keys = ["symbol", "entry_time", "entry_price", "direction", "shares", "strategy_name"]
-    for key in required_keys:
-        if key not in entry:
-            raise KeyError(f"❌ 缺少欄位：{key}，目前包含欄位：{list(entry.keys())}")
-
-    sheet.append_row([
-        entry["symbol"],
-        entry["entry_time"],
-        entry["entry_price"],
-        entry["direction"],
-        entry["shares"],
-        entry["strategy_name"]
-    ])
