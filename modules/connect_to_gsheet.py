@@ -29,6 +29,11 @@ def write_entry_to_sheet(entry: dict):
     from google.oauth2.service_account import Credentials
     from datetime import datetime
 
+    # ✅ 把所有 datetime 類型轉成字串，避免寫入失敗
+    for key in entry:
+        if isinstance(entry[key], datetime):
+            entry[key] = entry[key].strftime("%Y-%m-%d %H:%M:%S")
+
     base64_key = os.getenv("GCP_KEY_BASE64")
     sheet_url = os.getenv("GSHEET_URL")
 
