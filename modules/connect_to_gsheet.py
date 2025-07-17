@@ -36,6 +36,7 @@ def write_entry_to_sheet(entry: dict):
         print("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
         return
 
+    # ✅ 解碼金鑰並授權
     key_dict = json.loads(base64.b64decode(base64_key).decode("utf-8"))
     creds = Credentials.from_service_account_info(
         key_dict, scopes=["https://www.googleapis.com/auth/spreadsheets"]
@@ -43,13 +44,14 @@ def write_entry_to_sheet(entry: dict):
     client = gspread.authorize(creds)
     sheet = client.open_by_url(sheet_url).worksheet("建倉記錄")
 
-    # 處理時間格式
-    entry_time = entry["entry_time"]
-    if isinstance(entry_time, datetime):
-        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
+    # ✅ 統一將所有 datetime 類型轉為字串（避免 JSON 序列化錯誤）
+    for key, value in entry.items():
+        if isinstance(value, datetime):
+            entry[key] = value.strftime("%Y-%m-%d %H:%M:%S")
 
+    # ✅ 組成寫入的行
     row = [
-        entry_time,
+        entry.get("entry_time", ""),
         entry["symbol"],
         entry["direction"],
         entry["entry_price"],
@@ -70,6 +72,8 @@ def write_entry_to_sheet(entry: dict):
         entry.get("rrov_score", ""),
         entry.get("mean_score", "")
     ]
+
+    # ✅ 寫入 Google Sheets
     sheet.append_row(row, value_input_option="USER_ENTERED")
 
 # ✅ modules/connect_to_gsheet.py
