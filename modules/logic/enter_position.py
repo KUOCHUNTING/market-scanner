@@ -74,7 +74,8 @@ def enter_position(symbol, price, direction, signal_note,
         capital_used=capital_used,
         capital_left=capital_left
     )
-    send_discord_message(WEBHOOK_URL, message)
+    from modules.config import WEBHOOK_URL  # ✅ 確保有引入 webhook 設定
+    send_discord_message(message, WEBHOOK_URL)
 
     # ✅ Sheets 寫入（直接用完整 dict）
     write_entry_to_sheet(positions[symbol])
