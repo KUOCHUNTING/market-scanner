@@ -51,7 +51,7 @@ OBV：{safe_float(obv)}
 
 # ✅ 擠壓策略訊息
 def build_breakout_message(result: dict, symbol: str):
-    symbol = result.get("symbol", ticker) or "未知代號"
+    symbol = result.get("symbol", "未知代號")
     direction = result.get("direction", "未知方向")
     score = result.get("score", 0)
     strategy = result.get("strategy_name", "未知策略")
