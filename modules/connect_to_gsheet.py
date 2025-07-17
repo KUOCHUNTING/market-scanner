@@ -47,6 +47,7 @@ def write_entry_to_sheet(entry: dict):
     # ✅ 統一將所有 datetime 類型轉為字串（避免 JSON 序列化錯誤）
     for key, value in entry.items():
         if isinstance(value, datetime):
+            print(f"⚠️ {key} 是 datetime，已轉為字串")
             entry[key] = value.strftime("%Y-%m-%d %H:%M:%S")
 
     # ✅ 組成寫入的行
