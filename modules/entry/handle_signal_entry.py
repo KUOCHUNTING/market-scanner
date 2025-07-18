@@ -7,12 +7,14 @@ from modules.config.config import WEBHOOK_URL
 def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
                         trend_score=None, rrov_score=None, mean_score=None,
-                        capital_left=None):
+                        capital_left=None,
+                        sheet=None):  # ✅ 加入 sheet 參數
+
     """
     技術策略建倉流程：包含進場、推播、寫入 Sheets
     """
 
-    # ✅ 呼叫建倉模組，顯式傳入所有關鍵參數
+    # ✅ 呼叫建倉模組，傳入共用 sheet
     result = enter_position(
         symbol=symbol,
         price=latest_price,
@@ -33,16 +35,16 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         trend_score=trend_score,
         rrov_score=rrov_score,
         mean_score=mean_score,
-        sheet=sheet
+        sheet=sheet  # ✅ 傳進來的 sheet
     )
 
-    # ✅ 若無法建倉（如資金不足、重複建倉），直接返回
+    # ✅ 無法建倉則中止
     if result is None:
         return None
 
     shares, capital_used = result[:2]
 
-    # ✅ 推播訊息（補充再強化）
+    # ✅ 推播訊息
     message = build_entry_message(
         symbol=symbol,
         price=latest_price,
