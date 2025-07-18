@@ -146,4 +146,8 @@ def write_exit_to_sheet(
         to_serializable(ema20),
         to_serializable(strategy_name)
     ]
+
+    for i, val in enumerate(row):
+        print(f"欄位{i}: {val}｜型別: {type(val)}")
+        
     sheet.append_row(row, value_input_option="USER_ENTERED")
