@@ -67,26 +67,26 @@ def write_entry_to_sheet(entry: dict):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
-        entry_time,
-        entry["symbol"],
-        entry["direction"],
-        entry["price"],
-        entry["shares"],
-        entry.get("capital_used", ""),
-        entry["strategy_name"],
-        entry.get("confidence_score", ""),
-        entry.get("signal_note", ""),
-        entry.get("rsi", ""),
-        entry.get("zscore", ""),
-        entry.get("obv", ""),
-        entry.get("vwap", ""),
-        entry.get("ema5", ""),
-        entry.get("ema20", ""),
-        entry.get("bb_upper", ""),
-        entry.get("bb_lower", ""),
-        entry.get("trend_score", ""),
-        entry.get("rrov_score", ""),
-        entry.get("mean_score", "")
+        to_serializable(entry_time),
+        to_serializable(entry["symbol"]),
+        to_serializable(entry["direction"]),
+        to_serializable(entry["price"]),
+        to_serializable(entry["shares"]),
+        to_serializable(entry.get("capital_used", "")),
+        to_serializable(entry["strategy_name"]),
+        to_serializable(entry.get("confidence_score", "")),
+        to_serializable(entry.get("signal_note", "")),
+        to_serializable(entry.get("rsi", "")),
+        to_serializable(entry.get("zscore", "")),
+        to_serializable(entry.get("obv", "")),
+        to_serializable(entry.get("vwap", "")),
+        to_serializable(entry.get("ema5", "")),
+        to_serializable(entry.get("ema20", "")),
+        to_serializable(entry.get("bb_upper", "")),
+        to_serializable(entry.get("bb_lower", "")),
+        to_serializable(entry.get("trend_score", "")),
+        to_serializable(entry.get("rrov_score", "")),
+        to_serializable(entry.get("mean_score", ""))
     ]
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
@@ -124,25 +124,20 @@ def write_exit_to_sheet(
         exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
+        to_serializable(symbol),
         to_serializable(entry_time),
-        to_serializable(entry["symbol"]),
-        to_serializable(entry["direction"]),
-        to_serializable(entry["price"]),
-        to_serializable(entry["shares"]),
-        to_serializable(entry.get("capital_used", "")),
-        to_serializable(entry["strategy_name"]),
-        to_serializable(entry.get("confidence_score", "")),
-        to_serializable(entry.get("signal_note", "")),
-        to_serializable(entry.get("rsi", "")),
-        to_serializable(entry.get("zscore", "")),
-        to_serializable(entry.get("obv", "")),
-        to_serializable(entry.get("vwap", "")),
-        to_serializable(entry.get("ema5", "")),
-        to_serializable(entry.get("ema20", "")),
-        to_serializable(entry.get("bb_upper", "")),
-        to_serializable(entry.get("bb_lower", "")),
-        to_serializable(entry.get("trend_score", "")),
-        to_serializable(entry.get("rrov_score", "")),
-        to_serializable(entry.get("mean_score", ""))
+        to_serializable(exit_time),
+        to_serializable(f"{return_rate*100:.2f}%"),
+        to_serializable(pnl),
+        to_serializable(holding_minutes),
+        to_serializable(exit_price),
+        to_serializable(rsi),
+        to_serializable(zscore),
+        to_serializable(roc),
+        to_serializable(obv),
+        to_serializable(vwap),
+        to_serializable(ema5),
+        to_serializable(ema20),
+        to_serializable(strategy_name)
     ]
     sheet.append_row(row, value_input_option="USER_ENTERED")
