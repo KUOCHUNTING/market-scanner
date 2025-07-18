@@ -1,18 +1,7 @@
-import os
-from datetime import datetime
 from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
-from dotenv import load_dotenv
-from modules.config.settings import DISCORD_WEBHOOK_URL
 
-load_dotenv()
-
-# ✅ 全域資金與持倉管理
-capital_left = float(os.getenv("CAPITAL_LEFT", "100000"))
-positions = {}  # symbol -> position dict
-
-# ✅ 主建倉函數（加入 sheet 參數）
 def enter_position(
     symbol: str,
     price: float,
@@ -34,40 +23,25 @@ def enter_position(
     mean_score=None,
     take_profit_pct=0.08,
     stop_loss_pct=0.03,
-    sheet=None  # ✅ 加入共用 Google Sheet 分頁物件
+    sheet_name: str = "進場紀錄"  # ✅ 支援傳入分頁名稱
 ):
     global capital_left, positions
 
+    # 防止重複建倉
     if symbol in positions:
-        print(f"⚠️ 已持有 {symbol}，跳過建倉")
-        return None, 0, 0
+        return {"status": "skipped", "reason": "duplicate"}
 
-    allocation = 0.1
-    capital_used = capital_left * allocation
-    if capital_used < price:
-        print(f"⚠️ 資金不足，無法建倉 {symbol}")
-        return None, 0, 0
+    capital_used = 10000
+    if capital_left < capital_used:
+        return {"status": "skipped", "reason": "insufficient capital"}
 
-    quantity = int(capital_used // price)
-    if quantity == 0:
-        print(f"⚠️ 價格過高，無法購買任何股數：{symbol}")
-        return None, 0, 0
-
-    capital_used = quantity * price
     capital_left -= capital_used
-    entry_time = datetime.now()
-
     position = {
         "symbol": symbol,
-        "entry_time": entry_time,
-        "entry_price": price,
+        "price": price,
         "direction": direction,
-        "shares": quantity,
-        "capital_used": capital_used,
-        "strategy_name": strategy_name,
-        "confidence_score": score,
-        "take_profit_pct": take_profit_pct,
-        "stop_loss_pct": stop_loss_pct,
+        "score": score,
+        "strategy": strategy_name,
         "rsi": rsi,
         "zscore": zscore,
         "roc": roc,
@@ -77,46 +51,19 @@ def enter_position(
         "ema20": ema20,
         "bb_upper": bb_upper,
         "bb_lower": bb_lower,
+        "signal_note": signal_note,
         "trend_score": trend_score,
         "rrov_score": rrov_score,
         "mean_score": mean_score,
-        "signal_note": signal_note
     }
 
+    # ✅ 寫入 Google Sheets，支援分頁參數
+    write_entry_to_sheet(position, sheet_name=sheet_name)
+
+    # ✅ 推播 Discord
+    message = build_entry_message(position)
+    send_discord_message(message)
+
+    # 加入持倉紀錄
     positions[symbol] = position
-
-    # ✅ 共用 sheet 寫入（改為傳入）
-    if sheet is not None:
-        write_entry_to_sheet(position, sheet_name=sheet)
-    else:
-        print("⚠️ 未傳入 Google Sheet 工作表，跳過寫入")
-
-    # ✅ Discord 推播
-    msg = build_entry_message(
-        symbol=symbol,
-        price=price,
-        strategy_type="技術選股",
-        signal_type=strategy_name,
-        strategy_name=strategy_name,
-        signal_note=signal_note,
-        direction=direction,
-        score=score,
-        confidence_score=score,
-        rsi=rsi,
-        zscore=zscore,
-        ema5=ema5,
-        ema20=ema20,
-        bb_upper=bb_upper,
-        bb_lower=bb_lower,
-        obv=obv,
-        trend_score=trend_score,
-        rrov_score=rrov_score,
-        mean_score=mean_score,
-        shares=quantity,
-        capital_used=capital_used,
-        capital_left=capital_left
-    )
-    send_discord_message(msg, DISCORD_WEBHOOK_URL)
-
-    print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}｜剩餘資金 ${capital_left:.2f}")
-    return symbol, capital_used, quantity
+    return {"status": "entered", "position": position}
