@@ -42,24 +42,24 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet_entry):  # ✅ 多一個�
     # ✅ 傳入共用 sheet
     result = enter_position(
         symbol=symbol,
-        price=squeeze_result["close"],
-        direction=squeeze_result["direction"],
-        score=squeeze_result["score"],
-        strategy_name=squeeze_result["strategy_name"],
-        rsi=squeeze_result.get("rsi"),
-        zscore=squeeze_result.get("zscore"),
-        ema5=squeeze_result.get("ema_5"),
-        ema20=squeeze_result.get("ema_20"),
-        bb_upper=squeeze_result.get("bb_upper"),
-        bb_lower=squeeze_result.get("bb_lower"),
-        obv=squeeze_result.get("obv"),
-        vwap=squeeze_result.get("vwap"),
-        roc=squeeze_result.get("roc"),
-        trend_score=squeeze_result.get("trend_score"),
-        rrov_score=squeeze_result.get("rrov_score"),
-        mean_score=squeeze_result.get("mean_score"),
-        signal_note="Squeeze OFF + 技術條件命中",
-        sheet_name=sheet_entry  # ✅ 傳入 worksheet
+        price=latest_price,
+        direction="long",
+        score=score,
+        strategy_name="Squeeze Breakout",
+        rsi=indicators.get("rsi"),
+        zscore=indicators.get("zscore"),
+        roc=indicators.get("roc"),
+        obv=indicators.get("obv"),
+        vwap=indicators.get("vwap"),
+        ema5=indicators.get("ema5"),
+        ema20=indicators.get("ema20"),
+        bb_upper=indicators.get("bb_upper"),
+        bb_lower=indicators.get("bb_lower"),
+        signal_note="剛突破布林帶上緣",
+        trend_score=trend_score,
+        rrov_score=rrov_score,
+        mean_score=mean_score,
+        sheet=sheet_entry  # ✅ 這裡應該是 sheet 而不是 sheet_name
     )
 
     if result is None:
