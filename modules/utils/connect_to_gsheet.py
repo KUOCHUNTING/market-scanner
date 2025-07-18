@@ -6,6 +6,7 @@ import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
 import numpy as np
+import pandas as pd
 
 def to_serializable(value):
     """轉換為 Google Sheets 可接受的 JSON 類型"""
