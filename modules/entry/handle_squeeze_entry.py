@@ -3,7 +3,7 @@ from modules.notify.discord_push import send_discord_message
 from modules.entry.enter_position import enter_position
 from modules.config.config import WEBHOOK_URL
 
-def handle_squeeze_entry(symbol, squeeze_result, sheet):  # ✅ 多一個參數
+def handle_squeeze_entry(symbol, squeeze_result, sheet_entry):  # ✅ 多一個參數
     """
     擠壓突破策略建倉流程：
     - 觸發條件：進入擠壓區後突破且符合技術指標
