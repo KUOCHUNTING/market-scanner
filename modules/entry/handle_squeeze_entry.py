@@ -18,7 +18,20 @@ def handle_squeeze_entry(symbol, squeeze_result):
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
 
     # ✅ 組裝推播訊息（帶入 symbol 與 squeeze 結果）
-    msg = build_breakout_message(squeeze_result, symbol)
+    msg = build_breakout_message(
+        symbol=symbol,
+        price=squeeze_result.get("close"),
+        direction=squeeze_result.get("direction"),
+        strategy_name=squeeze_result.get("strategy_name"),
+        score=squeeze_result.get("score"),
+        rsi=squeeze_result.get("rsi"),
+        ema5=squeeze_result.get("ema_5"),
+        ema20=squeeze_result.get("ema_20"),
+        signal_note="Squeeze OFF + 技術條件命中",  # ✅ 自定說明
+        shares=squeeze_result.get("shares"),         # 可留空
+        capital_used=squeeze_result.get("capital_used"),
+        capital_left=squeeze_result.get("capital_left")
+    )
     send_discord_message(WEBHOOK_URL, msg)
 
     # ✅ 嘗試建倉
