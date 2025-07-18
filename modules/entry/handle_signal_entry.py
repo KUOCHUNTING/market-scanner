@@ -32,7 +32,8 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         obv=get_last_value(indicators.get("obv")),
         trend_score=trend_score,
         rrov_score=rrov_score,
-        mean_score=mean_score
+        mean_score=mean_score,
+        sheet=sheet
     )
 
     # ✅ 若無法建倉（如資金不足、重複建倉），直接返回
