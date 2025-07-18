@@ -5,8 +5,19 @@ import json
 import gspread
 from datetime import datetime
 from google.oauth2.service_account import Credentials
+import numpy as np
 
-
+def to_serializable(value):
+    """轉換為 Google Sheets 可接受的 JSON 類型"""
+    if isinstance(value, (np.int64, np.int32)):
+        return int(value)
+    elif isinstance(value, (np.float64, np.float32)):
+        return float(value)
+    elif isinstance(value, (pd.Timestamp, np.datetime64)):
+        return str(value)
+    else:
+        return value
+        
 # ✅ 取得憑證（從 base64 環境變數或參數）
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
@@ -113,21 +124,25 @@ def write_exit_to_sheet(
         exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
-        symbol,
-        entry_time,
-        exit_time,
-        f"{return_rate*100:.2f}%",
-        pnl,
-        holding_minutes,
-        exit_price,
-        rsi,
-        zscore,
-        roc,
-        obv,
-        vwap,
-        ema5,
-        ema20,
-        strategy_name
+        to_serializable(entry_time),
+        to_serializable(entry["symbol"]),
+        to_serializable(entry["direction"]),
+        to_serializable(entry["price"]),
+        to_serializable(entry["shares"]),
+        to_serializable(entry.get("capital_used", "")),
+        to_serializable(entry["strategy_name"]),
+        to_serializable(entry.get("confidence_score", "")),
+        to_serializable(entry.get("signal_note", "")),
+        to_serializable(entry.get("rsi", "")),
+        to_serializable(entry.get("zscore", "")),
+        to_serializable(entry.get("obv", "")),
+        to_serializable(entry.get("vwap", "")),
+        to_serializable(entry.get("ema5", "")),
+        to_serializable(entry.get("ema20", "")),
+        to_serializable(entry.get("bb_upper", "")),
+        to_serializable(entry.get("bb_lower", "")),
+        to_serializable(entry.get("trend_score", "")),
+        to_serializable(entry.get("rrov_score", "")),
+        to_serializable(entry.get("mean_score", ""))
     ]
-
     sheet.append_row(row, value_input_option="USER_ENTERED")
