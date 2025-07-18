@@ -9,6 +9,11 @@ import numpy as np
 import pandas as pd
 from modules.utils.format import to_serializable
 
+# ✅ 連線到 Google Sheets（示意）
+gc = gspread.service_account(filename="你的金鑰路徑.json")
+spreadsheet = gc.open("你的表單名稱")
+sheet = spreadsheet.worksheet("進場紀錄")  # ✅ 分頁名稱請自行調整
+
 def to_serializable(value):
     if value is None:
         return ""
