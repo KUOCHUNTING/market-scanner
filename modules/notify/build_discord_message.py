@@ -51,20 +51,33 @@ OBV：{safe_float(obv)}
 
 # ✅ 擠壓策略訊息
 def build_breakout_message(symbol, price, direction, strategy_name, score,
-                           rsi=None, zscore=None, ema5=None, ema20=None,
+                           rsi=None, zscore=None,
+                           ema5=None, ema20=None,
                            bb_upper=None, bb_lower=None,
+                           obv=None, vwap=None, roc=None,
                            signal_note=None, confidence_score=None,
                            shares=None, capital_used=None, capital_left=None):
     message = f"💥【擠壓突破策略觸發】{symbol}\n"
     message += f"📈 收盤價：${safe_float(price)}\n"
-    message += f"🔼 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n\n"
+
+    # ➤ 技術指標區塊
+    message += f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n"
+    message += f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}｜OBV：{safe_float(obv)}\n"
+    message += f"🧮 VWAP：{safe_float(vwap)}｜ROC：{safe_float(roc)}\n\n"
+
+    # ➤ 策略摘要區塊
     message += f"📝 訊號說明：{signal_note or '無'}\n"
     message += f"📋 策略：{strategy_name}｜方向：{direction}\n"
-    message += f"🎯 策略信心分數：{safe_float(score)}\n"
+    message += f"🎯 策略信心分數：{safe_float(score)}"
+    if confidence_score is not None:
+        message += f"｜技術信心：{safe_float(confidence_score)}"
+
+    # ➤ 建倉資訊
     if shares is not None and capital_used is not None:
-        message += f"📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}\n"
+        message += f"\n📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}"
     if capital_left is not None:
-        message += f"💰 剩餘資金：${safe_float(capital_left)}"
+        message += f"\n💰 剩餘資金：${safe_float(capital_left)}"
+
     return message
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
