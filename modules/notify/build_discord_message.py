@@ -52,6 +52,7 @@ OBV：{safe_float(obv)}
 # ✅ 擠壓策略訊息
 def build_breakout_message(symbol, price, direction, strategy_name, score,
                            rsi=None, zscore=None, ema5=None, ema20=None,
+                           bb_upper=None, bb_lower=None,
                            signal_note=None, confidence_score=None,
                            shares=None, capital_used=None, capital_left=None):
     message = f"💥【擠壓突破策略觸發】{symbol}\n"
