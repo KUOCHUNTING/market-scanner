@@ -25,10 +25,17 @@ def handle_squeeze_entry(symbol, squeeze_result):
         strategy_name=squeeze_result.get("strategy_name"),
         score=squeeze_result.get("score"),
         rsi=squeeze_result.get("rsi"),
+        zscore=squeeze_result.get("zscore"),
         ema5=squeeze_result.get("ema_5"),
         ema20=squeeze_result.get("ema_20"),
-        signal_note="Squeeze OFF + 技術條件命中",  # ✅ 自定說明
-        shares=squeeze_result.get("shares"),         # 可留空
+        bb_upper=squeeze_result.get("bb_upper"),
+        bb_lower=squeeze_result.get("bb_lower"),
+        obv=squeeze_result.get("obv"),
+        vwap=squeeze_result.get("vwap"),
+        roc=squeeze_result.get("roc"),
+        signal_note=squeeze_result.get("signal_note") or "符合技術突破條件",
+        confidence_score=squeeze_result.get("confidence_score"),
+        shares=squeeze_result.get("shares"),
         capital_used=squeeze_result.get("capital_used"),
         capital_left=squeeze_result.get("capital_left")
     )
