@@ -9,8 +9,10 @@ import numpy as np
 import pandas as pd
 
 def to_serializable(value):
-    """轉換為 Google Sheets 可接受的 JSON 類型"""
-    if isinstance(value, (np.int64, np.int32)):
+    """將非 JSON 格式的資料轉換為可寫入 Google Sheets 的格式"""
+    if value is None:
+        return ""
+    elif isinstance(value, (np.int64, np.int32)):
         return int(value)
     elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
         return ""
