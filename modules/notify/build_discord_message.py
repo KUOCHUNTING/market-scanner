@@ -56,7 +56,7 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
                            shares=None, capital_used=None, capital_left=None):
     message = f"💥【擠壓突破策略觸發】{symbol}\n"
     message += f"📈 收盤價：${safe_float(price)}\n"
-    message += f"🔼 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜RSI：{safe_float(rsi)}\n\n"
+     message += f"🔼 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n\n"
     message += f"📝 訊號說明：{signal_note or '無'}\n"
     message += f"📋 策略：{strategy_name}｜方向：{direction}\n"
     message += f"🎯 策略信心分數：{safe_float(score)}\n"
