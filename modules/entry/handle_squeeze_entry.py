@@ -59,7 +59,7 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet):  # ✅ 多一個參數
         rrov_score=squeeze_result.get("rrov_score"),
         mean_score=squeeze_result.get("mean_score"),
         signal_note="Squeeze OFF + 技術條件命中",
-        sheet=sheet  # ✅ 傳入 worksheet
+        sheet_name=sheet_entry  # ✅ 傳入 worksheet
     )
 
     if result is None:
