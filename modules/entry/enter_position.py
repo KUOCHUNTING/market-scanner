@@ -4,6 +4,7 @@ from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
 from dotenv import load_dotenv
+from config.settings import DISCORD_WEBHOOK_URL  # 或你自訂的變數名稱
 
 load_dotenv()
 
@@ -115,7 +116,7 @@ def enter_position(
         capital_used=capital_used,
         capital_left=capital_left
     )
-    send_discord_message(msg)
+    send_discord_message(message, DISCORD_WEBHOOK_URL)
 
     print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}｜剩餘資金 ${capital_left:.2f}")
     return symbol, capital_used, quantity
