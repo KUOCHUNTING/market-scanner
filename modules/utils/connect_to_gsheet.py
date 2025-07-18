@@ -7,6 +7,7 @@ from datetime import datetime
 from google.oauth2.service_account import Credentials
 import numpy as np
 import pandas as pd
+from modules.utils.format import to_serializable
 
 def to_serializable(value):
     if value is None:
