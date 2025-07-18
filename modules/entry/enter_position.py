@@ -4,7 +4,7 @@ from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
 from dotenv import load_dotenv
-from config.settings import DISCORD_WEBHOOK_URL  # 或你自訂的變數名稱
+from modules.config.settings import DISCORD_WEBHOOK_URL
 
 load_dotenv()
 
