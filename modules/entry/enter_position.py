@@ -12,7 +12,7 @@ load_dotenv()
 capital_left = float(os.getenv("CAPITAL_LEFT", "100000"))
 positions = {}  # symbol -> position dict
 
-# ✅ 主建倉函數
+# ✅ 主建倉函數（加入 sheet 參數）
 def enter_position(
     symbol: str,
     price: float,
@@ -33,16 +33,15 @@ def enter_position(
     rrov_score=None,
     mean_score=None,
     take_profit_pct=0.08,
-    stop_loss_pct=0.03
+    stop_loss_pct=0.03,
+    sheet=None  # ✅ 加入共用 Google Sheet 分頁物件
 ):
     global capital_left, positions
 
-    # ✅ 重複建倉檢查
     if symbol in positions:
         print(f"⚠️ 已持有 {symbol}，跳過建倉")
         return None, 0, 0
 
-    # ✅ 資金與股數計算
     allocation = 0.1
     capital_used = capital_left * allocation
     if capital_used < price:
@@ -58,13 +57,12 @@ def enter_position(
     capital_left -= capital_used
     entry_time = datetime.now()
 
-    # ✅ 建立持倉物件
     position = {
         "symbol": symbol,
         "entry_time": entry_time,
         "entry_price": price,
         "direction": direction,
-        "shares": quantity,  # ✅ 統一名稱
+        "shares": quantity,
         "capital_used": capital_used,
         "strategy_name": strategy_name,
         "confidence_score": score,
@@ -85,13 +83,15 @@ def enter_position(
         "signal_note": signal_note
     }
 
-    # ✅ 儲存持倉資訊
     positions[symbol] = position
 
-    # ✅ 寫入 Google Sheets
-    write_entry_to_sheet(position)
+    # ✅ 共用 sheet 寫入（改為傳入）
+    if sheet is not None:
+        write_entry_to_sheet(position, sheet=sheet)
+    else:
+        print("⚠️ 未傳入 Google Sheet 工作表，跳過寫入")
 
-    # ✅ 推播 Discord
+    # ✅ Discord 推播
     msg = build_entry_message(
         symbol=symbol,
         price=price,
