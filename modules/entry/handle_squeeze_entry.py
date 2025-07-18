@@ -1,11 +1,9 @@
-# modules/entry/handle_squeeze_entry.py
-
 from modules.notify.build_discord_message import build_breakout_message
 from modules.notify.discord_push import send_discord_message
 from modules.entry.enter_position import enter_position
 from modules.config.config import WEBHOOK_URL
 
-def handle_squeeze_entry(symbol, squeeze_result):
+def handle_squeeze_entry(symbol, squeeze_result, sheet):  # ✅ 多一個參數
     """
     擠壓突破策略建倉流程：
     - 觸發條件：進入擠壓區後突破且符合技術指標
@@ -17,7 +15,7 @@ def handle_squeeze_entry(symbol, squeeze_result):
 
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
 
-    # ✅ 組裝推播訊息（帶入 symbol 與 squeeze 結果）
+    # ✅ 組裝推播訊息
     msg = build_breakout_message(
         symbol=symbol,
         price=squeeze_result.get("close"),
@@ -41,7 +39,7 @@ def handle_squeeze_entry(symbol, squeeze_result):
     )
     send_discord_message(WEBHOOK_URL, msg)
 
-    # ✅ 嘗試建倉
+    # ✅ 傳入共用 sheet
     result = enter_position(
         symbol=symbol,
         price=squeeze_result["close"],
@@ -49,9 +47,19 @@ def handle_squeeze_entry(symbol, squeeze_result):
         score=squeeze_result["score"],
         strategy_name=squeeze_result["strategy_name"],
         rsi=squeeze_result.get("rsi"),
+        zscore=squeeze_result.get("zscore"),
         ema5=squeeze_result.get("ema_5"),
         ema20=squeeze_result.get("ema_20"),
-        signal_note="Squeeze OFF + 技術條件命中"
+        bb_upper=squeeze_result.get("bb_upper"),
+        bb_lower=squeeze_result.get("bb_lower"),
+        obv=squeeze_result.get("obv"),
+        vwap=squeeze_result.get("vwap"),
+        roc=squeeze_result.get("roc"),
+        trend_score=squeeze_result.get("trend_score"),
+        rrov_score=squeeze_result.get("rrov_score"),
+        mean_score=squeeze_result.get("mean_score"),
+        signal_note="Squeeze OFF + 技術條件命中",
+        sheet=sheet  # ✅ 傳入 worksheet
     )
 
     if result is None:
