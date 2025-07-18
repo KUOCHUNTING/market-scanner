@@ -2,6 +2,9 @@ from modules.connect_to_gsheet import write_entry_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message
 
+positions = {}  # ✅ 新增這行，定義持倉記錄
+capital_left = 100000  # 如果還沒定義，也一併加上（或由外部傳入）
+
 def enter_position(
     symbol: str,
     price: float,
