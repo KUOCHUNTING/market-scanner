@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import time
 import traceback
 from dotenv import load_dotenv
-
+from modules.connect_to_gsheet import connect_to_gsheet
 # === 設定與功能模組 ===
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
