@@ -9,7 +9,7 @@ from modules.filter_fundamentals import filter_fundamentals
 from modules.indicators.calculate_indicators import calculate_indicators
 from modules.utils.validate_indicators import is_invalid
 from modules.config.config import POLYGON_API_KEY, capital_left
-
+from modules.connect_to_gsheet import connect_to_gsheet
 # 🧠 統一策略邏輯
 from modules.strategy import (
     detect_trading_signal,
