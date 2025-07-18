@@ -11,6 +11,8 @@ def to_serializable(value):
     """轉換為 Google Sheets 可接受的 JSON 類型"""
     if isinstance(value, (np.int64, np.int32)):
         return int(value)
+    elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
+        return ""
     elif isinstance(value, (np.float64, np.float32)):
         return float(value)
     elif isinstance(value, (pd.Timestamp, np.datetime64)):
