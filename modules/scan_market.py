@@ -24,6 +24,8 @@ from modules.strategy import (
 from modules.entry.handle_squeeze_entry import handle_squeeze_entry
 from modules.entry.handle_signal_entry import handle_signal_entry
 
+sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
+
 # ✅ 股票清單
 stock_list = load_stock_list()
 
