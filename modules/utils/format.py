@@ -1,3 +1,29 @@
+# modules/utils/format.py
+
+import numpy as np
+import pandas as pd
+
+def to_serializable(value):
+    if value is None:
+        return ""
+    elif isinstance(value, (np.int64, np.int32)):
+        return int(value)
+    elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
+        return ""
+    elif isinstance(value, (np.float64, np.float32)):
+        return float(value)
+    elif isinstance(value, (pd.Timestamp, np.datetime64)):
+        return str(value)
+    elif isinstance(value, str):
+        # ✅ 移除控制字元、不能編碼的字元
+        try:
+            value.encode("utf-8")  # 測試是否能被 json 處理
+            return ''.join(c for c in value if c.isprintable())
+        except UnicodeEncodeError:
+            return "[非法字元]"
+    else:
+        return value
+
 def safe_float(value, decimals=2, prefix="", suffix=""):
     """
     安全格式化浮點數（防止 NoneType、格式錯誤）
