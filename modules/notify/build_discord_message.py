@@ -50,24 +50,20 @@ OBV：{safe_float(obv)}
 
 
 # ✅ 擠壓策略訊息
-def build_breakout_message(result: dict, symbol: str):
-    symbol = result.get("symbol", "未知代號")
-    direction = result.get("direction", "未知方向")
-    score = result.get("score", 0)
-    strategy = result.get("strategy_name", "未知策略")
-    rsi = result.get("rsi")
-    ema_5 = result.get("ema_5")
-    ema_20 = result.get("ema_20")
-    signal_note = result.get("note") or result.get("signal_note", "")
-
-    # 格式化推播內容
-    msg = f"📈 **擠壓突破策略觸發：{symbol}**\n"
-    msg += f"> 方向：`{direction}`｜信心分數：`{score}`｜策略：`{strategy}`\n"
-    if signal_note:
-        msg += f"> 訊號說明：{signal_note}\n"
-    msg += f"> RSI：{round(rsi,2) if rsi else 'N/A'}｜EMA5：{round(ema_5,2) if ema_5 else 'N/A'}｜EMA20：{round(ema_20,2) if ema_20 else 'N/A'}"
-
-    return msg
+def build_breakout_message(symbol, price, direction, strategy_name, score,
+                           rsi=None, ema5=None, ema20=None, signal_note=None,
+                           shares=None, capital_used=None, capital_left=None):
+    message = f"💥【擠壓突破策略觸發】{symbol}\n"
+    message += f"📈 收盤價：${safe_float(price)}\n"
+    message += f"🔼 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜RSI：{safe_float(rsi)}\n\n"
+    message += f"📝 訊號說明：{signal_note or '無'}\n"
+    message += f"📋 策略：{strategy_name}｜方向：{direction}\n"
+    message += f"🎯 策略信心分數：{safe_float(score)}\n"
+    if shares is not None and capital_used is not None:
+        message += f"📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}\n"
+    if capital_left is not None:
+        message += f"💰 剩餘資金：${safe_float(capital_left)}"
+    return message
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
