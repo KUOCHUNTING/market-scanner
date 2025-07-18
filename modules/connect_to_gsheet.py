@@ -23,7 +23,7 @@ def write_resonance_to_sheet(timestamp, etf, sector_ch, stock_list, sheet_url, s
     sheet = connect_to_gsheet(sheet_url, sheet_name, base64_key)
     sheet.append_row([timestamp, etf, sector_ch, ", ".join(stock_list)])
 
-def write_entry_to_sheet(entry: dict):
+def write_entry_to_sheet(entry: dict, sheet_name: str = "進場紀錄"):
     import base64, os, json
     import gspread
     from google.oauth2.service_account import Credentials
