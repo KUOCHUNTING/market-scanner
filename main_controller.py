@@ -14,6 +14,17 @@ from modules.data.loaders import load_stock_list  # ✅ 改用載入函數
 stock_list = load_stock_list()
 # ✅ 載入 .env 環境變數
 load_dotenv()
+sheet_url = os.getenv("GSHEET_URL")
+key_base64 = os.getenv("GCP_KEY_BASE64")
+
+# ✅ 初始化 Google Sheets 工作表
+sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
+
+# ✅ 載入股票清單
+stock_list = load_stock_list()
+
+# ✅ 開始掃描，並傳入 Google Sheet 工作表
+scan_market(stock_list, sheet_entry)
 
 def main():
     print("🚀 啟動主控系統：scan_market + 出場排程")
