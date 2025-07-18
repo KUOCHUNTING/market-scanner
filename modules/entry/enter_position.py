@@ -116,7 +116,7 @@ def enter_position(
         capital_used=capital_used,
         capital_left=capital_left
     )
-    send_discord_message(message, DISCORD_WEBHOOK_URL)
+    send_discord_message(msg, DISCORD_WEBHOOK_URL)
 
     print(f"✅ 建倉完成：{symbol} × {quantity} 股，資金 ${capital_used:.2f}｜剩餘資金 ${capital_left:.2f}")
     return symbol, capital_used, quantity
