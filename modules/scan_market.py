@@ -24,8 +24,13 @@ from modules.strategy import (
 from modules.entry.handle_squeeze_entry import handle_squeeze_entry
 from modules.entry.handle_signal_entry import handle_signal_entry
 
-sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
+load_dotenv()
 
+sheet_url = os.getenv("GSHEET_URL")
+key_base64 = os.getenv("GCP_KEY_BASE64")
+
+# ✅ 初始化共用 Google Sheet 分頁
+sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 # ✅ 股票清單
 stock_list = load_stock_list()
 
@@ -89,7 +94,7 @@ def scan_market(symbol_list):
 
             # ✅ 擠壓策略建倉處理
             squeeze_result = detect_squeeze_breakout(symbol)
-            handle_squeeze_entry(symbol, squeeze_result)
+            handle_squeeze_entry(symbol, squeeze_result, sheet_entry)
 
             # ✅ 技術策略建倉處理
             signal_type, strategy_name, signal_note, direction, extra = detect_trading_signal(
@@ -111,7 +116,8 @@ def scan_market(symbol_list):
                 trend_score=trend_score,
                 rrov_score=rrov_score,
                 mean_score=mean_score,
-                capital_left=capital_left
+                capital_left=capital_left,
+                sheet=sheet_entry
             )
 
         except Exception as e:
