@@ -87,7 +87,7 @@ def enter_position(
 
     # ✅ 共用 sheet 寫入（改為傳入）
     if sheet is not None:
-        write_entry_to_sheet(position, sheet=sheet)
+        write_entry_to_sheet(position, sheet_name=sheet)
     else:
         print("⚠️ 未傳入 Google Sheet 工作表，跳過寫入")
 
