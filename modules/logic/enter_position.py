@@ -15,11 +15,15 @@ def compute_position_size(price, max_capital_per_trade=1000):
     return shares, capital_used
 
 # ✅ 主建倉函數
-def enter_position(symbol, price, direction, signal_note,
-                   strategy_name="未標記策略", score=None, confidence_score=None,
-                   rsi=None, zscore=None, ema5=None, ema20=None,
-                   bb_upper=None, bb_lower=None, obv=None,
-                   trend_score=None, rrov_score=None, mean_score=None):
+ef enter_position(
+    symbol, price, direction, signal_note,
+    strategy_name="未標記策略", score=None, confidence_score=None,
+    rsi=None, zscore=None, ema5=None, ema20=None,
+    bb_upper=None, bb_lower=None, obv=None,
+    trend_score=None, rrov_score=None, mean_score=None,
+    signal_type="技術信號", strategy_type="技術策略",
+    sheet=None
+):
     global capital_left, entered_positions, positions
 
     if symbol in entered_positions:
