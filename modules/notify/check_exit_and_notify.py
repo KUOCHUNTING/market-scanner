@@ -125,3 +125,36 @@ def check_exit_and_notify(symbol, latest_price):
 
     if pos["quantity"] <= 0:
         del positions[symbol]
+import threading
+from datetime import datetime
+from modules.notify.check_exit_and_notify import check_exit_and_notify
+
+_positions_ref = None  # 要從主程式注入
+def set_positions_ref(pos_dict):
+    global _positions_ref
+    _positions_ref = pos_dict
+
+def schedule_exit_check(interval: int = 10):
+    """
+    定期掃描所有持倉，呼叫 check_exit_and_notify()
+    """
+    if not _positions_ref:
+        print("[排程] 無持倉，跳過出場掃描")
+        _reschedule(interval)
+        return
+
+    print(f"[排程] 出場掃描開始 ({datetime.now().strftime('%H:%M:%S')})")
+
+    # 避免循環匯入：動態載入
+    from modules.market_data import get_latest_price
+
+    for symbol, pos in list(_positions_ref.items()):
+        latest_price = get_latest_price(symbol)
+        if latest_price is not None:
+            check_exit_and_notify(symbol, latest_price)
+
+    _reschedule(interval)
+
+def _reschedule(interval: int):
+    threading.Timer(interval, schedule_exit_check, kwargs={"interval": interval}).start()
+
