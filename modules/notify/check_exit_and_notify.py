@@ -115,7 +115,9 @@ def check_exit_and_notify(symbol, latest_price):
         vwap=pos.get("vwap"),
         ema5=pos.get("ema5"),
         ema20=pos.get("ema20"),
-        strategy_name=strategy
+        strategy_name=strategy,
+        shares=exit_qty,               # ✅ 傳入數量
+        reason=reason
     )
 
     # ✅ 更新剩餘持倉與資金
