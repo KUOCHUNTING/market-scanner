@@ -1,22 +1,23 @@
+# modules/exit/execute_exit.py
+
 from datetime import datetime
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
-from modules.utils.format import safe_float
 
-# === 📦 出場執行模組 ===
-def execute_exit(symbol, entry_time, exit_price, entry_price, rsi=None, zscore=None,
-                 roc=None, obv=None, vwap=None, ema5=None, ema20=None, strategy_name="未標記策略"):
+def execute_exit(symbol, entry_time, exit_price, entry_price,
+                 rsi=None, zscore=None, roc=None, obv=None,
+                 vwap=None, ema5=None, ema20=None, strategy_name="未標記策略"):
+    
     now_dt = datetime.now()
     now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
-
+    
     holding_minutes = compute_holding_minutes(entry_time, now_dt)
-
     direction = "做多" if entry_price <= exit_price else "做空"
     return_pct = (exit_price - entry_price) / entry_price if direction == "做多" else (entry_price - exit_price) / entry_price
     pnl = (exit_price - entry_price) if direction == "做多" else (entry_price - exit_price)
 
-    # ✅ 寫入 Google Sheets（dict 格式）
+    # ✅ 寫入出場紀錄
     write_exit_to_sheet({
         "symbol": symbol,
         "entry_time": entry_time,
@@ -46,15 +47,8 @@ def execute_exit(symbol, entry_time, exit_price, entry_price, rsi=None, zscore=N
     )
     send_discord_message(WEBHOOK_URL, message)
 
-# === ⏱️ 計算持倉時間（分鐘） ===
-def compute_holding_minutes(entry_time_str, exit_time_dt):
-    fmt = "%Y-%m-%d %H:%M:%S"
-    try:
-        if isinstance(entry_time_str, str):
-            entry_time = datetime.strptime(entry_time_str, fmt)
-        else:
-            entry_time = entry_time_str  # already datetime
-        delta = exit_time_dt - entry_time
-        return int(delta.total_seconds() // 60)
-    except Exception:
-        return 0
+def compute_holding_minutes(entry_time, exit_time_dt):
+    if isinstance(entry_time, str):
+        entry_time = datetime.strptime(entry_time, "%Y-%m-%d %H:%M:%S")
+    delta = exit_time_dt - entry_time
+    return int(delta.total_seconds() // 60)
