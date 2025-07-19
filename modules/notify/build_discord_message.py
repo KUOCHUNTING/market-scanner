@@ -105,4 +105,30 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     message += f"💰 剩餘資金：${safe_float(capital_left)}"
 
     return message
+                          
+def build_entry_message_from_position(position: dict):
+    return build_entry_message(
+        symbol=position["symbol"],
+        price=position["price"],
+        strategy_type=position.get("strategy_type", "技術策略"),
+        signal_type=position.get("signal_type", "技術信號"),
+        strategy_name=position["strategy_name"],
+        signal_note=position["signal_note"],
+        direction=position["direction"],
+        score=position.get("score"),
+        confidence_score=position.get("confidence_score"),
+        rsi=position.get("rsi"),
+        zscore=position.get("zscore"),
+        ema5=position.get("ema5"),
+        ema20=position.get("ema20"),
+        bb_upper=position.get("bb_upper"),
+        bb_lower=position.get("bb_lower"),
+        obv=position.get("obv"),
+        trend_score=position.get("trend_score"),
+        rrov_score=position.get("rrov_score"),
+        mean_score=position.get("mean_score"),
+        shares=position.get("shares"),
+        capital_used=position.get("capital_used"),
+        capital_left=position.get("capital_left"),
+    )
 
