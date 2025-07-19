@@ -95,7 +95,7 @@ def scan_market(symbol_list, sheet_entry):
 
             # ✅ 擠壓策略建倉處理
             squeeze_result = detect_squeeze_breakout(symbol)
-            handle_squeeze_entry(symbol, squeeze_result, sheet_entry)
+            position, message, capital_left = handle_squeeze_entry(symbol, squeeze_result, sheet_entry)
 
             # ✅ 技術策略建倉處理
             signal_type, strategy_name, signal_note, direction, extra = detect_trading_signal(
