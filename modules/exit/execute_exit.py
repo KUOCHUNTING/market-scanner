@@ -4,21 +4,21 @@ from datetime import datetime
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
-from modules.notify.build_discord_message import build_exit_message  # ⬅️ 加入這行
+from modules.notify.build_discord_message import build_exit_message  # ✅ 使用格式化訊息
 
 def execute_exit(symbol, entry_time, exit_price, entry_price,
-                 shares=1,
-                 reason="達到出場條件",
                  rsi=None, zscore=None, roc=None, obv=None,
-                 vwap=None, ema5=None, ema20=None, strategy_name="未標記策略"):
-    
+                 vwap=None, ema5=None, ema20=None,
+                 strategy_name="未標記策略",
+                 shares=1, reason="達到出場條件"):  # ✅ 加入 shares 與 reason
+
     now_dt = datetime.now()
     now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
-    
+
     holding_minutes = compute_holding_minutes(entry_time, now_dt)
     direction = "做多" if entry_price <= exit_price else "做空"
     return_pct = (exit_price - entry_price) / entry_price if direction == "做多" else (entry_price - exit_price) / entry_price
-    pnl = (exit_price - entry_price) if direction == "做多" else (entry_price - exit_price)
+    pnl = (exit_price - entry_price) * shares if direction == "做多" else (entry_price - exit_price) * shares
 
     # ✅ 寫入出場紀錄
     write_exit_to_sheet({
@@ -37,6 +37,8 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
         "ema5": ema5,
         "ema20": ema20,
         "strategy_name": strategy_name,
+        "shares": shares,
+        "reason": reason
     })
 
     # ✅ Discord 推播
