@@ -109,7 +109,7 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 def build_entry_message_from_position(position: dict):
     return build_entry_message(
         symbol=position["symbol"],
-        price=position["price"],
+        price=position["entry_price"],
         strategy_type=position.get("strategy_type", "技術策略"),
         signal_type=position.get("signal_type", "技術信號"),
         strategy_name=position["strategy_name"],
