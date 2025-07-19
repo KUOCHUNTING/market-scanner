@@ -1,14 +1,20 @@
-import difflib  # ✅ 加入模糊比對功能
+import difflib
 import os
 import base64
 import json
-import gspread
-from datetime import datetime
-from google.oauth2.service_account import Credentials
 import numpy as np
 import pandas as pd
+from datetime import datetime
+
+# ✅ gspread 新版相容寫法
+import gspread
+from gspread.client import Client
+from gspread.http_client import AuthorizedHttpClient
+from google.oauth2.service_account import Credentials
+
 from modules.utils.format import to_serializable
 
+# ✅ 將數值轉為安全格式（避免 NoneType / NaN）
 def to_serializable(value):
     if value is None:
         return ""
@@ -26,24 +32,24 @@ def to_serializable(value):
         return ''.join(c for c in value if c.isprintable())
     else:
         return value
-        
-# ✅ 取得憑證（從 base64 環境變數或參數）
+
+# ✅ 從 base64 金鑰取得憑證
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
+# ✅ 連接 Google Sheet，並模糊比對 sheet 名稱
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
-    client = gspread.authorize(creds)
+    client = Client(auth=creds, http_client=AuthorizedHttpClient(creds))  # ✅ 新版寫法
     spreadsheet = client.open_by_url(sheet_url)
 
-    # ✅ 取得所有分頁名稱
+    # 顯示目前所有分頁
     sheet_names = [ws.title for ws in spreadsheet.worksheets()]
     print("📄 現有分頁：", sheet_names)
 
-    # ✅ 模糊比對名稱是否接近
     if sheet_name not in sheet_names:
         close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
         print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
@@ -52,7 +58,6 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
         else:
             print("🚫 找不到任何相似分頁名稱，將建立新分頁")
 
-    # ✅ 嘗試載入 / 建立分頁
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
@@ -65,7 +70,6 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
 def write_entry_to_sheet(entry: dict):
     key_base64 = os.getenv("GCP_KEY_BASE64")
     sheet_url = os.getenv("GSHEET_URL")
-
     if not key_base64 or not sheet_url:
         raise ValueError("❌ 環境變數 GCP_KEY_BASE64 或 GSHEET_URL 未設定")
 
@@ -126,7 +130,6 @@ def write_exit_to_sheet(
 
     sheet = connect_to_gsheet(sheet_url, "出場紀錄", key_base64)
 
-    # 處理時間格式
     if isinstance(entry_time, datetime):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
     if isinstance(exit_time, datetime):
@@ -152,5 +155,5 @@ def write_exit_to_sheet(
 
     for i, val in enumerate(row):
         print(f"欄位{i}: {val}｜型別: {type(val)}")
-        
+
     sheet.append_row(row, value_input_option="USER_ENTERED")
