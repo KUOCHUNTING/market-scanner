@@ -22,7 +22,7 @@ def enter_position(
     direction: str,
     score: float,
     strategy_name: str,
-    sheet=None,
+    sheet_name=None,
     rsi=None,
     zscore=None,
     roc=None,
