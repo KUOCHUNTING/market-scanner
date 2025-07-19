@@ -22,7 +22,6 @@ def enter_position(
     direction: str,
     score: float,
     strategy_name: str,
-    sheet_name=None,
     rsi=None,
     zscore=None,
     roc=None,
@@ -36,9 +35,12 @@ def enter_position(
     trend_score=None,
     rrov_score=None,
     mean_score=None,
+    signal_type=None,
+    strategy_type=None,
     take_profit_pct=0.08,
     stop_loss_pct=0.03,
-    sheet=None
+    sheet=None,                  # ✅ 新增
+    sheet_name=None              # ✅ 新增
 ):
     global capital_left, positions
 
