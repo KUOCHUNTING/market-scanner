@@ -38,6 +38,7 @@ def enter_position(
     mean_score=None,
     take_profit_pct=0.08,
     stop_loss_pct=0.03
+    sheet=None
 ):
     global capital_left, positions
 
