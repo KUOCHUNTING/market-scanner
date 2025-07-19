@@ -1,7 +1,6 @@
 from datetime import datetime
 from modules.notify.discord_push import send_discord_message
 from modules.config import WEBHOOK_URL
-from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.indicator_cache import get_cached_indicators
 
@@ -13,13 +12,13 @@ def execute_exit(symbol, position, current_price, reason):
     confidence_score = position.get("confidence_score")
     quantity = position["quantity"]
 
-    # === 報酬率與損益 ===
+    # === 計算報酬率與損益 ===
     return_rate = (current_price - entry_price) / entry_price if "多" in direction else (entry_price - current_price) / entry_price
     pnl = round(return_rate * entry_price * quantity, 2)
     return_rate = round(return_rate, 4)
     holding_minutes = int((datetime.now() - entry_time).total_seconds() / 60)
 
-    # === 指標讀取（從 cache）===
+    # === 取得技術指標 ===
     indicators = get_cached_indicators(symbol)
     def safe_get(key): return indicators.get(key, [None])[-1]
 
@@ -31,7 +30,7 @@ def execute_exit(symbol, position, current_price, reason):
     ema5 = safe_get("ema_5")
     ema20 = safe_get("ema_20")
 
-    # === 推播訊息 ===
+    # === Discord 推播 ===
     emoji = "✅" if return_rate >= 0 else "⚠️"
     message = (
         f"{emoji} **[出場通知｜{strategy_name}]** `{symbol}`\n"
@@ -42,22 +41,22 @@ def execute_exit(symbol, position, current_price, reason):
     )
     send_discord_message(WEBHOOK_URL, message)
 
-    # === 寫入 Google Sheets ===
-    write_exit_to_sheet(
-        symbol=symbol,
-        entry_time=entry_time,
-        exit_time=datetime.now(),
-        return_rate=return_rate,
-        pnl=pnl,
-        holding_minutes=holding_minutes,
-        exit_price=current_price,
-        rsi=rsi,
-        zscore=zscore,
-        roc=roc,
-        obv=obv,
-        vwap=vwap,
-        ema5=ema5,
-        ema20=ema20,
-        strategy_name=strategy_name,
-        confidence_score=confidence_score
-    )
+    # === 寫入 Google Sheets（dict 傳入） ===
+    write_exit_to_sheet({
+        "symbol": symbol,
+        "entry_time": entry_time,
+        "exit_time": datetime.now(),
+        "return_rate": return_rate,
+        "pnl": pnl,
+        "holding_minutes": holding_minutes,
+        "exit_price": current_price,
+        "rsi": rsi,
+        "zscore": zscore,
+        "roc": roc,
+        "obv": obv,
+        "vwap": vwap,
+        "ema5": ema5,
+        "ema20": ema20,
+        "strategy_name": strategy_name,
+        "confidence_score": confidence_score
+    })
