@@ -96,8 +96,10 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 
     message += f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}\n"
     message += f"🧠 技術信心：{safe_float(confidence_score)}｜策略分數：{safe_float(score)}\n\n"
+
     message += f"📝 訊號摘要：{signal_note}\n"
     message += f"🔖 策略名稱：{strategy_name}\n\n"
+
     message += f"📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}\n"
     message += f"💰 剩餘資金：${safe_float(capital_left)}"
 
