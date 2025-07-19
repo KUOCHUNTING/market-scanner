@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message_from_position  # ✅ 改這行
-from modules.connect_to_gsheet import write_entry_to_sheet
+from modules.utils.gsheet_writer import write_entry_to_sheet
 from dotenv import load_dotenv
 
 # ✅ 讀取環境變數
