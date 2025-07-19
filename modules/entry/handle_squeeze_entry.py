@@ -88,4 +88,4 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet_entry):
 
     shares, capital_used, _ = result
     print(f"✅ 擠壓策略建倉成功：{shares} 股，用資金 ${capital_used:.2f}")
-    return shares, capital_used
+    return position, message, capital_left
