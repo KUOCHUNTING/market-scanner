@@ -132,3 +132,26 @@ def build_entry_message_from_position(position: dict):
         capital_left=position.get("capital_left"),
     )
 
+def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, shares, reason, strategy_name):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # ✅ 策略標籤
+    if strategy_name == '均值回歸':
+        strategy_label = "🎯 均值回歸策略"
+    elif strategy_name == '順勢策略':
+        strategy_label = "🔥 順勢策略"
+    elif strategy_name == '擠壓突破':
+        strategy_label = "💥 擠壓突破策略"
+    else:
+        strategy_label = "📊 RROV 策略"
+
+    emoji = "🐸" if direction == "多" else "🐶"
+
+    msg = f"""{emoji} **[出場 - {direction}單]** {symbol}
+📌 策略：{strategy_label}
+💵 出場價格：${safe_float(exit_price)}｜進場價格：${safe_float(entry_price)}
+📊 報酬率：{safe_float(return_rate * 100)}%｜股數：{shares}
+🔄 出場原因：{reason}
+🕒 時間：{now}"""
+
+    return msg
