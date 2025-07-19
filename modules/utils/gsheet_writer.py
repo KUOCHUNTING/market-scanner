@@ -5,9 +5,8 @@
 """
 import os
 from datetime import datetime
-import numpy as np
-import pandas as pd
-from modules.utils.gsheet_writer import write_exit_to_sheet
+from modules.utils.connect_to_gsheet import connect_to_gsheet
+from modules.utils.format import to_serializable
 
 # ✅ 安全轉換格式
 def to_serializable(value):
