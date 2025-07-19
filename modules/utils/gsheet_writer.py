@@ -75,6 +75,8 @@ def write_exit_to_sheet(exit_data: dict):
         to_serializable(exit_data.get("ema5")),
         to_serializable(exit_data.get("ema20")),
         to_serializable(exit_data.get("strategy_name")),
+        to_serializable(exit_data.get("shares")),      # ✅ 新增 shares
+        to_serializable(exit_data.get("reason"))       # ✅ 新增 reason
     ]
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
