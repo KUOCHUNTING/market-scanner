@@ -1,55 +1,29 @@
 import difflib
-import os
 import base64
 import json
-import numpy as np
-import pandas as pd
-from datetime import datetime
-
-# ✅ gspread 新版相容寫法
-import gspread
+from google.oauth2.service_account import Credentials
 from gspread.client import Client
 from gspread.http_client import AuthorizedHttpClient
-from google.oauth2.service_account import Credentials
+import gspread
 
-from modules.utils.format import to_serializable
-
-# ✅ 將數值轉為安全格式（避免 NoneType / NaN）
-def to_serializable(value):
-    if value is None:
-        return ""
-    elif isinstance(value, list):
-        return ", ".join(str(v) for v in value)
-    elif isinstance(value, (np.int64, np.int32)):
-        return int(value)
-    elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
-        return ""
-    elif isinstance(value, (np.float64, np.float32)):
-        return float(value)
-    elif isinstance(value, (pd.Timestamp, np.datetime64)):
-        return str(value)
-    elif isinstance(value, str):
-        return ''.join(c for c in value if c.isprintable())
-    else:
-        return value
-
-# ✅ 從 base64 金鑰取得憑證
+# ✅ 從 base64 金鑰取得 Google 憑證
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
-# ✅ 連接 Google Sheet，並模糊比對 sheet 名稱
+# ✅ 連接指定 Sheet 分頁（含模糊比對 + 自動建立）
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
-    client = Client(auth=creds, http_client=AuthorizedHttpClient(creds))  # ✅ 新版寫法
+    client = Client(auth=creds, http_client=AuthorizedHttpClient(creds))  # ✅ 支援新版
     spreadsheet = client.open_by_url(sheet_url)
 
-    # 顯示目前所有分頁
+    # 印出現有分頁
     sheet_names = [ws.title for ws in spreadsheet.worksheets()]
     print("📄 現有分頁：", sheet_names)
 
+    # 模糊比對提示
     if sheet_name not in sheet_names:
         close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
         print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
@@ -58,6 +32,7 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
         else:
             print("🚫 找不到任何相似分頁名稱，將建立新分頁")
 
+    # 嘗試載入或建立
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
@@ -65,95 +40,3 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
         print(f"🆕 分頁 {sheet_name} 不存在，已自動建立 ✅")
 
     return worksheet
-
-# ✅ 寫入建倉記錄
-def write_entry_to_sheet(entry: dict):
-    key_base64 = os.getenv("GCP_KEY_BASE64")
-    sheet_url = os.getenv("GSHEET_URL")
-    if not key_base64 or not sheet_url:
-        raise ValueError("❌ 環境變數 GCP_KEY_BASE64 或 GSHEET_URL 未設定")
-
-    sheet = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
-
-    entry_time = entry["entry_time"]
-    if isinstance(entry_time, datetime):
-        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
-
-    row = [
-        to_serializable(entry_time),
-        to_serializable(entry["symbol"]),
-        to_serializable(entry["direction"]),
-        to_serializable(entry["price"]),
-        to_serializable(entry["shares"]),
-        to_serializable(entry.get("capital_used", "")),
-        to_serializable(entry["strategy_name"]),
-        to_serializable(entry.get("confidence_score", "")),
-        to_serializable(entry.get("signal_note", "")),
-        to_serializable(entry.get("rsi", "")),
-        to_serializable(entry.get("zscore", "")),
-        to_serializable(entry.get("obv", "")),
-        to_serializable(entry.get("vwap", "")),
-        to_serializable(entry.get("ema5", "")),
-        to_serializable(entry.get("ema20", "")),
-        to_serializable(entry.get("bb_upper", "")),
-        to_serializable(entry.get("bb_lower", "")),
-        to_serializable(entry.get("trend_score", "")),
-        to_serializable(entry.get("rrov_score", "")),
-        to_serializable(entry.get("mean_score", ""))
-    ]
-
-    sheet.append_row(row, value_input_option="USER_ENTERED")
-
-# ✅ 寫入出場記錄
-def write_exit_to_sheet(
-    symbol,
-    entry_time,
-    exit_time,
-    return_rate,
-    pnl,
-    holding_minutes,
-    exit_price,
-    rsi=None,
-    zscore=None,
-    roc=None,
-    obv=None,
-    vwap=None,
-    ema5=None,
-    ema20=None,
-    strategy_name=None,
-    confidence_score=None
-):
-    key_base64 = os.getenv("GCP_KEY_BASE64")
-    sheet_url = os.getenv("GSHEET_URL")
-    if not key_base64 or not sheet_url:
-        raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
-
-    sheet = connect_to_gsheet(sheet_url, "出場紀錄", key_base64)
-
-    if isinstance(entry_time, datetime):
-        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
-    if isinstance(exit_time, datetime):
-        exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
-
-    row = [
-        to_serializable(symbol),
-        to_serializable(entry_time),
-        to_serializable(exit_time),
-        to_serializable(f"{return_rate*100:.2f}%"),
-        to_serializable(pnl),
-        to_serializable(holding_minutes),
-        to_serializable(exit_price),
-        to_serializable(rsi),
-        to_serializable(zscore),
-        to_serializable(roc),
-        to_serializable(obv),
-        to_serializable(vwap),
-        to_serializable(ema5),
-        to_serializable(ema20),
-        to_serializable(strategy_name)
-    ]
-
-    for i, val in enumerate(row):
-        print(f"欄位{i}: {val}｜型別: {type(val)}")
-
-    sheet.append_row(row, value_input_option="USER_ENTERED")
