@@ -94,7 +94,7 @@ def enter_position(
     capital_left -= capital_used
 
     # ✅ 推播 Discord 訊息
-    message = build_entry_message(position)
+    message = build_entry_message_from_position(position)  # ✅ 正確用法
     send_discord_message(DISCORD_WEBHOOK_URL, message)
 
     # ✅ 寫入 Google Sheets
