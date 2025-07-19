@@ -35,7 +35,7 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         trend_score=trend_score,
         rrov_score=rrov_score,
         mean_score=mean_score,
-        sheet_mame=sheet  # ✅ 傳進來的 sheet
+        sheet_name=sheet  # ✅ 傳進來的 sheet
     )
 
     # ✅ 無法建倉則中止
