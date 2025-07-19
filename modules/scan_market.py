@@ -36,7 +36,7 @@ sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 stock_list = load_stock_list()
 
 # ✅ 主掃描函數
-def scan_market(symbol_list, sheet_entry):
+def scan_market(symbol_list):
     global capital_left
 
     # ✅ 處理 symbol_list 為 DataFrame 或 list
