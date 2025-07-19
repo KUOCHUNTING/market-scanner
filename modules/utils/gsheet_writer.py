@@ -67,24 +67,7 @@ def write_entry_to_sheet(entry: dict):
     sheet.append_row(row, value_input_option="USER_ENTERED")
 
 # ✅ 寫入出場紀錄
-def write_exit_to_sheet(
-    symbol,
-    entry_time,
-    exit_time,
-    return_rate,
-    pnl,
-    holding_minutes,
-    exit_price,
-    rsi=None,
-    zscore=None,
-    roc=None,
-    obv=None,
-    vwap=None,
-    ema5=None,
-    ema20=None,
-    strategy_name=None,
-    confidence_score=None
-):
+def write_exit_to_sheet(exit_data: dict):
     key_base64 = os.getenv("GCP_KEY_BASE64")
     sheet_url = os.getenv("GSHEET_URL")
     if not key_base64 or not sheet_url:
@@ -92,30 +75,29 @@ def write_exit_to_sheet(
 
     sheet = connect_to_gsheet(sheet_url, "出場紀錄", key_base64)
 
+    entry_time = exit_data.get("entry_time")
+    exit_time = exit_data.get("exit_time")
     if isinstance(entry_time, datetime):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
     if isinstance(exit_time, datetime):
         exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
 
     row = [
-        to_serializable(symbol),
+        to_serializable(exit_data.get("symbol")),
         to_serializable(entry_time),
         to_serializable(exit_time),
-        to_serializable(f"{return_rate*100:.2f}%"),
-        to_serializable(pnl),
-        to_serializable(holding_minutes),
-        to_serializable(exit_price),
-        to_serializable(rsi),
-        to_serializable(zscore),
-        to_serializable(roc),
-        to_serializable(obv),
-        to_serializable(vwap),
-        to_serializable(ema5),
-        to_serializable(ema20),
-        to_serializable(strategy_name)
+        to_serializable(f"{exit_data.get('return_rate') * 100:.2f}%" if exit_data.get("return_rate") is not None else ""),
+        to_serializable(exit_data.get("pnl")),
+        to_serializable(exit_data.get("holding_minutes")),
+        to_serializable(exit_data.get("exit_price")),
+        to_serializable(exit_data.get("rsi")),
+        to_serializable(exit_data.get("zscore")),
+        to_serializable(exit_data.get("roc")),
+        to_serializable(exit_data.get("obv")),
+        to_serializable(exit_data.get("vwap")),
+        to_serializable(exit_data.get("ema5")),
+        to_serializable(exit_data.get("ema20")),
+        to_serializable(exit_data.get("strategy_name")),
     ]
-
-    for i, val in enumerate(row):
-        print(f"欄位{i}: {val}｜型別: {type(val)}")
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
