@@ -87,7 +87,8 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
 
-    message = f"📌 {direction} 技術策略 ➤ `{symbol}`\n\n"
+    emoji = "🟢" if direction == "多" else "🔴"
+    message = f"📌 {emoji} {direction} 技術策略 ➤ `{symbol}`\n\n"
     message += f"📋 類型：{strategy_type}（方向：{direction}）\n"
     message += f"📈 收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n"
     message += f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}\n"
