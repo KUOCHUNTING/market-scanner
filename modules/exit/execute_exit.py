@@ -4,6 +4,7 @@ from datetime import datetime
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
+from modules.notify.build_discord_message import build_exit_message  # ⬅️ 加入這行
 
 def execute_exit(symbol, entry_time, exit_price, entry_price,
                  rsi=None, zscore=None, roc=None, obv=None,
@@ -37,13 +38,15 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
     })
 
     # ✅ Discord 推播
-    message = (
-        f"📤 **出場通知** `{symbol}`\n"
-        f"▶️ 策略：{strategy_name}｜方向：{direction}\n"
-        f"💰 進場：{entry_price:.2f} ➜ 出場：{exit_price:.2f}\n"
-        f"📊 報酬率：{return_pct * 100:.2f}%｜損益：${pnl:.2f}\n"
-        f"⏱️ 持倉時間：{holding_minutes} 分鐘\n"
-        f"📅 出場時間：{now_str}"
+    message = build_exit_message(
+        symbol=symbol,
+        direction=direction,
+        entry_price=entry_price,
+        exit_price=exit_price,
+        return_rate=return_pct,
+        shares=1,  # 如果你未傳 shares，可先暫時寫 1 或補參數
+        reason="達到出場條件",  # 可換成實際原因
+        strategy_name=strategy_name
     )
     send_discord_message(WEBHOOK_URL, message)
 
