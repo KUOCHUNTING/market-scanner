@@ -1,5 +1,4 @@
 from datetime import datetime
-from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
@@ -10,20 +9,21 @@ def execute_exit(symbol, entry_time, exit_price, entry_price, rsi=None, zscore=N
                  roc=None, obv=None, vwap=None, ema5=None, ema20=None, strategy_name="未標記策略"):
     now_dt = datetime.now()
     now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
-    holding_time = compute_holding_time(entry_time, now_str)
+
+    holding_minutes = compute_holding_minutes(entry_time, now_dt)
 
     direction = "做多" if entry_price <= exit_price else "做空"
     return_pct = (exit_price - entry_price) / entry_price if direction == "做多" else (entry_price - exit_price) / entry_price
     pnl = (exit_price - entry_price) if direction == "做多" else (entry_price - exit_price)
 
-    # ✅ 用 dict 寫入 Google Sheets
+    # ✅ 寫入 Google Sheets（dict 格式）
     write_exit_to_sheet({
         "symbol": symbol,
         "entry_time": entry_time,
         "exit_time": now_dt,
         "return_rate": return_pct,
         "pnl": pnl,
-        "holding_minutes": holding_time,
+        "holding_minutes": holding_minutes,
         "exit_price": exit_price,
         "rsi": rsi,
         "zscore": zscore,
@@ -41,20 +41,20 @@ def execute_exit(symbol, entry_time, exit_price, entry_price, rsi=None, zscore=N
         f"▶️ 策略：{strategy_name}｜方向：{direction}\n"
         f"💰 進場：{entry_price:.2f} ➜ 出場：{exit_price:.2f}\n"
         f"📊 報酬率：{return_pct * 100:.2f}%｜損益：${pnl:.2f}\n"
-        f"⏱️ 持倉時間：{holding_time}\n"
+        f"⏱️ 持倉時間：{holding_minutes} 分鐘\n"
         f"📅 出場時間：{now_str}"
     )
     send_discord_message(WEBHOOK_URL, message)
 
-# === ⏱️ 計算持倉時間 ===
-def compute_holding_time(entry_time_str, exit_time_str):
+# === ⏱️ 計算持倉時間（分鐘） ===
+def compute_holding_minutes(entry_time_str, exit_time_dt):
     fmt = "%Y-%m-%d %H:%M:%S"
     try:
-        entry_time = datetime.strptime(entry_time_str, fmt)
-        exit_time = datetime.strptime(exit_time_str, fmt)
-        delta = exit_time - entry_time
-        hours, remainder = divmod(delta.total_seconds(), 3600)
-        minutes, _ = divmod(remainder, 60)
-        return f"{int(hours)} 小時 {int(minutes)} 分鐘"
+        if isinstance(entry_time_str, str):
+            entry_time = datetime.strptime(entry_time_str, fmt)
+        else:
+            entry_time = entry_time_str  # already datetime
+        delta = exit_time_dt - entry_time
+        return int(delta.total_seconds() // 60)
     except Exception:
-        return "N/A"
+        return 0
