@@ -24,7 +24,7 @@ sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 stock_list = load_stock_list()
 
 # ✅ 開始掃描，並傳入 Google Sheet 工作表
-scan_market(stock_list, sheet_entry)
+scan_market(stock_list)
 
 def main():
     print("🚀 啟動主控系統：scan_market + 出場排程")
