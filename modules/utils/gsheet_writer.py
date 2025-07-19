@@ -1,31 +1,9 @@
-"""
-這個模組負責：
-- 將建倉與出場紀錄寫入 Google Sheets
-- 使用 connect_to_gsheet 建立連線
-"""
 import os
+import numpy as np
+import pandas as pd
 from datetime import datetime
 from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.format import to_serializable
-
-# ✅ 安全轉換格式
-def to_serializable(value):
-    if value is None:
-        return ""
-    elif isinstance(value, list):
-        return ", ".join(str(v) for v in value)
-    elif isinstance(value, (np.int64, np.int32)):
-        return int(value)
-    elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
-        return ""
-    elif isinstance(value, (np.float64, np.float32)):
-        return float(value)
-    elif isinstance(value, (pd.Timestamp, np.datetime64)):
-        return str(value)
-    elif isinstance(value, str):
-        return ''.join(c for c in value if c.isprintable())
-    else:
-        return value
 
 # ✅ 寫入建倉紀錄
 def write_entry_to_sheet(entry: dict):
@@ -72,7 +50,7 @@ def write_exit_to_sheet(exit_data: dict):
     if not key_base64 or not sheet_url:
         raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
 
-    sheet = connect_to_gsheet(sheet_url, "出場紀錄", key_base64)
+    sheet = connect_to_gsheet(sheet_url, "出場記錄", key_base64)
 
     entry_time = exit_data.get("entry_time")
     exit_time = exit_data.get("exit_time")
@@ -97,6 +75,33 @@ def write_exit_to_sheet(exit_data: dict):
         to_serializable(exit_data.get("ema5")),
         to_serializable(exit_data.get("ema20")),
         to_serializable(exit_data.get("strategy_name")),
+    ]
+
+    sheet.append_row(row, value_input_option="USER_ENTERED")
+
+# ✅ 寫入預警紀錄
+def write_alert_to_sheet(alert: dict):
+    """
+    alert: dict 格式如下：
+    {
+        "日期": "2025-07-19",
+        "類型": "風險預警",
+        "內容": "CDS 利差飆升",
+        "分數": 87.5,
+    }
+    """
+    key_base64 = os.getenv("GCP_KEY_BASE64")
+    sheet_url = os.getenv("GSHEET_URL")
+    if not key_base64 or not sheet_url:
+        raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
+
+    sheet = connect_to_gsheet(sheet_url, "預警紀錄", key_base64)
+
+    row = [
+        to_serializable(alert.get("日期")),
+        to_serializable(alert.get("類型")),
+        to_serializable(alert.get("內容")),
+        to_serializable(alert.get("分數"))
     ]
 
     sheet.append_row(row, value_input_option="USER_ENTERED")
