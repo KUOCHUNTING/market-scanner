@@ -1,3 +1,8 @@
+"""
+這個模組負責：
+- 將建倉與出場紀錄寫入 Google Sheets
+- 使用 connect_to_gsheet 建立連線
+"""
 import os
 from datetime import datetime
 import numpy as np
