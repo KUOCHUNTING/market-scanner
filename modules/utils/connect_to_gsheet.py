@@ -1,29 +1,23 @@
 import difflib
 import base64
 import json
-from google.oauth2.service_account import Credentials
-from gspread.client import Client
-from gspread.http_client import AuthorizedHttpClient
 import gspread
+from google.oauth2.service_account import Credentials
 
-# ✅ 從 base64 金鑰取得 Google 憑證
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
-# ✅ 連接指定 Sheet 分頁（含模糊比對 + 自動建立）
 def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
     creds = get_credentials_from_base64(base64_key)
-    client = Client(auth=creds, http_client=AuthorizedHttpClient(creds))  # ✅ 支援新版
-    spreadsheet = client.open_by_url(sheet_url)
+    client = gspread.authorize(creds)  # ✅ 舊版使用這行
 
-    # 印出現有分頁
+    spreadsheet = client.open_by_url(sheet_url)
     sheet_names = [ws.title for ws in spreadsheet.worksheets()]
     print("📄 現有分頁：", sheet_names)
 
-    # 模糊比對提示
     if sheet_name not in sheet_names:
         close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
         print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
@@ -32,7 +26,6 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
         else:
             print("🚫 找不到任何相似分頁名稱，將建立新分頁")
 
-    # 嘗試載入或建立
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
