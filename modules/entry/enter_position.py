@@ -102,5 +102,4 @@ def enter_position(
         write_entry_to_sheet(position, sheet)
 
     print(f"✅ 建倉成功：{symbol}｜方向：{direction}｜股數：{quantity}｜價格：${price:.2f}｜策略：{strategy_name}")
-    position, message, capital_left = result
     return position, message, capital_left
