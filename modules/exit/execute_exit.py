@@ -7,6 +7,8 @@ from modules.config.config import WEBHOOK_URL
 from modules.notify.build_discord_message import build_exit_message  # ⬅️ 加入這行
 
 def execute_exit(symbol, entry_time, exit_price, entry_price,
+                 shares=1,
+                 reason="達到出場條件",
                  rsi=None, zscore=None, roc=None, obv=None,
                  vwap=None, ema5=None, ema20=None, strategy_name="未標記策略"):
     
@@ -44,8 +46,8 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
         entry_price=entry_price,
         exit_price=exit_price,
         return_rate=return_pct,
-        shares=1,  # 如果你未傳 shares，可先暫時寫 1 或補參數
-        reason="達到出場條件",  # 可換成實際原因
+        shares=shares,
+        reason=reason,
         strategy_name=strategy_name
     )
     send_discord_message(WEBHOOK_URL, message)
