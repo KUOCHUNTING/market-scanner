@@ -71,6 +71,8 @@ def enter_position(
         "shares": quantity,
         "capital_used": capital_used,
         "strategy_name": strategy_name,
+        "strategy_type": strategy_type,   # ✅ 新增
+        "signal_type": signal_type,       # ✅ 新增
         "confidence_score": score,
         "take_profit_pct": take_profit_pct,
         "stop_loss_pct": stop_loss_pct,
