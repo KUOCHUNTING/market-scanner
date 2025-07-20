@@ -121,9 +121,10 @@ def get_trend_score(indicators, close):
     bb_upper = indicators['bb_upper'].iloc[-1]
     bb_lower = indicators['bb_lower'].iloc[-1]
 
-    vwap_deviation = (indicators['close'].iloc[-1] - vwap) / vwap if vwap else 0
+    # ✅ 改用傳入的 close（即 latest_price）
+    vwap_deviation = (close - vwap) / vwap if vwap else 0
     bb_center = (bb_upper + bb_lower) / 2
-    bb_deviation = (indicators['close'].iloc[-1] - bb_center) / (bb_upper - bb_lower) if (bb_upper - bb_lower) else 0
+    bb_deviation = (close - bb_center) / (bb_upper - bb_lower) if (bb_upper - bb_lower) else 0
 
     score = compute_confidence_score(rsi, roc, obv, abs(vwap_deviation), zscore, bb_deviation, ema5, ema20)
 
