@@ -118,8 +118,8 @@ def get_trend_score(indicators):
         "均線空頭": indicators['ema_5'].iloc[-1] < indicators['ema_20'].iloc[-1]
     }
 
-    long_score = get_strategy_match_score("順勢策略", long_conditions)
-    short_score = get_strategy_match_score("順勢策略", short_conditions)
+    long_score = get_strategy_match_score("順勢策略", long_conditions).get("score", 0)
+    short_score = get_strategy_match_score("順勢策略", short_conditions).get("score", 0)
 
     if long_score >= short_score:
         return long_score, "做多"
@@ -144,8 +144,8 @@ def get_mean_score(indicators, latest_price):
         "價格偏離均值": latest_price > mean_price * 1.03
     }
 
-    long_score = get_strategy_match_score("均值回歸", long_conditions)
-    short_score = get_strategy_match_score("均值回歸", short_conditions)
+    long_score = get_strategy_match_score("均值回歸", long_conditions).get("score", 0)
+    short_score = get_strategy_match_score("均值回歸", short_conditions).get("score", 0)
 
     if long_score >= short_score:
         return long_score, "做多"
