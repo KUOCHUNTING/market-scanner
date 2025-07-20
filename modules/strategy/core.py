@@ -170,10 +170,12 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
 
     # ✅ 擠壓突破（正式版本）
     squeeze = detect_squeeze_breakout(symbol, indicators)
+    squeeze_score = 0
     if squeeze:
+        squeeze_score = squeeze["score"]
         candidates.append((
             "squeeze_breakout", squeeze["strategy_name"], "擠壓突破觸發",
-            squeeze["direction"], squeeze["score"], squeeze
+            squeeze["direction"], squeeze_score, squeeze
         ))
 
     # ✅ RROV
@@ -191,6 +193,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
     if mean_score >= 2:
         candidates.append(("mean", "均值回歸", "價格偏離均值", mean_dir, mean_score, None))
 
+    # ✅ debug 分數印出
     print(f"[DEBUG] {symbol}｜RROV: {rrov_score}｜趨勢: {trend_score}｜均值: {mean_score}｜擠壓: {squeeze_score}")
 
     # ✅ 選出最高分策略
