@@ -6,7 +6,15 @@ from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.format import to_serializable
 
 # ✅ 寫入建倉紀錄
-def write_entry_to_sheet(entry: dict):
+def write_entry_to_sheet(entry: dict, shares: int = 0):
+    """
+    將建倉資訊寫入 Google Sheets
+    """
+    # ✅ 可視需要把 shares 加進 entry 字典
+    entry["shares"] = shares
+
+    # 👉 以下保持原本寫入流程即可
+    # ...（保留原始寫入 Sheets 的程式碼
     key_base64 = os.getenv("GCP_KEY_BASE64")
     sheet_url = os.getenv("GSHEET_URL")
     if not key_base64 or not sheet_url:
