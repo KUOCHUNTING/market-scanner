@@ -49,7 +49,7 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet):
         bb_upper=squeeze_result.get("bb_upper"),
         bb_lower=squeeze_result.get("bb_lower"),
         obv=squeeze_result.get("obv"),
-        sheet=sheet
+        sheet=sheet_entry
     )
 
     if result:
