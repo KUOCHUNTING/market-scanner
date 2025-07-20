@@ -97,8 +97,9 @@ def get_rrov_score(indicators, latest_price):
         "短期疲弱": latest_price < indicators['ema_5'].iloc[-1]
     }
 
-    long_score = get_strategy_match_score("RROV", long_conditions)
-    short_score = get_strategy_match_score("RROV", short_conditions)
+    # ✅ 正確取出 score
+    long_score = get_strategy_match_score("RROV", long_conditions).get("score", 0)
+    short_score = get_strategy_match_score("RROV", short_conditions).get("score", 0)
 
     if long_score >= short_score:
         return long_score, "做多"
