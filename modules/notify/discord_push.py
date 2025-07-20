@@ -1,12 +1,14 @@
-import os
-import requests
+# modules/notify/discord_push.py
+def send_discord_message(message, webhook_url=None):
+    import os
+    import requests
 
-WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
+    if webhook_url is None:
+        webhook_url = os.getenv("WEBHOOK_URL")  # 從環境變數讀取預設值
 
-def send_discord_message(message):
     payload = {"content": message}
     try:
-        response = requests.post(WEBHOOK_URL, json=payload)
+        response = requests.post(webhook_url, json=payload)
         if response.status_code == 204:
             print(f"[✅ Discord 推播成功]")
         else:
