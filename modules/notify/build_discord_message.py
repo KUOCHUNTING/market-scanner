@@ -70,7 +70,8 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
         message += f"\n📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}"
     if capital_left is not None:
         message += f"\n💰 剩餘資金：${safe_float(capital_left)}"
-    return message
+
+    return clean_string(message)  # ✅ 加這行處理不能 parse 的 emoji 或控制字元
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
