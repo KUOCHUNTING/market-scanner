@@ -60,7 +60,7 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
         reason=reason,
         strategy_name=strategy_name
     )
-    send_discord_message(WEBHOOK_URL, message)
+    send_discord_message(message, WEBHOOK_URL)
 
 def compute_holding_minutes(entry_time, exit_time_dt):
     if isinstance(entry_time, str):
