@@ -199,7 +199,23 @@ def compute_confidence_score(rsi, roc, obv, vwap_deviation, zscore, bb_deviation
 def detect_trading_signal(symbol, df, indicators, latest_price):
     candidates = []
 
-    # ✅ 擠壓突破
+    # 🔻 1. 先計算技術信心分數（統一格式）
+    score = compute_confidence_score(
+        rsi=indicators['rsi'].iloc[-1],
+        roc=indicators['roc'].iloc[-1],
+        obv=indicators['obv'].iloc[-1],
+        vwap_deviation=abs(latest_price - indicators['vwap'].iloc[-1]),
+        zscore=indicators['zscore'].iloc[-1],
+        bb_deviation=indicators['bb_upper'].iloc[-1] - indicators['bb_lower'].iloc[-1],
+        ema5=indicators['ema_5'].iloc[-1],
+        ema20=indicators['ema_20'].iloc[-1]
+    )
+
+    # 🔻 2. 如果信心分數太低，就直接略過這檔
+    if score < 3:
+        return None, None, None, None, None
+
+    # 🔻 3. 正常策略偵測流程
     squeeze = detect_squeeze_breakout(symbol, indicators)
     squeeze_score = 0
     if squeeze:
@@ -209,30 +225,23 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
             squeeze["direction"], squeeze_score, squeeze
         ))
 
-    # ✅ RROV
     rrov_score, rrov_dir = get_rrov_score(indicators, latest_price)
-    if rrov_dir:
+    if rrov_score >= 2:
         candidates.append(("rrov", "RROV 強勢起漲", "強勢突破", rrov_dir, rrov_score, None))
 
-    # ✅ 順勢
     trend_score, trend_dir = get_trend_score(indicators)
-    if trend_dir:
+    if trend_score >= 2:
         candidates.append(("trend", "順勢策略", "趨勢同步", trend_dir, trend_score, None))
 
-    # ✅ 均值回歸
     mean_score, mean_dir = get_mean_score(indicators, latest_price)
-    if mean_dir:
+    if mean_score >= 2:
         candidates.append(("mean", "均值回歸", "價格偏離均值", mean_dir, mean_score, None))
 
-    # ✅ 印出各策略分數與方向
-    print(f"[DEBUG] {symbol}｜RROV: {rrov_score}({rrov_dir})｜趨勢: {trend_score}({trend_dir})｜均值: {mean_score}({mean_dir})｜擠壓: {squeeze_score}")
+    print(f"[DEBUG] {symbol}｜RROV: {rrov_score}｜趨勢: {trend_score}｜均值: {mean_score}｜擠壓: {squeeze_score}")
 
-    # ✅ 選出最高分策略
     if candidates:
         best = sorted(candidates, key=lambda x: x[4], reverse=True)[0]
-        signal_type, strategy_name, note, direction, score, extra = best
-        print(f"[選擇] {symbol} → {strategy_name}｜方向：{direction}｜信心分數：{score}")
+        signal_type, strategy_name, note, direction, score_only, extra = best
         return signal_type, strategy_name, note, direction, extra
 
-    print(f"[略過] {symbol} ➜ 無明確訊號")
     return None, None, None, None, None
