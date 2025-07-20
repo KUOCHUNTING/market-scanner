@@ -33,6 +33,7 @@ from modules.entry.handle_signal_entry import handle_signal_entry
 # ✅ 初始化共用 Google Sheet 分頁
 sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 
+print(f"[DEBUG] ✅ 已建立 sheet_entry: {sheet_entry}")
 # ✅ 股票清單
 stock_list = load_stock_list()
 
