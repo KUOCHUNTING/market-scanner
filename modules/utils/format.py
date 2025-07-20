@@ -2,25 +2,34 @@ import numpy as np
 import pandas as pd
 
 def to_serializable(value):
+    import numpy as np
+    import pandas as pd
+
     if value is None:
         return ""
-    elif isinstance(value, (np.int64, np.int32)):
+    elif isinstance(value, (list, tuple)):
+        return ", ".join(str(v) for v in value if v is not None)
+    elif isinstance(value, (np.int64, np.int32, int)):
         return int(value)
-    elif isinstance(value, float) and (np.isnan(value) or np.isinf(value)):
-        return ""
-    elif isinstance(value, (np.float64, np.float32)):
-        return float(value)
+    elif isinstance(value, (np.float64, np.float32, float)):
+        if np.isnan(value) or np.isinf(value):
+            return ""
+        return round(float(value), 4)  # ✅ 保留最多 4 位小數
     elif isinstance(value, (pd.Timestamp, np.datetime64)):
         return str(value)
+    elif isinstance(value, bool):
+        return str(value)
     elif isinstance(value, str):
-        # ✅ 移除控制字元、不能編碼的字元
         try:
-            value.encode("utf-8")  # 測試是否能被 json 處理
+            value.encode("utf-8")
             return ''.join(c for c in value if c.isprintable())
         except UnicodeEncodeError:
             return "[非法字元]"
     else:
-        return value
+        try:
+            return str(value)
+        except:
+            return "[無法序列化]"
 
 def safe_float(value, decimals=2, prefix="", suffix=""):
     """
