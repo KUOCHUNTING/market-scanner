@@ -17,7 +17,15 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
 
     holding_minutes = compute_holding_minutes(entry_time, now_dt)
     direction = "做多" if entry_price <= exit_price else "做空"
-    return_pct = (exit_price - entry_price) / entry_price if direction == "做多" else (entry_price - exit_price) / entry_price
+
+    if entry_price == 0:
+        return_pct = 0
+    else:
+        return_pct = (
+            (exit_price - entry_price) / entry_price
+            if direction == "做多"
+            else (entry_price - exit_price) / entry_price
+        )
     pnl = (exit_price - entry_price) * shares if direction == "做多" else (entry_price - exit_price) * shares
 
     # ✅ 寫入出場紀錄
