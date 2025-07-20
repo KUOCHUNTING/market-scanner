@@ -69,5 +69,5 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         capital_left=capital_left
     )
 
-    send_discord_message(WEBHOOK_URL, message)
+    send_discord_message(message, WEBHOOK_URL)
     return shares, capital_used
