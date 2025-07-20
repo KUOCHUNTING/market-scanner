@@ -91,7 +91,9 @@ def enter_position(
         "trend_score": trend_score,   # 👈 數值，例如 5.0
         "trend_dir": trend_dir,       # 👈 可選，加上方向資訊
         "rrov_score": rrov_score,
+        "rrov_dir": rrov_dir,
         "mean_score": mean_score,
+        "mean_dir": mean_dir,
         "signal_note": signal_note
     }
 
