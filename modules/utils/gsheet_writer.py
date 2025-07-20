@@ -6,34 +6,27 @@ from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.format import to_serializable
 
 # ✅ 寫入建倉紀錄
-def write_entry_to_sheet(entry: dict, shares: int = 0):
+def write_entry_to_sheet(entry: dict, sheet, shares: int = 0):
     """
-    將建倉資訊寫入 Google Sheets
+    將建倉資訊寫入 Google Sheets（需傳入 sheet 物件）
     """
-    # ✅ 可視需要把 shares 加進 entry 字典
+    # 加入張數
     entry["shares"] = shares
 
-    # 👉 以下保持原本寫入流程即可
-    # ...（保留原始寫入 Sheets 的程式碼
-    key_base64 = os.getenv("GCP_KEY_BASE64")
-    sheet_url = os.getenv("GSHEET_URL")
-    if not key_base64 or not sheet_url:
-        raise ValueError("❌ 環境變數 GCP_KEY_BASE64 或 GSHEET_URL 未設定")
-
-    sheet = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
-
-    entry_time = entry["entry_time"]
+    # 處理時間格式
+    entry_time = entry.get("entry_time")
     if isinstance(entry_time, datetime):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
 
+    # 組成一列資料
     row = [
         to_serializable(entry_time),
-        to_serializable(entry["symbol"]),
-        to_serializable(entry["direction"]),
-        to_serializable(entry["price"]),
-        to_serializable(entry["shares"]),
+        to_serializable(entry.get("symbol")),
+        to_serializable(entry.get("direction")),
+        to_serializable(entry.get("price")),
+        to_serializable(entry.get("shares")),
         to_serializable(entry.get("capital_used", "")),
-        to_serializable(entry["strategy_name"]),
+        to_serializable(entry.get("strategy_name")),
         to_serializable(entry.get("confidence_score", "")),
         to_serializable(entry.get("signal_note", "")),
         to_serializable(entry.get("rsi", "")),
@@ -49,6 +42,7 @@ def write_entry_to_sheet(entry: dict, shares: int = 0):
         to_serializable(entry.get("mean_score", ""))
     ]
 
+    # ✅ 傳入的 sheet 實例使用 append_row 寫入
     sheet.append_row(row, value_input_option="USER_ENTERED")
 
 # ✅ 寫入出場紀錄
