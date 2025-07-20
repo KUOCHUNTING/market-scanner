@@ -108,8 +108,8 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     message += f"📝 訊號摘要：{signal_note}\n"
     message += f"🔖 策略名稱：{strategy_name}\n\n"
 
-    message += f"📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}\n"
-    message += f"💰 剩餘資金：${safe_float(capital_left)}"
+    message += f"📌 股數：{safe_float(shares, 0)} 股｜進場資金：{safe_float(capital_used, 2, prefix='$')}\n"
+    message += f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
 
     return message.strip()
 
