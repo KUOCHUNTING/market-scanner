@@ -79,20 +79,39 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         bb_upper=None, bb_lower=None, obv=None,
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
-    emoji = "🟢" if direction == "多" else "🔴"
+    """
+    組裝技術策略建倉訊息推播用於 Discord
+    """
+    # ✅ 方向 emoji
+    emoji = "🟢" if direction == "做多" else "🔴"
+
+    # ✅ 信心分數等級
+    if confidence_score is not None:
+        if confidence_score >= 6:
+            level = "🔥 高信心"
+        elif confidence_score >= 4:
+            level = "🔶 中信心"
+        else:
+            level = "⚠️ 低信心"
+    else:
+        level = "❔"
+
     message = f"📌 {emoji} {direction} 技術策略 ➤ `{safe_symbol(symbol)}`\n\n"
     message += f"📋 類型：{strategy_type}（方向：{direction}）\n"
+    message += f"🧠 信心分數：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}\n"
+    message += f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}\n\n"
+
     message += f"📈 收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n"
     message += f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}\n"
-    message += f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}\n"
-    message += f"📦 OBV：{safe_float(obv)}\n\n"
-    message += f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}\n"
-    message += f"🧠 技術信心：{safe_float(confidence_score)}｜策略分數：{safe_float(score)}\n\n"
+    message += f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}｜OBV：{safe_float(obv)}\n\n"
+
     message += f"📝 訊號摘要：{signal_note}\n"
     message += f"🔖 策略名稱：{strategy_name}\n\n"
+
     message += f"📌 股數：{shares} 股｜進場資金：${safe_float(capital_used)}\n"
     message += f"💰 剩餘資金：${safe_float(capital_left)}"
-    return message
+
+    return message.strip()
 
 def build_entry_message_from_position(position: dict):
     return build_entry_message(
