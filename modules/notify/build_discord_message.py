@@ -73,6 +73,17 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
 
     return clean_string(message)  # ✅ 加這行處理不能 parse 的 emoji 或控制字元
 
+from modules.utils.format import safe_float
+
+def safe_symbol(symbol):
+    """
+    安全格式化股票代號，移除不可列印字元
+    """
+    try:
+        return ''.join(c for c in str(symbol) if c.isprintable())
+    except Exception:
+        return "[無效代碼]"
+
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
                         rsi=None, zscore=None, ema5=None, ema20=None,
@@ -80,12 +91,12 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
     """
-    組裝技術策略建倉訊息推播用於 Discord
+    組裝技術策略建倉訊息推播用於 Discord（含防呆）
     """
     # ✅ 方向 emoji
     emoji = "🟢" if direction == "做多" else "🔴"
 
-    # ✅ 信心分數等級
+    # ✅ 信心分數等級顯示
     if confidence_score is not None:
         if confidence_score >= 6:
             level = "🔥 高信心"
@@ -96,7 +107,11 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     else:
         level = "❔"
 
-    message = f"📌 {emoji} {direction} 技術策略 ➤ `{safe_symbol(symbol)}`\n\n"
+    # ✅ 確保 symbol 無錯字元，不使用反引號
+    safe_sym = safe_symbol(symbol)
+
+    # ✅ 組裝訊息
+    message = f"📌 {emoji} **{direction} 技術策略** ➤ **{safe_sym}**\n\n"
     message += f"📋 類型：{strategy_type}（方向：{direction}）\n"
     message += f"🧠 信心分數：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}\n"
     message += f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}\n\n"
@@ -111,7 +126,10 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     message += f"📌 股數：{safe_float(shares, 0)} 股｜進場資金：{safe_float(capital_used, 2, prefix='$')}\n"
     message += f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
 
-    return message.strip()
+    # ✅ 最終保險，移除不可列印字元避免 Discord 解析錯誤
+    clean_msg = ''.join(c for c in message if c.isprintable())
+
+    return clean_msg.strip()
 
 def build_entry_message_from_position(position: dict):
     return build_entry_message(
