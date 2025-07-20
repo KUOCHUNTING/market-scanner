@@ -78,9 +78,8 @@ def scan_market(symbol_list, sheet_entry):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            latest_price = df['close'].iloc[-1]  # ✅ 放這
+            # ✅ 呼叫 get_trend_score 時傳入 close
             trend_score, trend_dir = get_trend_score(indicators, latest_price)
-
             # ✅ 評分與策略得分
             rrov_score = get_rrov_score(indicators, latest_price)
             trend_score = get_trend_score(indicators)
