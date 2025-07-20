@@ -6,48 +6,77 @@ from modules.utils.strategy_utils import get_strategy_match_score
 # ✅ 擠壓突破偵測（改為動態方向）
 def detect_squeeze_breakout(symbol, indicators):
     """
-    擠壓 + 突破策略判斷（使用實際指標）
+    擠壓突破策略（正式邏輯）：
     條件：
-        - BB 縮幅壓縮：布林帶上下差距低於歷史平均 × 比例
-        - 價格突破上軌：做多
-        - 價格跌破下軌：做空
+        1. BB 壓縮：布林帶寬度 < 平均 × 0.8
+        2. 價格突破上軌（做多）或下軌（做空）
+        3. RSI 強弱判斷
+        4. EMA 趨勢一致
+        5. OBV > 0
+        6. ROC > 0
+    回傳：
+        direction, score, 技術指標資訊
     """
     if indicators is None or len(indicators) < 21:
         return None
 
+    # 取值
     close = indicators['close'].iloc[-1]
     bb_upper = indicators['bb_upper'].iloc[-1]
     bb_lower = indicators['bb_lower'].iloc[-1]
     bb_width = bb_upper - bb_lower
     avg_bb_width = (indicators['bb_upper'] - indicators['bb_lower']).rolling(window=20).mean().iloc[-1]
+    ema5 = indicators['ema_5'].iloc[-1]
+    ema20 = indicators['ema_20'].iloc[-1]
+    rsi = indicators['rsi'].iloc[-1]
+    zscore = indicators['zscore'].iloc[-1]
+    roc = indicators['roc'].iloc[-1]
+    obv = indicators['obv'].iloc[-1]
+    vwap = indicators['vwap'].iloc[-1]
 
-    # 壓縮條件：布林帶收斂（小於平均 × 0.8）
+    # 1️⃣ BB 壓縮
     is_squeeze = bb_width < avg_bb_width * 0.8
     if not is_squeeze:
         return None
 
-    # 價格突破上軌 ⇒ 做多、跌破下軌 ⇒ 做空
+    # 2️⃣ 突破方向
     if close > bb_upper:
         direction = "做多"
     elif close < bb_lower:
         direction = "做空"
     else:
-        return None  # 沒有突破
+        return None  # 沒突破，略過
 
-    # 補充其他指標資訊（給推播與信心分數）
+    # 3️⃣ 條件式評分（越多條件符合，score 越高）
+    score = 0
+    if direction == "做多":
+        if rsi > 50: score += 1
+        if ema5 > ema20: score += 1
+        if obv > 0: score += 1
+        if roc > 0: score += 1
+    else:  # 做空
+        if rsi < 50: score += 1
+        if ema5 < ema20: score += 1
+        if obv < 0: score += 1
+        if roc < 0: score += 1
+
+    # BB 壓縮與突破 ⇒ +2 分
+    score += 2
+
+    # 整理回傳格式
     result = {
         "symbol": symbol,
         "close": close,
         "direction": direction,
-        "score": 3,
+        "score": score,
         "strategy_name": "擠壓突破",
-        "rsi": indicators['rsi'].iloc[-1],
-        "zscore": indicators['zscore'].iloc[-1],
-        "roc": indicators['roc'].iloc[-1],
-        "obv": indicators['obv'].iloc[-1],
-        "vwap": indicators['vwap'].iloc[-1],
-        "ema_5": indicators['ema_5'].iloc[-1],
-        "ema_20": indicators['ema_20'].iloc[-1],
+        "rsi": rsi,
+        "zscore": zscore,
+        "roc": roc,
+        "obv": obv,
+        "vwap": vwap,
+        "ema_5": ema5,
+        "ema_20": ema20,
         "bb_upper": bb_upper,
         "bb_lower": bb_lower,
     }
