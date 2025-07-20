@@ -82,7 +82,6 @@ def scan_market(symbol_list, sheet_entry):
             trend_score, trend_dir = get_trend_score(indicators, latest_price)
             # ✅ 評分與策略得分
             rrov_score = get_rrov_score(indicators, latest_price)
-            trend_score = get_trend_score(indicators)
             mean_score = get_mean_score(indicators, latest_price)
 
             score = compute_confidence_score(
