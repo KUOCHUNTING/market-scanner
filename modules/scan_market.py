@@ -79,7 +79,7 @@ def scan_market(symbol_list, sheet_entry):
                 continue
 
             latest_price = df['close'].iloc[-1]  # ✅ 放這
-            trend_score, trend_dir = get_trend_score(indicators, latest_price
+            trend_score, trend_dir = get_trend_score(indicators, latest_price)
 
             # ✅ 評分與策略得分
             rrov_score = get_rrov_score(indicators, latest_price)
