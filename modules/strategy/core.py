@@ -230,7 +230,7 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
     if rrov_score >= 2:
         candidates.append(("rrov", "RROV 強勢起漲", "強勢突破", rrov_dir, rrov_score, None))
 
-    trend_score, trend_dir = get_trend_score(indicators)
+    trend_score, trend_dir = get_trend_score(indicators, latest_price)
     if trend_score >= 2:
         candidates.append(("trend", "順勢策略", "趨勢同步", trend_dir, trend_score, None))
 
