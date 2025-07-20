@@ -44,19 +44,22 @@ def enter_position(
 
     # ✅ 重複建倉檢查
     if symbol in positions:
-        print(f"[略過] {symbol} 已持有倉位")
-        return None
+        msg = f"[略過] {symbol} 已持有倉位"
+        print(msg)
+        return None, msg, capital_left
 
-    # ✅ 檢查剩餘資金
+    # ✅ 資金不足檢查
     if capital_left < 3000:
-        print(f"[略過] 資金不足 ➜ 剩餘 ${capital_left:.2f}")
-        return None
+        msg = f"[略過] 資金不足 ➜ 剩餘 ${capital_left:.2f}"
+        print(msg)
+        return None, msg, capital_left
 
     # ✅ 假設全倉進場
     quantity = int(capital_left // price)
     if quantity == 0:
-        print(f"[略過] 單價過高，無法進場 ➜ {symbol} at ${price}")
-        return None
+        msg = f"[略過] 單價過高，無法進場 ➜ {symbol} at ${price:.2f}"
+        print(msg)
+        return None, msg, capital_left
 
     capital_used = quantity * price
     entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -66,7 +69,7 @@ def enter_position(
         "symbol": symbol,
         "entry_time": entry_time,
         "entry_price": price,
-        "price": price,  # ✅ 給寫入 sheet 用
+        "price": price,
         "direction": direction,
         "shares": quantity,
         "capital_used": capital_used,
@@ -91,7 +94,7 @@ def enter_position(
         "signal_note": signal_note
     }
 
-    # ✅ 更新倉位與資金
+    # ✅ 更新全域倉位與資金
     positions[symbol] = position
     capital_left -= capital_used
 
@@ -101,7 +104,7 @@ def enter_position(
 
     # ✅ 寫入 Google Sheets
     if sheet:
-        write_entry_to_sheet(position, sheet)
+        write_entry_to_sheet(entry=position, sheet=sheet, shares=quantity)
 
     print(f"✅ 建倉成功：{symbol}｜方向：{direction}｜股數：{quantity}｜價格：${price:.2f}｜策略：{strategy_name}")
     return position, message, capital_left
