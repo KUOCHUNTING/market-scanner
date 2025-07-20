@@ -47,7 +47,7 @@ def scan_market(symbol_list, sheet_entry):
     elif not isinstance(symbol_list, list):
         raise TypeError("❌ 傳入的 symbol_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
-    random.shuffle(symbol_list)  # ✅ 半形括號
+    random.shuffle(symbol_list)
 
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
@@ -60,6 +60,17 @@ def scan_market(symbol_list, sheet_entry):
             df = fetch_stock_data(symbol, POLYGON_API_KEY)
             if df is None or df.empty:
                 print(f"[跳過] {symbol} ➜ 無資料")
+                continue
+
+            # ✅ 流動性過濾（5日平均成交額）
+            try:
+                avg_volume = df["volume"].rolling(5).mean().iloc[-1]
+                price = df["close"].iloc[-1]
+                if not filter_liquidity(avg_volume, price):
+                    print(f"[跳過] {symbol} ➜ 流動性不足（5日均成交額 ${avg_volume * price:,.0f}）")
+                    continue
+            except Exception as e:
+                print(f"[跳過] {symbol} ➜ 流動性檢查失敗：{e}")
                 continue
 
             fundamentals = get_fundamentals(symbol, POLYGON_API_KEY, df)
@@ -78,9 +89,8 @@ def scan_market(symbol_list, sheet_entry):
                 print(f"[跳過] {symbol} ➜ latest_price 無效 ➜ {latest_price}")
                 continue
 
-            # ✅ 呼叫 get_trend_score 時傳入 close
+            # ✅ 技術分數與策略得分
             trend_score, trend_dir = get_trend_score(indicators, latest_price)
-            # ✅ 評分與策略得分
             rrov_score = get_rrov_score(indicators, latest_price)
             mean_score = get_mean_score(indicators, latest_price)
 
@@ -96,14 +106,14 @@ def scan_market(symbol_list, sheet_entry):
                 ema20=indicators["ema_20"].iloc[-1],
             )
 
-            # ✅ 擠壓策略建倉處理
-            squeeze_result = detect_squeeze_breakout(symbol, indicators)  # 正確
+            # ✅ 擠壓策略
+            squeeze_result = detect_squeeze_breakout(symbol, indicators)
             if squeeze_result:
                 result = handle_squeeze_entry(symbol, squeeze_result, sheet_entry)
                 if result:
                     position, message, capital_left = result
 
-            # ✅ 技術策略建倉處理
+            # ✅ 技術策略判斷與建倉
             signal_type, strategy_name, signal_note, direction, extra = detect_trading_signal(
                 symbol, df, indicators, latest_price
             )
