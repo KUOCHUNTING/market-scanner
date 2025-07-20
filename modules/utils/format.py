@@ -1,5 +1,3 @@
-# modules/utils/format.py
-
 import numpy as np
 import pandas as pd
 
@@ -60,3 +58,13 @@ def get_last_value(series):
     if len(series) == 0:
         return None
     return series.iloc[-1]
+
+def safe_symbol(symbol):
+    """
+    安全格式化 symbol 名稱，避免 None / 空字串 造成 Discord 推播錯誤
+    """
+    try:
+        s = str(symbol).strip()
+        return s if s else "未知代號"
+    except Exception:
+        return "未知代號"
