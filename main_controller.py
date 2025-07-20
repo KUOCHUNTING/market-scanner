@@ -17,7 +17,7 @@ sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
-print(f"✅ 目前讀取的 Discord Webhook：{WEBHOOK_URL}"
+print(f"✅ 目前讀取的 Discord Webhook：{WEBHOOK_URL}")
 # ✅ 初始化 Google Sheets 工作表
 sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 
