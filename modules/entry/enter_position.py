@@ -35,6 +35,7 @@ def enter_position(
     mean_score=None,
     trend_dir=None,
     rrov_dir=None,
+    mean_dir=None,
     signal_type=None,
     strategy_type=None,
     take_profit_pct=0.08,
