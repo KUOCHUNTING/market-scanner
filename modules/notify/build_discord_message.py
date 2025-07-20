@@ -1,12 +1,31 @@
 from datetime import datetime
-from modules.utils.format import safe_float, safe_symbol
+from modules.utils.format import safe_float
+
+# === 安全處理字串 ===
+
+def safe_symbol(symbol):
+    """
+    安全格式化股票代號，移除不可列印字元
+    """
+    try:
+        return ''.join(c for c in str(symbol) if c.isprintable())
+    except Exception:
+        return "[無效代碼]"
+
+def clean_string(s: str) -> str:
+    """
+    最終推播字串清洗，移除非法控制符與 emoji 崩潰字元
+    """
+    return ''.join(c for c in s if c.isprintable()).strip()
+
+# === 均值回歸訊息 ===
 
 def build_mean_reversion_message(symbol, price, rsi, zscore, ema5, ema20,
                                   bb_upper, bb_lower, obv, score, confidence_score,
                                   direction, shares, capital_used, capital_left, signal_note):
-    return f"""【均值回歸策略觸發】{safe_symbol(symbol)}
+    message = f"""【均值回歸策略觸發】{safe_symbol(symbol)}
 
-收盤價：${price:.2f}｜Z-score：{safe_float(zscore)}
+收盤價：${safe_float(price)}｜Z-score：{safe_float(zscore)}
 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}
 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}
 OBV：{safe_float(obv)}
@@ -15,39 +34,48 @@ OBV：{safe_float(obv)}
 策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
 
 方向：{direction}
-股數：{shares} 股｜資金：${capital_used:.2f}
-剩餘資金：${capital_left:.2f}
+股數：{shares} 股｜資金：${safe_float(capital_used)}
+剩餘資金：${safe_float(capital_left)}
 """
+    return clean_string(message)
+
+# === RROV 突破訊息 ===
 
 def build_rrov_message(symbol, price, ema5, bb_upper, obv, score, confidence_score,
                        direction, shares, capital_used, capital_left, signal_note):
-    return f"""【RROV 突破策略觸發】{safe_symbol(symbol)}
+    message = f"""【RROV 突破策略觸發】{safe_symbol(symbol)}
 
-收盤價：${price:.2f}｜EMA5：{safe_float(ema5)}｜布林上軌：{safe_float(bb_upper)}
+收盤價：${safe_float(price)}｜EMA5：{safe_float(ema5)}｜布林上軌：{safe_float(bb_upper)}
 OBV：{safe_float(obv)}
 
 策略摘要：{signal_note}
 策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
 
 方向：{direction}
-股數：{shares} 股｜資金：${capital_used:.2f}
-剩餘資金：${capital_left:.2f}
+股數：{shares} 股｜資金：${safe_float(capital_used)}
+剩餘資金：${safe_float(capital_left)}
 """
+    return clean_string(message)
+
+# === 順勢策略訊息 ===
 
 def build_trend_message(symbol, price, rsi, ema5, ema20, obv, score, confidence_score,
                         direction, shares, capital_used, capital_left, signal_note):
-    return f"""【順勢策略觸發】{safe_symbol(symbol)}
+    message = f"""【順勢策略觸發】{safe_symbol(symbol)}
 
-收盤價：${price:.2f}｜RSI：{safe_float(rsi)}｜EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}
+收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}
 OBV：{safe_float(obv)}
 
 策略摘要：{signal_note}
 策略信心：{safe_float(score)}｜技術信心：{safe_float(confidence_score)}
 
 方向：{direction}
-股數：{shares} 股｜資金：${capital_used:.2f}
-剩餘資金：${capital_left:.2f}
+股數：{shares} 股｜資金：${safe_float(capital_used)}
+剩餘資金：${safe_float(capital_left)}
 """
+    return clean_string(message)
+
+# === 擠壓突破訊息 ===
 
 def build_breakout_message(symbol, price, direction, strategy_name, score,
                            rsi=None, zscore=None,
@@ -71,18 +99,9 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
     if capital_left is not None:
         message += f"\n💰 剩餘資金：${safe_float(capital_left)}"
 
-    return clean_string(message)  # ✅ 加這行處理不能 parse 的 emoji 或控制字元
+    return clean_string(message)
 
-from modules.utils.format import safe_float
-
-def safe_symbol(symbol):
-    """
-    安全格式化股票代號，移除不可列印字元
-    """
-    try:
-        return ''.join(c for c in str(symbol) if c.isprintable())
-    except Exception:
-        return "[無效代碼]"
+# === 統一技術策略推播格式（整合雷達分數） ===
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
@@ -90,9 +109,6 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         bb_upper=None, bb_lower=None, obv=None,
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
-    """
-    組裝技術策略建倉訊息推播用於 Discord（含防呆與段落分行）
-    """
     emoji = "🟢" if direction == "做多" else "🔴"
 
     # 信心等級文字
@@ -108,7 +124,6 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 
     safe_sym = safe_symbol(symbol)
 
-    # ✨ 使用分段方式組裝訊息
     lines = [
         f"📌 {emoji} **{direction} 技術策略** ➤ **{safe_sym}**",
         f"📋 類型：{strategy_type}（方向：{direction}）",
@@ -126,11 +141,9 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
     ]
 
-    # 串接 + 安全過濾
-    message = "\n".join(lines)
-    clean_msg = ''.join(c for c in message if c.isprintable())
+    return clean_string("\n".join(lines))
 
-    return clean_msg.strip()
+# === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict):
     return build_entry_message(
@@ -158,25 +171,25 @@ def build_entry_message_from_position(position: dict):
         capital_left=position.get("capital_left"),
     )
 
+# === 出場推播訊息 ===
+
 def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, shares, reason, strategy_name):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    if strategy_name == '均值回歸':
-        strategy_label = "🎯 均值回歸策略"
-    elif strategy_name == '順勢策略':
-        strategy_label = "🔥 順勢策略"
-    elif strategy_name == '擠壓突破':
-        strategy_label = "💥 擠壓突破策略"
-    else:
-        strategy_label = "📊 RROV 策略"
+    strategy_map = {
+        '均值回歸': "🎯 均值回歸策略",
+        '順勢策略': "🔥 順勢策略",
+        '擠壓突破': "💥 擠壓突破策略"
+    }
+    strategy_label = strategy_map.get(strategy_name, "📊 RROV 策略")
 
     emoji = "🐸" if direction == "多" else "🐶"
 
     msg = f"""{emoji} **[出場 - {direction}單]** {safe_symbol(symbol)}
 📌 策略：{strategy_label}
 💵 出場價格：${safe_float(exit_price)}｜進場價格：${safe_float(entry_price)}
-📊 報酬率：{safe_float(return_rate * 100)}%｜股數：{shares}
+📊 報酬率：{safe_float((return_rate or 0) * 100)}%｜股數：{shares}
 🔄 出場原因：{reason}
 🕒 時間：{now}"""
 
-    return msg
+    return clean_string(msg)
