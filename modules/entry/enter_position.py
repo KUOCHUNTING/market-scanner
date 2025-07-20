@@ -1,5 +1,3 @@
-# modules/entry/enter_position.py
-
 import os
 from datetime import datetime
 from modules.notify.discord_push import send_discord_message
