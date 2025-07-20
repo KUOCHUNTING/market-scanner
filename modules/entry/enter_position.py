@@ -88,7 +88,8 @@ def enter_position(
         "ema20": ema20,
         "bb_upper": bb_upper,
         "bb_lower": bb_lower,
-        "trend_score": trend_score,
+        "trend_score": trend_score,   # 👈 數值，例如 5.0
+        "trend_dir": trend_dir,       # 👈 可選，加上方向資訊
         "rrov_score": rrov_score,
         "mean_score": mean_score,
         "signal_note": signal_note
