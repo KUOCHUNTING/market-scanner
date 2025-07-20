@@ -3,6 +3,13 @@ import pandas as pd
 import traceback
 import random
 from dotenv import load_dotenv
+
+# ✅ 載入環境變數
+load_dotenv()
+sheet_url = os.getenv("GSHEET_URL")
+key_base64 = os.getenv("GCP_KEY_BASE64")
+
+# ✅ 模組匯入
 from modules.utils.file_loader import load_stock_list
 from modules.fetch_stock_data import fetch_stock_data
 from modules.get_fundamentals import get_fundamentals
@@ -12,7 +19,6 @@ from modules.utils.validate_indicators import is_invalid
 from modules.config.config import POLYGON_API_KEY, capital_left
 from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.gsheet_writer import write_entry_to_sheet
-# 🧠 統一策略邏輯
 from modules.strategy import (
     detect_trading_signal,
     get_rrov_score,
@@ -21,18 +27,12 @@ from modules.strategy import (
     compute_confidence_score,
     detect_squeeze_breakout
 )
-
-# 💼 建倉模組
 from modules.entry.handle_squeeze_entry import handle_squeeze_entry
 from modules.entry.handle_signal_entry import handle_signal_entry
 
-load_dotenv()
-
-sheet_url = os.getenv("GSHEET_URL")
-key_base64 = os.getenv("GCP_KEY_BASE64")
-
 # ✅ 初始化共用 Google Sheet 分頁
 sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
+
 # ✅ 股票清單
 stock_list = load_stock_list()
 
