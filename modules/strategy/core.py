@@ -110,7 +110,7 @@ def get_rrov_score(indicators, latest_price):
         return 0, None
         
 # ✅ 順勢策略評分（雙向）
-def get_trend_score(indicators):
+def get_trend_score(indicators, close):
     rsi = indicators['rsi'].iloc[-1]
     roc = indicators['roc'].iloc[-1]
     obv = indicators['obv'].iloc[-1]
