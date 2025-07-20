@@ -143,6 +143,10 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 
     message = "\n".join(lines)
 
+    message = ''.join(c for c in message if c.isprintable())
+
+    return message.strip()
+
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict):
