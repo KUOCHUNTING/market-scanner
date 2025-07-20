@@ -96,7 +96,7 @@ def scan_market(symbol_list, sheet_entry):
             )
 
             # ✅ 擠壓策略建倉處理
-            squeeze_result = detect_squeeze_breakout(symbol, indicators)  ✅ 正確
+            squeeze_result = detect_squeeze_breakout(symbol, indicators)  # 正確
             if squeeze_result:
                 result = handle_squeeze_entry(symbol, squeeze_result, sheet_entry)
                 if result:
