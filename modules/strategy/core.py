@@ -167,36 +167,30 @@ def compute_confidence_score(rsi, roc, obv, vwap_deviation, zscore, bb_deviation
 def detect_trading_signal(symbol, df, indicators, latest_price):
     candidates = []
 
-    # 擠壓策略
-    squeeze = detect_squeeze_breakout(symbol)
+    # ✅ 擠壓突破（正式版本）
+    squeeze = detect_squeeze_breakout(symbol, indicators)
     if squeeze:
         candidates.append((
             "squeeze_breakout", squeeze["strategy_name"], "擠壓突破觸發",
             squeeze["direction"], squeeze["score"], squeeze
         ))
 
-    # RROV
+    # ✅ RROV
     rrov_score, rrov_dir = get_rrov_score(indicators, latest_price)
     if rrov_score >= 2:
-        candidates.append((
-            "rrov", "RROV 強勢起漲", "強勢突破", rrov_dir, rrov_score, None
-        ))
+        candidates.append(("rrov", "RROV 強勢起漲", "強勢突破", rrov_dir, rrov_score, None))
 
-    # 順勢
+    # ✅ 順勢
     trend_score, trend_dir = get_trend_score(indicators)
     if trend_score >= 2:
-        candidates.append((
-            "trend", "順勢策略", "趨勢同步", trend_dir, trend_score, None
-        ))
+        candidates.append(("trend", "順勢策略", "趨勢同步", trend_dir, trend_score, None))
 
-    # 均值回歸
+    # ✅ 均值回歸
     mean_score, mean_dir = get_mean_score(indicators, latest_price)
     if mean_score >= 2:
-        candidates.append((
-            "mean", "均值回歸", "價格偏離均值", mean_dir, mean_score, None
-        ))
+        candidates.append(("mean", "均值回歸", "價格偏離均值", mean_dir, mean_score, None))
 
-    # 選擇最高分策略
+    # ✅ 選出最高分策略
     if candidates:
         best = sorted(candidates, key=lambda x: x[4], reverse=True)[0]
         signal_type, strategy_name, note, direction, score, extra = best
