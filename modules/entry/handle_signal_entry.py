@@ -9,7 +9,7 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
                         trend_score=None, rrov_score=None, mean_score=None,
                         capital_left=None,
                         sheet=None):  # ✅ 加入 sheet 參數
-    print(f"[DEBUG] ✅ 傳入 sheet: {sheet}"
+    print(f"[DEBUG] ✅ 傳入 sheet: {sheet}")
     """
     技術策略建倉流程：包含進場、推播、寫入 Sheets
     """
