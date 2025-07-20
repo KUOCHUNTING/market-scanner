@@ -141,7 +141,7 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
     ]
 
-    return clean_string("\n".join(lines))
+    message = "\n".join(lines)
 
 # === Position dict 自動轉訊息 ===
 
