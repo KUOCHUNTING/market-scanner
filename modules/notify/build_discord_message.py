@@ -91,12 +91,11 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
     """
-    組裝技術策略建倉訊息推播用於 Discord（含防呆）
+    組裝技術策略建倉訊息推播用於 Discord（含防呆與段落分行）
     """
-    # ✅ 方向 emoji
     emoji = "🟢" if direction == "做多" else "🔴"
 
-    # ✅ 信心分數等級顯示
+    # 信心等級文字
     if confidence_score is not None:
         if confidence_score >= 6:
             level = "🔥 高信心"
@@ -107,26 +106,28 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     else:
         level = "❔"
 
-    # ✅ 確保 symbol 無錯字元，不使用反引號
     safe_sym = safe_symbol(symbol)
 
-    # ✅ 組裝訊息
-    message = f"📌 {emoji} **{direction} 技術策略** ➤ **{safe_sym}**\n\n"
-    message += f"📋 類型：{strategy_type}（方向：{direction}）\n"
-    message += f"🧠 信心分數：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}\n"
-    message += f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}\n\n"
+    # ✨ 使用分段方式組裝訊息
+    lines = [
+        f"📌 {emoji} **{direction} 技術策略** ➤ **{safe_sym}**",
+        f"📋 類型：{strategy_type}（方向：{direction}）",
+        f"🧠 信心分數：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}",
+        f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}",
+        "",
+        f"📈 收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}",
+        f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}",
+        f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}｜OBV：{safe_float(obv)}",
+        "",
+        f"📝 訊號摘要：{signal_note}",
+        f"🔖 策略名稱：{strategy_name}",
+        "",
+        f"📌 股數：{safe_float(shares, 0)} 股｜進場資金：{safe_float(capital_used, 2, prefix='$')}",
+        f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
+    ]
 
-    message += f"📈 收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}\n"
-    message += f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}\n"
-    message += f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}｜OBV：{safe_float(obv)}\n\n"
-
-    message += f"📝 訊號摘要：{signal_note}\n"
-    message += f"🔖 策略名稱：{strategy_name}\n\n"
-
-    message += f"📌 股數：{safe_float(shares, 0)} 股｜進場資金：{safe_float(capital_used, 2, prefix='$')}\n"
-    message += f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
-
-    # ✅ 最終保險，移除不可列印字元避免 Discord 解析錯誤
+    # 串接 + 安全過濾
+    message = "\n".join(lines)
     clean_msg = ''.join(c for c in message if c.isprintable())
 
     return clean_msg.strip()
