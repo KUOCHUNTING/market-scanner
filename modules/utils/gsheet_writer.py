@@ -10,23 +10,24 @@ def write_entry_to_sheet(entry: dict, sheet, shares: int = 0):
     """
     將建倉資訊寫入 Google Sheets（需傳入 sheet 物件）
     """
-    # 加入張數
     entry["shares"] = shares
 
-    # 處理時間格式
+    # 處理時間格式（安全）
     entry_time = entry.get("entry_time")
     if isinstance(entry_time, datetime):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        entry_time = str(entry_time)
 
-    # 組成一列資料
+    # ✅ 建立 row 陣列（都經過 to_serializable）
     row = [
         to_serializable(entry_time),
-        to_serializable(entry.get("symbol")),
-        to_serializable(entry.get("direction")),
-        to_serializable(entry.get("price")),
-        to_serializable(entry.get("shares")),
+        to_serializable(entry.get("symbol", "")),
+        to_serializable(entry.get("direction", "")),
+        to_serializable(entry.get("price", "")),
+        to_serializable(entry.get("shares", "")),
         to_serializable(entry.get("capital_used", "")),
-        to_serializable(entry.get("strategy_name")),
+        to_serializable(entry.get("strategy_name", "")),
         to_serializable(entry.get("confidence_score", "")),
         to_serializable(entry.get("signal_note", "")),
         to_serializable(entry.get("rsi", "")),
@@ -42,9 +43,10 @@ def write_entry_to_sheet(entry: dict, sheet, shares: int = 0):
         to_serializable(entry.get("mean_score", ""))
     ]
 
-    # ✅ 傳入的 sheet 實例使用 append_row 寫入
-    sheet.append_row(row, value_input_option="USER_ENTERED")
+    print(f"[DEBUG] ✅ 準備寫入 row：{row}")  # ⬅️ 新增這行 debug log
 
+    # ✅ 安全寫入 Google Sheet
+    sheet.append_row(row, value_input_option="USER_ENTERED")
 # ✅ 寫入出場紀錄
 def write_exit_to_sheet(exit_data: dict):
     key_base64 = os.getenv("GCP_KEY_BASE64")
