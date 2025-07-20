@@ -109,9 +109,10 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         bb_upper=None, bb_lower=None, obv=None,
                         trend_score=None, rrov_score=None, mean_score=None,
                         shares=None, capital_used=None, capital_left=None):
+    
     emoji = "🟢" if direction == "做多" else "🔴"
-
-    # 信心等級文字
+    
+    # 信心等級
     if confidence_score is not None:
         if confidence_score >= 6:
             level = "🔥 高信心"
@@ -122,30 +123,32 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     else:
         level = "❔"
 
-    safe_sym = safe_symbol(symbol)
+    # 命中策略摘要（只印有分數者）
+    hit_scores = []
+    if trend_score:
+        hit_scores.append(f"順勢 ✅（{safe_float(trend_score)}）")
+    if rrov_score:
+        hit_scores.append(f"RROV ✅（{safe_float(rrov_score)}）")
+    if mean_score:
+        hit_scores.append(f"均值 ✅（{safe_float(mean_score)}）")
+    strategy_hits = "｜".join(hit_scores) or "❌ 無策略命中"
 
     lines = [
-        f"📌 {emoji} **{direction} 技術策略** ➤ **{safe_sym}**",
-        f"📋 類型：{strategy_type}（方向：{direction}）",
-        f"🧠 信心分數：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}",
-        f"🎯 命中率 ➜ 順勢：{safe_float(trend_score)}｜RROV：{safe_float(rrov_score)}｜均值：{safe_float(mean_score)}",
-        "",
-        f"📈 收盤價：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}",
-        f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}",
-        f"📉 布林通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}｜OBV：{safe_float(obv)}",
-        "",
-        f"📝 訊號摘要：{signal_note}",
-        f"🔖 策略名稱：{strategy_name}",
-        "",
-        f"📌 股數：{safe_float(shares, 0)} 股｜進場資金：{safe_float(capital_used, 2, prefix='$')}",
-        f"💰 剩餘資金：{safe_float(capital_left, 2, prefix='$')}"
+        f"📌 {emoji} **技術策略 ➤ {safe_symbol(symbol)}**",
+        f"📋 類型：{strategy_type}｜策略：{strategy_name}",
+        f"🧠 信心：{safe_float(confidence_score)}／7 {level}｜策略分數：{safe_float(score)}",
+        f"🎯 命中策略：{strategy_hits}",
+        "━━━━━━━━━━━━━━━━━━",
+        f"📈 收盤：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}",
+        f"📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜OBV：{safe_float(obv)}",
+        f"📉 BB通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}",
+        "━━━━━━━━━━━━━━━━━━",
+        f"📝 摘要：{signal_note}",
+        f"📌 股數：{safe_float(shares, 0)}｜資金：${safe_float(capital_used, 2)}",
+        f"💰 剩餘資金：${safe_float(capital_left, 2)}"
     ]
 
-    message = "\n".join(lines)
-
-    message = ''.join(c for c in message if c.isprintable())
-
-    return message.strip()
+    return clean_string("\n".join(lines))
 
 # === Position dict 自動轉訊息 ===
 
