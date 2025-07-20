@@ -1,9 +1,12 @@
+import os
 import requests
 
-def send_discord_message(message, webhook_url):
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
+
+def send_discord_message(message):
     payload = {"content": message}
     try:
-        response = requests.post(webhook_url, json=payload)
+        response = requests.post(WEBHOOK_URL, json=payload)
         if response.status_code == 204:
             print(f"[✅ Discord 推播成功]")
         else:
