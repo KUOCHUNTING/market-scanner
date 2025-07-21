@@ -208,40 +208,50 @@ def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, 
 
 # === 簡化推播格式（精簡版） ===
 
-def build_minimal_entry_message(
-    symbol: str,
-    price: float,
-    strategy_name: str,
-    direction: str,
-    signal_note: str = "",
-    score: float = 0.0,
-    capital_used: float = None,
-    shares: int = None,
-    capital_left: float = None,
-):
-    """
-    最小化推播訊息：僅顯示收盤價、策略、方向、信心分數、訊號摘要、投入金額與剩餘資金。
-    """
-    # 信心分數 emoji 標籤
-    if score >= 6:
-        emoji = "🔥 高信心"
-    elif score >= 4:
-        emoji = "🔶 中信心"
+def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
+                        signal_note, direction, score=None, confidence_score=None,
+                        rsi=None, zscore=None, ema5=None, ema20=None,
+                        bb_upper=None, bb_lower=None, obv=None,
+                        trend_score=None, rrov_score=None, mean_score=None,
+                        shares=None, capital_used=None, capital_left=None):
+    
+    emoji = "🟢" if direction == "做多" else "🔴"
+    
+    # 信心 emoji 等級
+    if confidence_score is not None:
+        if confidence_score >= 6:
+            level = "🔥 高信心"
+        elif confidence_score >= 4:
+            level = "🔶 中信心"
+        else:
+            level = "⚠️ 低信心"
     else:
-        emoji = "⚠️ 低信心"
+        level = "❔"
 
-    trade_info = ""
-    if capital_used is not None and shares is not None:
-        trade_info += f"💵 投入資金：${safe_float(capital_used)}｜股數：{safe_float(shares, 0)}\n"
-    if capital_left is not None:
-        trade_info += f"🏦 剩餘資金：${safe_float(capital_left)}"
+    # 策略命中組合
+    hit_lines = []
+    if trend_score:
+        hit_lines.append(f"　順勢：✅ {safe_float(trend_score)}/5")
+    if rrov_score:
+        hit_lines.append(f"　RROV：✅ {safe_float(rrov_score)}/5")
+    if mean_score:
+        hit_lines.append(f"　均值：✅ {safe_float(mean_score)}/5")
 
-    message = (
-        f"📌 {safe_symbol(symbol)}｜${safe_float(price)}\n"
-        f"📝 訊號：{signal_note or '—'}\n"
-        f"📊 策略：{strategy_name}（{direction}）\n"
-        f"🧠 信心分數：{safe_float(score)}/7 {emoji}\n"
-        + trade_info
-    )
+    strategy_block = "🎯 策略命中：\n" + "\n".join(hit_lines) if hit_lines else "🎯 策略命中：❌ 無策略命中"
 
-    return clean_string(message)
+    lines = [
+        f"📌 {emoji}【{direction} 技術策略】➤ {safe_symbol(symbol)}",
+        f"📋 類型：{strategy_type}｜策略：{strategy_name}",
+        f"🧠 信心：{safe_float(confidence_score)}/7（{level}）｜總分：{safe_float(score)}",
+        strategy_block,
+        "━━━━━━━━━━━━━━━━━━━━",
+        f"📈 價格：${safe_float(price)}　RSI：{safe_float(rsi)}　Z-score：{safe_float(zscore)}",
+        f"📊 EMA5：{safe_float(ema5)}　EMA20：{safe_float(ema20)}　OBV：{safe_float(obv)}",
+        f"📉 BB通道：上={safe_float(bb_upper)}　下={safe_float(bb_lower)}",
+        "━━━━━━━━━━━━━━━━━━━━",
+        f"📝 摘要：{signal_note or '無'}",
+        f"📌 股數：{safe_float(shares, 0)}｜資金：${safe_float(capital_used)}",
+        f"💰 剩餘資金：${safe_float(capital_left)}"
+    ]
+
+    return f"```text\n{clean_string('\n'.join(lines))}\n```"
