@@ -1,6 +1,13 @@
 import numpy as np
 import pandas as pd
 
+
+def clean_string(s: str) -> str:
+    """
+    清洗字串內容，移除控制符號與不可列印字元
+    """
+    return ''.join(c for c in str(s) if c.isprintable()).strip()
+
 def to_serializable(value):
     import numpy as np
     import pandas as pd
