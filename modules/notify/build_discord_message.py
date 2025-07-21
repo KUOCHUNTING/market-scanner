@@ -105,56 +105,34 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
 
 # === 統一技術策略推播格式（整合雷達分數） ===
 
-from modules.utils.format import safe_float, safe_symbol, clean_string
+from modules.utils.format import safe_float
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
-                        signal_note, direction, score=None, confidence_score=None,
+                        score, signal_note, direction, confidence_score,
                         rsi=None, zscore=None, ema5=None, ema20=None,
                         bb_upper=None, bb_lower=None, obv=None,
                         trend_score=None, rrov_score=None, mean_score=None,
-                        shares=None, capital_used=None, capital_left=None):
+                        shares=None, capital_used=None, capital_left=None,
+                        sector=None):  # ✅ 加入 sector
 
     emoji = "🟢" if direction == "做多" else "🔴"
+    confidence_emoji = "🔥 高信心" if confidence_score >= 6 else "🔶 中信心" if confidence_score >= 4 else "⚠️ 低信心"
 
-    # 信心等級 emoji 標籤
-    if confidence_score is not None:
-        if confidence_score >= 6:
-            level = "🔥 高信心"
-        elif confidence_score >= 4:
-            level = "🔶 中信心"
-        else:
-            level = "⚠️ 低信心"
-    else:
-        level = "❔"
-
-    # 命中策略摘要
-    hit_scores = []
-    if trend_score:
-        hit_scores.append(f"順勢 ✅（{safe_float(trend_score)}）")
-    if rrov_score:
-        hit_scores.append(f"RROV ✅（{safe_float(rrov_score)}）")
-    if mean_score:
-        hit_scores.append(f"均值 ✅（{safe_float(mean_score)}）")
-    strategy_hits = "｜".join(hit_scores) or "❌ 無策略命中"
-
-    # 美化版字串
-    lines = [
-        f"📌 {emoji} 技術策略 ➤ {safe_symbol(symbol)}",
-        f"📋 類型：{strategy_type.ljust(10)}｜策略：{strategy_name}",
-        f"🧠 信心：{safe_float(confidence_score)}／7 {level.ljust(6)}｜策略分數：{safe_float(score)}",
-        f"🎯 命中策略：{strategy_hits}",
-        "━━━━━━━━━━━━━━━━━━━━",
-        f"📈 收盤：${safe_float(price).ljust(7)}｜RSI：{safe_float(rsi).ljust(7)}｜Z-score：{safe_float(zscore).ljust(7)}",
-        f"📊 EMA5：{safe_float(ema5).ljust(8)}｜EMA20：{safe_float(ema20).ljust(8)}｜OBV：{safe_float(obv)}",
-        f"📉 BB通道：上={safe_float(bb_upper).ljust(8)}｜下={safe_float(bb_lower)}",
-        "━━━━━━━━━━━━━━━━━━━━",
-        f"📝 摘要：{signal_note or '無'}",
-        f"📌 股數：{safe_float(shares, 0).ljust(5)}｜資金：${safe_float(capital_used)}",
-        f"💰 剩餘資金：${safe_float(capital_left)}"
-    ]
-
-    body = clean_string("\n".join(lines))
-    return f"```text\n{body}\n```"
+    message = f"""📌 {emoji}【{direction} 技術策略】➤ {symbol}
+📋 類型：{strategy_type}｜策略：{strategy_name}
+🧠 信心：{safe_float(confidence_score, 2)}/7（{confidence_emoji}）｜總分：{safe_float(score)}
+🎯 策略命中：順勢：✅ {safe_float(trend_score)}/5｜RROV：✅ {safe_float(rrov_score)}/5｜均值：✅ {safe_float(mean_score)}/5
+━━━━━━━━━━━━━━━━━━━━━
+📈 價格：${safe_float(price)}｜RSI：{safe_float(rsi)}｜Z-score：{safe_float(zscore)}
+📊 EMA5：{safe_float(ema5)}｜EMA20：{safe_float(ema20)}｜OBV：{safe_float(obv)}
+📉 BB通道：上={safe_float(bb_upper)}｜下={safe_float(bb_lower)}
+━━━━━━━━━━━━━━━━━━━━━
+📂 產業分類：{sector or '未分類'}
+📝 摘要：{signal_note}
+📌 股數：{shares or '--'}｜資金：${safe_float(capital_used) or '--'}
+💰 剩餘資金：${safe_float(capital_left)}
+"""
+    return message
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict):
