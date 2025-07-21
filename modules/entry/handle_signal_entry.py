@@ -3,6 +3,8 @@ from modules.utils.format import get_last_value
 from modules.notify.build_discord_message import build_entry_message
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
+from modules.data.loaders import load_sector_mapping
+sector_map = load_sector_mapping()
 
 def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
