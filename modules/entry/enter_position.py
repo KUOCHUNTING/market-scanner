@@ -41,7 +41,8 @@ def enter_position(
     take_profit_pct=0.08,
     stop_loss_pct=0.03,
     sheet=None,
-    sheet_name=None
+    sheet_name=None,
+    sector=None
 ):
     global capital_left, positions
 
