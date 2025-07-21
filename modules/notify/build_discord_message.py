@@ -103,6 +103,8 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
 
 # === 統一技術策略推播格式（整合雷達分數） ===
 
+ from modules.utils.format import safe_float, safe_symbol, clean_string
+
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
                         rsi=None, zscore=None, ema5=None, ema20=None,
@@ -112,7 +114,7 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 
     emoji = "🟢" if direction == "做多" else "🔴"
 
-    # 信心等級
+    # 信心等級 emoji 標籤
     if confidence_score is not None:
         if confidence_score >= 6:
             level = "🔥 高信心"
@@ -133,7 +135,7 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         hit_scores.append(f"均值 ✅（{safe_float(mean_score)}）")
     strategy_hits = "｜".join(hit_scores) or "❌ 無策略命中"
 
-    # 整齊排版每行
+    # 美化版字串
     lines = [
         f"📌 {emoji} 技術策略 ➤ {safe_symbol(symbol)}",
         f"📋 類型：{strategy_type.ljust(10)}｜策略：{strategy_name}",
@@ -149,10 +151,8 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         f"💰 剩餘資金：${safe_float(capital_left)}"
     ]
 
-    # ✅ 包成 Discord code block
-    body = clean_string('\n'.join(lines))
+    body = clean_string("\n".join(lines))
     return f"```text\n{body}\n```"
-
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict):
