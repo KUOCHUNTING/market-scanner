@@ -103,7 +103,7 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
 
 # === 統一技術策略推播格式（整合雷達分數） ===
 
- from modules.utils.format import safe_float, safe_symbol, clean_string
+from modules.utils.format import safe_float, safe_symbol, clean_string
 
 def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
                         signal_note, direction, score=None, confidence_score=None,
