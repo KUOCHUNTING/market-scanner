@@ -1,9 +1,11 @@
 from modules.entry.enter_position import enter_position
-from modules.utils.format import get_last_value
 from modules.notify.build_discord_message import build_entry_message
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
+from modules.utils.helpers import get_last_value
 from modules.data.loaders import load_sector_mapping
+
+# ✅ 載入 sector 對應表（可放模組最上方，只載一次）
 sector_map = load_sector_mapping()
 
 def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
@@ -11,7 +13,11 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
                         trend_score=None, rrov_score=None, mean_score=None,
                         capital_left=None,
                         sheet=None):  # ✅ 加入 sheet 參數
+
+    # ✅ 新增 sector 對應
+    sector = sector_map.get(symbol, "未分類")
     print(f"[DEBUG] ✅ 傳入 sheet: {sheet}")
+
     """
     技術策略建倉流程：包含進場、推播、寫入 Sheets
     """
@@ -36,7 +42,8 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         trend_score=trend_score,
         rrov_score=rrov_score,
         mean_score=mean_score,
-        sheet=sheet  # ✅ 傳進來的 sheet
+        sheet=sheet,
+        sector=sector  # ✅ 傳入 sector 給建倉記錄
     )
 
     # ✅ 無法建倉則中止
@@ -68,7 +75,8 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         mean_score=mean_score,
         shares=shares,
         capital_used=capital_used,
-        capital_left=capital_left
+        capital_left=capital_left,
+        sector=sector  # ✅ 傳入 sector 給推播訊息
     )
 
     send_discord_message(message, WEBHOOK_URL)
