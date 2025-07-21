@@ -149,8 +149,9 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         f"💰 剩餘資金：${safe_float(capital_left)}"
     ]
 
-    # 包成 Discord 格式化 code block，確保等寬顯示
-    return f"```text\n{clean_string('\n'.join(lines))}\n```"
+    # ✅ 包成 Discord code block
+    body = clean_string('\n'.join(lines))
+    return f"```text\n{body}\n```"
 
 # === Position dict 自動轉訊息 ===
 
