@@ -29,7 +29,7 @@ from modules.strategy import (
 )
 from modules.entry.handle_squeeze_entry import handle_squeeze_entry
 from modules.entry.handle_signal_entry import handle_signal_entry
-
+from modules.data.filters import filter_liquidity
 # ✅ 初始化共用 Google Sheet 分頁
 sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 
