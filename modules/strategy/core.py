@@ -227,16 +227,37 @@ def detect_trading_signal(symbol, df, indicators, latest_price):
         ))
 
     rrov_score, rrov_dir = get_rrov_score(indicators, latest_price)
-    if rrov_score >= 2:
-        candidates.append(("rrov", "RROV 強勢起漲", "強勢突破", rrov_dir, rrov_score, None))
+    if rrov_score >= 2 and rrov_dir is not None:
+        candidates.append((
+            "rrov",
+            "RROV 強勢起漲" if rrov_dir == "做多" else "RROV 空頭反轉",
+            "強勢突破",
+            rrov_dir,
+            rrov_score,
+            None
+        ))
 
     trend_score, trend_dir = get_trend_score(indicators, latest_price)
-    if trend_score >= 2:
-        candidates.append(("trend", "順勢策略", "趨勢同步", trend_dir, trend_score, None))
+    if trend_score >= 2 and trend_dir is not None:
+        candidates.append((
+            "trend",
+            "順勢策略",
+            "趨勢同步" if trend_dir == "做多" else "趨勢轉弱",
+            trend_dir,
+            trend_score,
+            None
+        ))
 
     mean_score, mean_dir = get_mean_score(indicators, latest_price)
-    if mean_score >= 2:
-        candidates.append(("mean", "均值回歸", "價格偏離均值", mean_dir, mean_score, None))
+    if mean_score >= 2 and mean_dir is not None:
+        candidates.append((
+            "mean",
+            "均值回歸",
+            "價格偏離均值",
+            mean_dir,
+            mean_score,
+            None
+        ))
 
     print(f"[DEBUG] {symbol}｜RROV: {rrov_score}｜趨勢: {trend_score}｜均值: {mean_score}｜擠壓: {squeeze_score}")
 
