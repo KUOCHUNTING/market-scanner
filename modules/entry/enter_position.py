@@ -64,6 +64,10 @@ def enter_position(
         print(msg)
         return None, msg, capital_left
 
+    if quantity is None:
+        quantity = int(capital_left // price)
+
+    # ✅ 建倉金額
     capital_used = quantity * price
     entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
