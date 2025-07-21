@@ -1,25 +1,17 @@
 import os
-import numpy as np
-import pandas as pd
 from datetime import datetime
 from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.format import to_serializable
 
-# ✅ 寫入建倉紀錄
+# ✅ 建倉資料寫入
 def write_entry_to_sheet(entry: dict, sheet, shares: int = 0):
-    """
-    將建倉資訊寫入 Google Sheets（需傳入 sheet 物件）
-    """
     entry["shares"] = shares
-
-    # 處理時間格式（安全）
     entry_time = entry.get("entry_time")
     if isinstance(entry_time, datetime):
         entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
     else:
         entry_time = str(entry_time)
 
-    # ✅ 建立 row 陣列（都經過 to_serializable）
     row = [
         to_serializable(entry_time),
         to_serializable(entry.get("symbol", "")),
@@ -43,71 +35,52 @@ def write_entry_to_sheet(entry: dict, sheet, shares: int = 0):
         to_serializable(entry.get("mean_score", ""))
     ]
 
-    print(f"[DEBUG] ✅ 準備寫入 row：{row}")  # ⬅️ 新增這行 debug log
-
-    # ✅ 安全寫入 Google Sheet
+    print(f"[DEBUG] ✅ 寫入建倉 row：{row}")
     sheet.append_row(row, value_input_option="USER_ENTERED")
-# ✅ 寫入出場紀錄
-def write_exit_to_sheet(exit_data: dict):
-    key_base64 = os.getenv("GCP_KEY_BASE64")
-    sheet_url = os.getenv("GSHEET_URL")
-    if not key_base64 or not sheet_url:
-        raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
 
-    sheet = connect_to_gsheet(sheet_url, "出場記錄", key_base64)
 
-    entry_time = exit_data.get("entry_time")
-    exit_time = exit_data.get("exit_time")
-    if isinstance(entry_time, datetime):
-        entry_time = entry_time.strftime("%Y-%m-%d %H:%M:%S")
+# ✅ 出場資料寫入
+def write_exit_to_sheet(exit_info: dict, sheet):
+    exit_time = exit_info.get("exit_time")
     if isinstance(exit_time, datetime):
         exit_time = exit_time.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        exit_time = str(exit_time)
 
     row = [
-        to_serializable(exit_data.get("symbol")),
-        to_serializable(entry_time),
+        to_serializable(exit_info.get("symbol", "")),
+        to_serializable(exit_info.get("entry_time", "")),
         to_serializable(exit_time),
-        to_serializable(f"{exit_data.get('return_rate') * 100:.2f}%" if exit_data.get("return_rate") is not None else ""),
-        to_serializable(exit_data.get("pnl")),
-        to_serializable(exit_data.get("holding_minutes")),
-        to_serializable(exit_data.get("exit_price")),
-        to_serializable(exit_data.get("rsi")),
-        to_serializable(exit_data.get("zscore")),
-        to_serializable(exit_data.get("roc")),
-        to_serializable(exit_data.get("obv")),
-        to_serializable(exit_data.get("vwap")),
-        to_serializable(exit_data.get("ema5")),
-        to_serializable(exit_data.get("ema20")),
-        to_serializable(exit_data.get("strategy_name")),
-        to_serializable(exit_data.get("shares")),      # ✅ 新增 shares
-        to_serializable(exit_data.get("reason"))       # ✅ 新增 reason
+        to_serializable(exit_info.get("return_rate", "")),
+        to_serializable(exit_info.get("profit_loss", "")),
+        to_serializable(exit_info.get("holding_minutes", "")),
+        to_serializable(exit_info.get("exit_price", "")),
+        to_serializable(exit_info.get("rsi", "")),
+        to_serializable(exit_info.get("zscore", "")),
+        to_serializable(exit_info.get("roc", "")),
+        to_serializable(exit_info.get("obv", "")),
+        to_serializable(exit_info.get("vwap", "")),
+        to_serializable(exit_info.get("ema5", "")),
+        to_serializable(exit_info.get("ema20", "")),
+        to_serializable(exit_info.get("strategy_name", ""))
     ]
 
+    print(f"[DEBUG] ✅ 寫入出場 row：{row}")
     sheet.append_row(row, value_input_option="USER_ENTERED")
 
-# ✅ 寫入預警紀錄
-def write_alert_to_sheet(alert: dict):
-    """
-    alert: dict 格式如下：
-    {
-        "日期": "2025-07-19",
-        "類型": "風險預警",
-        "內容": "CDS 利差飆升",
-        "分數": 87.5,
-    }
-    """
-    key_base64 = os.getenv("GCP_KEY_BASE64")
-    sheet_url = os.getenv("GSHEET_URL")
-    if not key_base64 or not sheet_url:
-        raise ValueError("❌ GCP_KEY_BASE64 或 GSHEET_URL 未設定")
 
-    sheet = connect_to_gsheet(sheet_url, "預警紀錄", key_base64)
+# ✅ 共振掃描資料寫入
+def write_resonance_to_sheet(resonance_data: list, sheet):
+    if not resonance_data:
+        print("⚠️ 無共振資料可寫入")
+        return
 
-    row = [
-        to_serializable(alert.get("日期")),
-        to_serializable(alert.get("類型")),
-        to_serializable(alert.get("內容")),
-        to_serializable(alert.get("分數"))
-    ]
+    # 清空原有內容並寫入標題
+    headers = list(resonance_data[0].keys())
+    sheet.clear()
+    sheet.append_row(headers, value_input_option="USER_ENTERED")
 
-    sheet.append_row(row, value_input_option="USER_ENTERED")
+    for item in resonance_data:
+        row = [to_serializable(item.get(col, "")) for col in headers]
+        sheet.append_row(row, value_input_option="USER_ENTERED")
+        print(f"[✅] 寫入共振 row：{row}")
