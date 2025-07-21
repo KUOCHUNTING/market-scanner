@@ -101,6 +101,8 @@ def build_breakout_message(symbol, price, direction, strategy_name, score,
 
     return clean_string(message)
 
+
+
 # === 統一技術策略推播格式（整合雷達分數） ===
 
 from modules.utils.format import safe_float, safe_symbol, clean_string
@@ -203,3 +205,43 @@ def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, 
 🕒 時間：{now}"""
 
     return clean_string(msg)
+
+# === 簡化推播格式（精簡版） ===
+
+def build_minimal_entry_message(
+    symbol: str,
+    price: float,
+    strategy_name: str,
+    direction: str,
+    signal_note: str = "",
+    score: float = 0.0,
+    capital_used: float = None,
+    shares: int = None,
+    capital_left: float = None,
+):
+    """
+    最小化推播訊息：僅顯示收盤價、策略、方向、信心分數、訊號摘要、投入金額與剩餘資金。
+    """
+    # 信心分數 emoji 標籤
+    if score >= 6:
+        emoji = "🔥 高信心"
+    elif score >= 4:
+        emoji = "🔶 中信心"
+    else:
+        emoji = "⚠️ 低信心"
+
+    trade_info = ""
+    if capital_used is not None and shares is not None:
+        trade_info += f"💵 投入資金：${safe_float(capital_used)}｜股數：{safe_float(shares, 0)}\n"
+    if capital_left is not None:
+        trade_info += f"🏦 剩餘資金：${safe_float(capital_left)}"
+
+    message = (
+        f"📌 {safe_symbol(symbol)}｜${safe_float(price)}\n"
+        f"📝 訊號：{signal_note or '—'}\n"
+        f"📊 策略：{strategy_name}（{direction}）\n"
+        f"🧠 信心分數：{safe_float(score)}/7 {emoji}\n"
+        + trade_info
+    )
+
+    return clean_string(message)
