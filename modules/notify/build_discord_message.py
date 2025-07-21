@@ -254,4 +254,5 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
         f"💰 剩餘資金：${safe_float(capital_left)}"
     ]
 
-    return f"```text\n{clean_string('\n'.join(lines))}\n```"
+    body = clean_string("\n".join(lines))
+    return f"```text\n{body}\n```"
