@@ -31,15 +31,15 @@ def to_serializable(value):
         except:
             return "[無法序列化]"
 
-def safe_float(value, decimals=2, prefix="", suffix=""):
+def safe_float(value, decimals=2, prefix="", suffix="", fill="--"):
     """
-    安全格式化浮點數（防止 NoneType、格式錯誤）
+    安全格式化浮點數（防止 NoneType、格式錯誤），可補空白或固定填充字元
     """
     try:
         f = round(float(value), decimals)
         return f"{prefix}{f:.{decimals}f}{suffix}"
-    except (TypeError, ValueError):
-        return "N/A"
+    except Exception:
+        return fill
 
 def safe_int(value, prefix="", suffix=""):
     """
