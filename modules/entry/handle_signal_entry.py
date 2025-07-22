@@ -51,7 +51,8 @@ def handle_signal_entry(symbol, direction, score, strategy_name,
     )
 
     # ✅ 建倉失敗
-    if result is None:
+    if result is None or result[0] is None:
+        print(f"[略過] 建倉失敗 ➜ result = {result}")
         return None
 
     position, message, updated_capital_left = result
