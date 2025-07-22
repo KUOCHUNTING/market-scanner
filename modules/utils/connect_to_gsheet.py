@@ -31,7 +31,4 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str, debug=Fa
     except gspread.exceptions.WorksheetNotFound:
         worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
 
-    if debug:
-        print(f"[DEBUG] ✅ 已建立 sheet_entry：{worksheet}")  # ✅ 僅在 debug 模式印出
-
     return worksheet
