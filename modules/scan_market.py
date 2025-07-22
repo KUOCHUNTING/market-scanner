@@ -42,7 +42,9 @@ stock_list = load_stock_list()
 
 # ✅ 主掃描函數
 def scan_market(stock_list, sheet_entry, position_manager=None):
-    global capital_left
+    if position_manager and position_manager.capital_left < MIN_REQUIRED_CAPITAL:
+        print(f"[資金耗盡] 剩餘資金 ${position_manager.capital_left:.2f}，暫停掃描")
+        return
 
     if isinstance(stock_list, pd.DataFrame):
         symbols = stock_list["symbol"].dropna().tolist()
