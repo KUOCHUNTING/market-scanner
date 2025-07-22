@@ -55,28 +55,14 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
     # ✅ 推播訊息
     message = build_entry_message(
         symbol=symbol,
-        price=latest_price,
-        strategy_type=signal_type,
-        signal_type=signal_type,
+        price=price,
         strategy_name=strategy_name,
-        score=score,
-        signal_note=signal_note,
         direction=direction,
         confidence_score=score,
-        rsi=get_last_value(indicators.get("rsi")),
-        zscore=get_last_value(indicators.get("zscore")),
-        ema5=get_last_value(indicators.get("ema_5")),
-        ema20=get_last_value(indicators.get("ema_20")),
-        bb_upper=get_last_value(indicators.get("bb_upper")),
-        bb_lower=get_last_value(indicators.get("bb_lower")),
-        obv=get_last_value(indicators.get("obv")),
-        trend_score=trend_score,
-        rrov_score=rrov_score,
-        mean_score=mean_score,
-        shares=shares,
-        capital_used=capital_used,
-        capital_left=capital_left,
-        sector=sector  # ✅ 傳入 sector 給推播訊息
+        signal_note=signal_note,
+        shares=position["quantity"],
+        capital_used=position["capital_used"],
+        capital_left=capital_left
     )
 
     send_discord_message(message, WEBHOOK_URL)
