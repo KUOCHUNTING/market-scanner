@@ -13,7 +13,6 @@ capital_left = 100000      # ➤ 初始資金（美元）
 
 # === 🔗 Discord Webhook ===
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
-print(f"✅ 目前讀取的 Discord Webhook：{WEBHOOK_URL}")
 
 # === 📊 Polygon API 金鑰 ===
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
