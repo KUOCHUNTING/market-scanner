@@ -9,7 +9,7 @@ def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     載入股票清單 CSV，若讀取失敗則直接拋出錯誤，不使用預設清單。
     """
     base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, filepath)  # ✅ 不再加 ../../data
+    file_path = os.path.join(base_path, filepath)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
@@ -23,14 +23,15 @@ def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
         raise ValueError("❌ 股票清單為空")
 
     return symbols
+
 # ✅ 載入 stocks_with_sector.csv（完整 DataFrame）
 def load_stock_sector_csv(filename="stocks_with_sector.csv"):
     """
-    從 data/ 載入股票分類檔案（symbol, sector, industry）
+    從 modules/data/ 載入股票分類檔案（symbol, sector, industry）
     """
     try:
         base_path = os.path.dirname(__file__)
-        filepath = os.path.join(base_path, "..", "..", "data", filename)
+        filepath = os.path.join(base_path, filename)  # ✅ 不跳層
         df = pd.read_csv(filepath)
 
         if "symbol" not in df.columns:
@@ -43,14 +44,12 @@ def load_stock_sector_csv(filename="stocks_with_sector.csv"):
 # ✅ 建立 symbol ➜ sector 對應表
 def load_sector_mapping(filename="stocks_with_sector.csv"):
     try:
-        # 指向 modules/data 資料夾
         base_path = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(base_path, filename)  # ✅ 不要跳層
+        file_path = os.path.join(base_path, filename)
         df = pd.read_csv(file_path)
 
-        # ✅ 檢查欄位
         if "symbol" not in df.columns or "sector" not in df.columns:
-            raise ValueError("❌ stocks_with_sector.csv 檔案缺少必要欄位（symbol 或 sector）")
+            raise ValueError("❌ 檔案缺少必要欄位（symbol 或 sector）")
 
         return dict(zip(df["symbol"], df["sector"]))
     except Exception as e:
