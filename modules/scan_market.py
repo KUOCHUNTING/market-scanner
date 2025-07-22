@@ -51,7 +51,7 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
     else:
         raise TypeError("❌ 傳入的 stock_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
-    random.shuffle(symbols)  # ✅ 此時 symbols 一定已定義
+    random.shuffle(symbol_list)  # ✅ 此時 symbols 一定已定義
 
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
