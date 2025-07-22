@@ -1,18 +1,14 @@
-from modules.data.loaders import fetch_stock_data
+from modules.data.loaders import fetch_stock_data, load_sector_mapping
 from modules.utils.helpers import get_last_value
-from modules.config import POLYGON_API_KEY, WEBHOOK_URL
-from modules.notify.discord_push import send_discord_message
-from modules.notify.build_discord_message import build_entry_message
-from modules.entry.enter_position import enter_position
-from modules.data.loaders import load_sector_mapping
+from modules.config import POLYGON_API_KEY
 
 sector_map = load_sector_mapping()
 
 def handle_signal_entry(symbol, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
                         trend_score=None, rrov_score=None, mean_score=None,
-                        capital_left=None,
-                        sheet=None):
+                        sheet=None,
+                        position_manager=None):  # ✅ 新增參數
 
     # ✅ 抓股價
     df = fetch_stock_data(symbol, POLYGON_API_KEY)
@@ -26,8 +22,8 @@ def handle_signal_entry(symbol, direction, score, strategy_name,
     sector = sector_map.get(symbol, "未分類")
     print(f"[DEBUG] ✅ 傳入 sheet: {sheet}")
 
-    # ✅ 呼叫建倉模組
-    result = enter_position(
+    # ✅ 呼叫 PositionManager 建倉
+    result = position_manager.add_position(
         symbol=symbol,
         price=price,
         direction=direction,
