@@ -188,7 +188,7 @@ def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, 
 
 def build_entry_message(symbol, price, strategy_name, direction,
                         confidence_score, signal_note,
-                        shares, capital_used, capital_left):
+                        shares, capital_used, capital_left, strategy_type=None):
     """
     精簡推播格式：顯示方向、策略、信心、摘要、收盤價、股數、資金
     """
