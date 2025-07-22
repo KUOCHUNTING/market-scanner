@@ -56,7 +56,7 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
 
     random.shuffle(symbols)  # ✅ 此時 symbols 一定已定義
 
-    if capital_left < MIN_REQUIRED_CAPITAL:
+    if position_manager and position_manager.capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f}，暫停掃描")
         return
 
