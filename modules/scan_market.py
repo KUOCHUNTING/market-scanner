@@ -46,10 +46,12 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
 
     if isinstance(stock_list, pd.DataFrame):
         symbols = stock_list["symbol"].dropna().tolist()
-    elif not isinstance(stock_list, list):
+    elif isinstance(stock_list, list):
+        symbols = stock_list  # ✅ 補上這行
+    else:
         raise TypeError("❌ 傳入的 stock_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
-    random.shuffle(symbols)
+    random.shuffle(symbols)  # ✅ 此時 symbols 一定已定義
 
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
