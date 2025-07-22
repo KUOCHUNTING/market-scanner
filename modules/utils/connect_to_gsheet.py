@@ -10,24 +10,28 @@ def get_credentials_from_base64(base64_key: str):
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     return Credentials.from_service_account_info(key_dict, scopes=scopes)
 
-def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
+def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str, debug=False):  # ✅ 新增 debug 參數
     creds = get_credentials_from_base64(base64_key)
-    client = gspread.authorize(creds)  # ✅ 舊版使用這行
+    client = gspread.authorize(creds)
 
     spreadsheet = client.open_by_url(sheet_url)
     sheet_names = [ws.title for ws in spreadsheet.worksheets()]
 
     if sheet_name not in sheet_names:
         close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
-        print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
-        if close_matches:
-            print(f"🔍 你是不是想找這些？👉 {close_matches}")
-        else:
-            print("🚫 找不到任何相似分頁名稱，將建立新分頁")
+        if debug:
+            print(f"⚠️ 找不到分頁名稱：'{sheet_name}'")
+            if close_matches:
+                print(f"🔍 你是不是想找這些？👉 {close_matches}")
+            else:
+                print("🚫 找不到任何相似分頁名稱，將建立新分頁")
 
     try:
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
         worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
+
+    if debug:
+        print(f"[DEBUG] ✅ 已建立 sheet_entry：{worksheet}")  # ✅ 僅在 debug 模式印出
 
     return worksheet
