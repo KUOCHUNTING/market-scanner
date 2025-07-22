@@ -48,7 +48,7 @@ def main():
 
     # ✅ 修正這行
     try:
-        scan_market(stock_list, sheet_entry)  # ✅ 改成傳兩個參數
+        scan_market(stock_list, sheet_entry, position_manager=pm)  # ✅ 加上 pm
     except Exception as e:
         print(f"[錯誤] scan_market 失敗：{e}")
         traceback.print_exc()
