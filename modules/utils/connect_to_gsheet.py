@@ -29,6 +29,5 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
         worksheet = spreadsheet.worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
         worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
-        print(f"🆕 分頁 {sheet_name} 不存在，已自動建立 ✅")
 
     return worksheet
