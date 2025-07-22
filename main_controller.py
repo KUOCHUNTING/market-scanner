@@ -13,6 +13,10 @@ from modules.utils.market_time import get_market_phase  # ⏰ 盤前/盤中/盤�
 from modules.data.loaders import load_stock_list  # ✅ 改用載入函數
 # ✅ 載入 .env 環境變數
 load_dotenv()
+
+from modules.entry.enter_position import capital_left
+
+capital_left = 100000  # ✅ 主控程式明確初始化一次
 sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
