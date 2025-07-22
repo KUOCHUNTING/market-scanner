@@ -33,7 +33,8 @@ def fetch_stock_data(symbol, api_key, multiplier=15, timespan="minute", limit=10
 
 # ✅ 載入股票清單（symbol list）
 def load_stock_list(filepath="stocks_with_sector.csv"):
-    file_path = os.path.abspath(os.path.join("../data", filename))  # 🔁 往上一層找 data
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, filename)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
@@ -51,7 +52,8 @@ def load_stock_list(filepath="stocks_with_sector.csv"):
 # ✅ 載入股票分類表（完整 DataFrame）
 def load_stock_sector_csv(filename="stocks_with_sector.csv"):
     try:
-        file_path = os.path.abspath(os.path.join("data", filename))
+        base_path = os.path.dirname(__file__)
+        file_path = os.path.join(base_path, filename)
         df = pd.read_csv(file_path)
 
         if "symbol" not in df.columns:
@@ -65,7 +67,8 @@ def load_stock_sector_csv(filename="stocks_with_sector.csv"):
 # ✅ 建立 symbol ➜ sector 對應表（dict）
 def load_sector_mapping(filename="stocks_with_sector.csv"):
     try:
-        file_path = os.path.abspath(os.path.join("data", filename))
+        base_path = os.path.dirname(__file__)
+        file_path = os.path.join(base_path, filename)
         df = pd.read_csv(file_path)
 
         if "symbol" not in df.columns or "Standard_Sector" not in df.columns:
