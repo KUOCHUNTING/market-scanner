@@ -1,4 +1,4 @@
- import os
+import os
 from datetime import datetime
 from dotenv import load_dotenv
 from modules.notify.discord_push import send_discord_message
