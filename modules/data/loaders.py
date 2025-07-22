@@ -43,10 +43,15 @@ def load_stock_sector_csv(filename="stocks_with_sector.csv"):
 # ✅ 建立 symbol ➜ sector 對應表
 def load_sector_mapping(filename="stocks_with_sector.csv"):
     try:
-        # 這樣會指到 modules/data/
+        # 指向 modules/data 資料夾
         base_path = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(base_path, filename)  # ✅ 不用跳 ../../
+        file_path = os.path.join(base_path, filename)  # ✅ 不要跳層
         df = pd.read_csv(file_path)
+
+        # ✅ 檢查欄位
+        if "symbol" not in df.columns or "sector" not in df.columns:
+            raise ValueError("❌ stocks_with_sector.csv 檔案缺少必要欄位（symbol 或 sector）")
+
         return dict(zip(df["symbol"], df["sector"]))
     except Exception as e:
         print(f"❌ 無法讀取股票分類檔案：{e}")
