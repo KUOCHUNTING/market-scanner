@@ -186,51 +186,15 @@ def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, 
 
 # === 簡化推播格式（精簡版） ===
 
-def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name,
-                        signal_note, direction, score=None, confidence_score=None,
-                        rsi=None, zscore=None, ema5=None, ema20=None,
-                        bb_upper=None, bb_lower=None, obv=None,
-                        trend_score=None, rrov_score=None, mean_score=None,
-                        shares=None, capital_used=None, capital_left=None, sector=None):
-    
-    emoji = "🟢" if direction == "做多" else "🔴"
-    
-    # 信心 emoji 等級
-    if confidence_score is not None:
-        if confidence_score >= 6:
-            level = "🔥 高信心"
-        elif confidence_score >= 4:
-            level = "🔶 中信心"
-        else:
-            level = "⚠️ 低信心"
-    else:
-        level = "❔"
-
-    # 策略命中組合
-    hit_lines = []
-    if trend_score:
-        hit_lines.append(f"　順勢：✅ {safe_float(trend_score)}/5")
-    if rrov_score:
-        hit_lines.append(f"　RROV：✅ {safe_float(rrov_score)}/5")
-    if mean_score:
-        hit_lines.append(f"　均值：✅ {safe_float(mean_score)}/5")
-
-    strategy_block = "🎯 策略命中：\n" + "\n".join(hit_lines) if hit_lines else "🎯 策略命中：❌ 無策略命中"
-
-    lines = [
-        f"📌 {emoji}【{direction} 技術策略】➤ {safe_symbol(symbol)}",
-        f"📋 類型：{strategy_type}｜策略：{strategy_name}",
-        f"🧠 信心：{safe_float(confidence_score)}/7（{level}）｜總分：{safe_float(score)}",
-        strategy_block,
-        "━━━━━━━━━━━━━━━━━━━━",
-        f"📈 價格：${safe_float(price)}　RSI：{safe_float(rsi)}　Z-score：{safe_float(zscore)}",
-        f"📊 EMA5：{safe_float(ema5)}　EMA20：{safe_float(ema20)}　OBV：{safe_float(obv)}",
-        f"📉 BB通道：上={safe_float(bb_upper)}　下={safe_float(bb_lower)}",
-        "━━━━━━━━━━━━━━━━━━━━",
-        f"📝 摘要：{signal_note or '無'}",
-        f"📌 股數：{safe_float(shares, 0)}｜資金：${safe_float(capital_used)}",
-        f"💰 剩餘資金：${safe_float(capital_left)}"
-    ]
-
-    body = clean_string("\n".join(lines))
-    return f"```text\n{body}\n```"
+def build_entry_message(symbol, price, strategy_name, direction,
+                        confidence_score, signal_note,
+                        shares, capital_used, capital_left):
+    """
+    精簡推播格式：顯示方向、策略、信心、摘要、收盤價、股數、資金
+    """
+    lines = []
+    lines.append(f"📈 技術策略建倉 ➤ {symbol}（{direction}｜{strategy_name}）")
+    lines.append(f"🧠 信心分數：{confidence_score:.2f} / 7｜摘要：{signal_note}")
+    lines.append(f"💵 收盤價：${price:,.2f}")
+    lines.append(f"📌 股數：{shares:,}｜進場資金：${capital_used:,.2f}｜剩餘資金：${capital_left:,.2f}")
+    return "\n".join(lines)
