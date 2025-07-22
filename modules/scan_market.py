@@ -126,7 +126,6 @@ def scan_market(symbol_list, sheet_entry):
 
             handle_signal_entry(
                 symbol=symbol,
-                latest_price=latest_price,
                 direction=direction,
                 score=score,
                 strategy_name=strategy_name,
