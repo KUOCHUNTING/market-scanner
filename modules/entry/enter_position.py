@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message_from_position
 from modules.utils.gsheet_writer import write_entry_to_sheet
-
+from modules.entry.enter_position import capital_left
 # ✅ 載入環境變數
 load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
