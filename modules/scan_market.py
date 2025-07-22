@@ -124,7 +124,7 @@ def scan_market(symbol_list, sheet_entry):
                 print(f"[略過] {symbol} ➜ 無明確訊號")
                 continue
 
-            handle_signal_entry(
+            result = handle_signal_entry(
                 symbol=symbol,
                 direction=direction,
                 score=score,
@@ -138,6 +138,12 @@ def scan_market(symbol_list, sheet_entry):
                 capital_left=capital_left,
                 sheet=sheet_entry
             )
+
+            if result is None:
+                continue  # ✅ 若建倉失敗則跳過
+
+            shares, capital_used = result
+            print(f"✅ 建倉完成 ➜ {symbol}｜{shares} 股｜資金 ${capital_used:,.2f}")
 
         except Exception as e:
             print(f"[錯誤] {symbol} 掃描錯誤：{e}")
