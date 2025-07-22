@@ -1,31 +1,35 @@
-from modules.entry.enter_position import enter_position
-from modules.notify.build_discord_message import build_entry_message
-from modules.notify.discord_push import send_discord_message
-from modules.config.config import WEBHOOK_URL
+ from modules.data.loaders import fetch_stock_data
 from modules.utils.helpers import get_last_value
+from modules.config import POLYGON_API_KEY, WEBHOOK_URL
+from modules.notify.discord_push import send_discord_message
+from modules.notify.build_discord_message import build_entry_message
+from modules.entry.enter_position import enter_position
 from modules.data.loaders import load_sector_mapping
 
-# ✅ 載入 sector 對應表（可放模組最上方，只載一次）
 sector_map = load_sector_mapping()
 
-def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
+def handle_signal_entry(symbol, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
                         trend_score=None, rrov_score=None, mean_score=None,
                         capital_left=None,
-                        sheet=None):  # ✅ 加入 sheet 參數
+                        sheet=None):
+
+    # ✅ 抓股價
+    df = fetch_stock_data(symbol, POLYGON_API_KEY)
+    if df is None or df.empty:
+        print(f"[跳過] {symbol} ➜ 無法取得價格")
+        return None
+
+    price = df["close"].iloc[-1]
 
     # ✅ 新增 sector 對應
     sector = sector_map.get(symbol, "未分類")
     print(f"[DEBUG] ✅ 傳入 sheet: {sheet}")
 
-    """
-    技術策略建倉流程：包含進場、推播、寫入 Sheets
-    """
-
-    # ✅ 呼叫建倉模組，傳入共用 sheet
+    # ✅ 呼叫建倉模組
     result = enter_position(
         symbol=symbol,
-        price=latest_price,
+        price=price,
         direction=direction,
         signal_note=signal_note,
         strategy_name=strategy_name,
@@ -43,27 +47,12 @@ def handle_signal_entry(symbol, latest_price, direction, score, strategy_name,
         rrov_score=rrov_score,
         mean_score=mean_score,
         sheet=sheet,
-        sector=sector  # ✅ 傳入 sector 給建倉記錄
+        sector=sector
     )
 
-    # ✅ 無法建倉則中止
+    # ✅ 建倉失敗
     if result is None:
         return None
 
-    shares, capital_used = result[:2]
-
-    # ✅ 推播訊息
-    message = build_entry_message(
-        symbol=symbol,
-        price=price,
-        strategy_name=strategy_name,
-        direction=direction,
-        confidence_score=score,
-        signal_note=signal_note,
-        shares=position["quantity"],
-        capital_used=position["capital_used"],
-        capital_left=capital_left
-    )
-
-    send_discord_message(message, WEBHOOK_URL)
-    return shares, capital_used
+    position, message, updated_capital_left = result
+    return position["shares"], position["capital_used"]
