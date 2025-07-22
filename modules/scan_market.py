@@ -46,7 +46,7 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
 
     # ✅ 處理 symbol_list 為 DataFrame 或 list
     if isinstance(symbol_list, pd.DataFrame):
-        symbol_list = symbol_list["symbol"].dropna().tolist()
+        symbols = symbol_list["symbol"].dropna().tolist()
     elif not isinstance(symbol_list, list):
         raise TypeError("❌ 傳入的 symbol_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
