@@ -136,7 +136,8 @@ def scan_market(symbol_list, sheet_entry):
                 rrov_score=rrov_score,
                 mean_score=mean_score,
                 capital_left=capital_left,
-                sheet=sheet_entry
+                sheet=sheet_entry,
+                position_manager=pm
             )
 
             if result is None:
