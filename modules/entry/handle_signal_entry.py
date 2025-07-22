@@ -8,7 +8,7 @@ def handle_signal_entry(symbol, direction, score, strategy_name,
                         signal_type, signal_note, indicators,
                         trend_score=None, rrov_score=None, mean_score=None,
                         sheet=None,
-                        position_manager=None):  # ✅ 新增參數
+                        position_manager=None, capital_left=None):  # ✅ 新增參數
 
     # ✅ 抓股價
     df = fetch_stock_data(symbol, POLYGON_API_KEY)
