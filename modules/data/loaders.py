@@ -48,10 +48,11 @@ def load_sector_mapping(filename="stocks_with_sector.csv"):
         file_path = os.path.join(base_path, filename)
         df = pd.read_csv(file_path)
 
-        if "symbol" not in df.columns or "sector" not in df.columns:
-            raise ValueError("❌ 檔案缺少必要欄位（symbol 或 sector）")
+        # ✅ 檢查正確欄位名稱
+        if "symbol" not in df.columns or "Standard_Sector" not in df.columns:
+            raise ValueError("❌ 檔案缺少必要欄位（symbol 或 Standard_Sector）")
 
-        return dict(zip(df["symbol"], df["sector"]))
+        return dict(zip(df["symbol"], df["Standard_Sector"]))  # ✅ 改這裡
     except Exception as e:
         print(f"❌ 無法讀取股票分類檔案：{e}")
         print("⚠️ sector mapping 資料缺失，回傳空字典")
