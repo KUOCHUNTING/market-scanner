@@ -53,6 +53,8 @@ def enter_position(
     }
     entered_positions.add(symbol)
 
+    position = positions[symbol]  # ✅ 加這行！
+
     # ✅ Discord 推播訊息
     message = build_entry_message(
         symbol=position["symbol"],
@@ -82,7 +84,8 @@ def enter_position(
     send_discord_message(message, WEBHOOK_URL)
 
     # ✅ Sheets 寫入（直接用完整 dict）
-    write_entry_to_sheet(positions[symbol])
+    if sheet:
+        write_entry_to_sheet(positions[symbol], sheet, shares)
 
     print(f"✅【建倉成功】{symbol} ➜ {shares} 股｜${capital_used:.2f}｜剩餘資金：${capital_left:.2f}")
     return shares, capital_used, shares  # 或者其他你希望的第三個欄位
