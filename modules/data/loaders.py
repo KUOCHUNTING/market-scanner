@@ -2,7 +2,40 @@
 
 import os
 import pandas as pd
+import requests
+from datetime import datetime
 
+# ✅ 抓取個股 15 分鐘線資料（Polygon API）
+def fetch_stock_data(symbol, api_key, multiplier=15, timespan="minute", limit=1000):
+    """
+    從 Polygon 抓取歷史資料，回傳 DataFrame（收盤價欄為 close）
+    """
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/{multiplier}/{timespan}/2023-01-01/2025-12-31"
+    params = {
+        "adjusted": "true",
+        "sort": "desc",
+        "limit": limit,
+        "apiKey": api_key
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if "results" not in data:
+            print(f"[❌] 沒有結果：{symbol}")
+            return pd.DataFrame()
+
+        df = pd.DataFrame(data["results"])
+        df["timestamp"] = pd.to_datetime(df["t"], unit="ms")
+        df.rename(columns={"c": "close", "o": "open", "h": "high", "l": "low", "v": "volume"}, inplace=True)
+        return df[["timestamp", "open", "high", "low", "close", "volume"]]
+
+    except Exception as e:
+        print(f"[❌] 抓取資料失敗：{symbol} ➜ {e}")
+        return pd.DataFrame()
+        
 # ✅ 載入股票清單（預設 CSV）
 def load_stock_list(filepath="stocks_with_sector.csv"):
     """
