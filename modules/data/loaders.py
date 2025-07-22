@@ -41,8 +41,7 @@ def load_stock_list(filepath="stocks_with_sector.csv"):
     """
     載入股票清單 CSV，回傳 symbol list
     """
-    base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, filepath)
+    file_path = os.path.abspath(os.path.join("data", filepath))
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
