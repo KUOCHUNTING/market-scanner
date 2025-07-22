@@ -17,8 +17,6 @@ sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
-print(f"✅ 目前讀取的 Discord Webhook：{WEBHOOK_URL}")
-
 if not WEBHOOK_URL or "discord.com" not in WEBHOOK_URL:
     print("❌ Webhook URL 無效或未載入，請確認 .env 檔與 load_dotenv() 是否正確！")
     exit(1)
