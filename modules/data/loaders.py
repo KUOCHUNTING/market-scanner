@@ -8,8 +8,9 @@ def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     """
     載入股票清單 CSV，若讀取失敗則直接拋出錯誤，不使用預設清單。
     """
-    base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, filepath)
+    base_path = os.path.dirname(__file__)  # 當前檔案路徑
+    file_path = os.path.join(base_path, "stocks_with_sector.csv")
+    df = pd.read_csv(file_path)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
