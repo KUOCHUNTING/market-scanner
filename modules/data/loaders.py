@@ -4,24 +4,25 @@ import os
 import pandas as pd
 
 # ✅ 載入股票清單（預設 CSV）
-def load_stock_list(filename="filtered_us_stocks_common_only.csv"):
+def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
     """
-    載入股票清單 CSV，若讀取失敗則回傳預設測試清單。
+    載入股票清單 CSV，若讀取失敗則直接拋出錯誤，不使用預設清單。
     """
-    try:
-        base_path = os.path.dirname(__file__)
-        filepath = os.path.join(base_path, "..", "..", "data", filename)
-        df = pd.read_csv(filepath)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, filepath)  # ✅ 不再加 ../../data
 
-        if "symbol" not in df.columns:
-            raise ValueError("❌ 檔案缺少 'symbol' 欄位")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
 
-        return df["symbol"].dropna().tolist()
-    except Exception as e:
-        print(f"❌ 股票清單讀取失敗：{e}")
-        print("⚠️ 使用預設測試清單")
-        return ["AAPL", "MSFT", "TSLA", "NVDA", "META"]
+    df = pd.read_csv(file_path)
+    if "symbol" not in df.columns:
+        raise ValueError("❌ 檔案中缺少 'symbol' 欄位")
 
+    symbols = df["symbol"].dropna().tolist()
+    if len(symbols) == 0:
+        raise ValueError("❌ 股票清單為空")
+
+    return symbols
 # ✅ 載入 stocks_with_sector.csv（完整 DataFrame）
 def load_stock_sector_csv(filename="stocks_with_sector.csv"):
     """
