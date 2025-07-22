@@ -4,18 +4,18 @@ import os
 import pandas as pd
 
 # ✅ 載入股票清單（預設 CSV）
-def load_stock_list(filepath="filtered_us_stocks_common_only.csv"):
+def load_stock_list(filepath="stocks_with_sector.csv"):
     """
-    載入股票清單 CSV，若讀取失敗則直接拋出錯誤，不使用預設清單。
+    載入股票清單 CSV，回傳 symbol list
     """
-    base_path = os.path.dirname(__file__)  # 當前檔案路徑
-    file_path = os.path.join(base_path, "stocks_with_sector.csv")
-    df = pd.read_csv(file_path)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, filepath)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
 
     df = pd.read_csv(file_path)
+
     if "symbol" not in df.columns:
         raise ValueError("❌ 檔案中缺少 'symbol' 欄位")
 
