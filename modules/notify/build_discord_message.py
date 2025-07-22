@@ -191,7 +191,7 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
                         rsi=None, zscore=None, ema5=None, ema20=None,
                         bb_upper=None, bb_lower=None, obv=None,
                         trend_score=None, rrov_score=None, mean_score=None,
-                        shares=None, capital_used=None, capital_left=None):
+                        shares=None, capital_used=None, capital_left=None, sector=None):
     
     emoji = "🟢" if direction == "做多" else "🔴"
     
