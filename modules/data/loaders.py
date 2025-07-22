@@ -41,13 +41,14 @@ def load_stock_sector_csv(filename="stocks_with_sector.csv"):
         return pd.DataFrame()
 
 # ✅ 建立 symbol ➜ sector 對應表
-def load_sector_mapping():
-    """
-    回傳 symbol ➜ sector 的對應字典，用於板塊分類。
-    """
-    df = load_stock_sector_csv()
-    if df.empty or "symbol" not in df or "sector" not in df:
+def load_sector_mapping(filename="stocks_with_sector.csv"):
+    try:
+        # 這樣會指到 modules/data/
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_path, filename)  # ✅ 不用跳 ../../
+        df = pd.read_csv(file_path)
+        return dict(zip(df["symbol"], df["sector"]))
+    except Exception as e:
+        print(f"❌ 無法讀取股票分類檔案：{e}")
         print("⚠️ sector mapping 資料缺失，回傳空字典")
         return {}
-
-    return dict(zip(df["symbol"], df["sector"]))
