@@ -32,7 +32,7 @@ def load_stock_sector_csv(filename="stocks_with_sector.csv"):
     """
     try:
         base_path = os.path.dirname(__file__)
-        filepath = os.path.join(base_path, filename)  # ✅ 不跳層
+        filepath = os.path.join(base_path, "stocks_with_sector.csv") 
         df = pd.read_csv(filepath)
 
         if "symbol" not in df.columns:
