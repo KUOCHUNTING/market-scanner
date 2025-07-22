@@ -138,7 +138,7 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
                 trend_score=trend_score,
                 rrov_score=rrov_score,
                 mean_score=mean_score,
-                capital_left=capital_left,
+                capital_left=position_manager.capital_left,
                 sheet=sheet_entry,
                 position_manager=pm
             )
