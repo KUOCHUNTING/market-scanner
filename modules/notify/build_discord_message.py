@@ -186,15 +186,36 @@ def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, 
 
 # === 簡化推播格式（精簡版） ===
 
-def build_entry_message(symbol, price, strategy_name, direction,
-                        confidence_score, signal_note,
-                        shares, capital_used, capital_left, strategy_type=None):
+def build_entry_message(
+    symbol, price, direction, strategy_name,
+    score=None, confidence_score=None, signal_note=None,
+    shares=None, capital_used=None, capital_left=None,
+    rsi=None, zscore=None, ema5=None, ema20=None,
+    bb_upper=None, bb_lower=None, obv=None,
+    trend_score=None, rrov_score=None, mean_score=None,
+    signal_type=None,
+    strategy_type=None
+):
     """
-    精簡推播格式：顯示方向、策略、信心、摘要、收盤價、股數、資金
+    精簡推播格式：顯示方向、策略、信心、摘要、收盤價、股數、資金等資訊
     """
-    lines = []
-    lines.append(f"📈 技術策略建倉 ➤ {symbol}（{direction}｜{strategy_name}）")
-    lines.append(f"🧠 信心分數：{confidence_score:.2f} / 7｜摘要：{signal_note}")
-    lines.append(f"💵 收盤價：${price:,.2f}")
-    lines.append(f"📌 股數：{shares:,}｜進場資金：${capital_used:,.2f}｜剩餘資金：${capital_left:,.2f}")
-    return "\n".join(lines)
+    try:
+        lines = []
+        lines.append("```")  # ✅ Discord code block 開始
+        lines.append(f"📌 🟢 **{direction} 技術策略** ➤ **{symbol}**")
+
+        if strategy_type or signal_type:
+            lines.append(f"📋 類型：{strategy_type or '技術策略'}｜訊號：{signal_type or '技術'}")
+
+        lines.append(f"🔖 策略名稱：{strategy_name}")
+        lines.append(f"🧠 信心分數：{confidence_score or 'N/A'} / 7")
+        if signal_note:
+            lines.append(f"📝 訊號摘要：{signal_note}")
+
+        lines.append(f"📈 收盤價：${price:,.2f}")
+        lines.append(f"📌 股數：{shares or 'N/A'}｜進場資金：${capital_used or 0:,.2f}｜剩餘資金：${capital_left or 0:,.2f}")
+        lines.append("```")  # ✅ Discord code block 結尾
+        return "\n".join(lines)
+
+    except Exception as e:
+        return f"[❌ 建立訊息失敗] {e}"
