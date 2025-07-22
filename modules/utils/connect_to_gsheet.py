@@ -16,7 +16,6 @@ def connect_to_gsheet(sheet_url: str, sheet_name: str, base64_key: str):
 
     spreadsheet = client.open_by_url(sheet_url)
     sheet_names = [ws.title for ws in spreadsheet.worksheets()]
-    print("📄 現有分頁：", sheet_names)
 
     if sheet_name not in sheet_names:
         close_matches = difflib.get_close_matches(sheet_name, sheet_names, n=3, cutoff=0.6)
