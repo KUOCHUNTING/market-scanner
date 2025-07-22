@@ -34,7 +34,7 @@ def fetch_stock_data(symbol, api_key, multiplier=15, timespan="minute", limit=10
 # ✅ 載入股票清單（symbol list）
 def load_stock_list(filepath="stocks_with_sector.csv"):
     base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, filename)
+    file_path = os.path.join(base_path, filepath)  # ✅ 改這行
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
