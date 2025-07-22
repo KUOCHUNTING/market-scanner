@@ -1,4 +1,4 @@
- from modules.data.loaders import fetch_stock_data
+from modules.data.loaders import fetch_stock_data
 from modules.utils.helpers import get_last_value
 from modules.config import POLYGON_API_KEY, WEBHOOK_URL
 from modules.notify.discord_push import send_discord_message
