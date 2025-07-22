@@ -11,6 +11,10 @@ from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import get_market_phase  # ⏰ 盤前/盤中/盤後 判斷
 from modules.data.loaders import load_stock_list  # ✅ 改用載入函數
+from modules.entry.position_manager import PositionManager
+
+# ✅ 建立 PositionManager 實例（全域可共用）
+pm = PositionManager(initial_capital=100000)
 # ✅ 載入 .env 環境變數
 load_dotenv()
 
