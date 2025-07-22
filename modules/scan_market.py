@@ -51,14 +51,14 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
     else:
         raise TypeError("❌ 傳入的 stock_list 必須是 list 或包含 'symbol' 欄的 DataFrame")
 
-    random.shuffle(symbol_list)  # ✅ 此時 symbols 一定已定義
+    random.shuffle(symbols)  # ✅ 此時 symbols 一定已定義
 
     MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f}，暫停掃描")
         return
 
-    for symbol in symbol_list:
+    for symbol in symbols:
         try:
             print(f"\n📡 掃描中：{symbol}")
             df = fetch_stock_data(symbol, POLYGON_API_KEY)
