@@ -50,7 +50,7 @@ def load_stock_list(filepath="stocks_with_sector.csv"):
     return symbols
 
 # ✅ 載入股票分類表（完整 DataFrame）
-def load_stock_sector_csv(filename="stocks_with_sector.csv"):
+def load_sector_file(filename="stocks_with_sector.csv"):
     try:
         base_path = os.path.dirname(__file__)
         file_path = os.path.join(base_path, filename)
