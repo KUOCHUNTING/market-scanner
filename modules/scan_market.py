@@ -42,6 +42,7 @@ stock_list = load_stock_list()
 
 # ✅ 主掃描函數
 def scan_market(stock_list, sheet_entry, position_manager=None):
+    MIN_REQUIRED_CAPITAL = 3000
     if position_manager and position_manager.capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${position_manager.capital_left:.2f}，暫停掃描")
         return
@@ -55,7 +56,6 @@ def scan_market(stock_list, sheet_entry, position_manager=None):
 
     random.shuffle(symbols)  # ✅ 此時 symbols 一定已定義
 
-    MIN_REQUIRED_CAPITAL = 3000
     if capital_left < MIN_REQUIRED_CAPITAL:
         print(f"[資金耗盡] 剩餘資金 ${capital_left:.2f}，暫停掃描")
         return
