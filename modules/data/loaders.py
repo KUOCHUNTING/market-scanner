@@ -79,3 +79,18 @@ def load_sector_mapping(filename="stocks_with_sector.csv"):
         print(f"❌ 無法讀取股票分類檔案：{e}")
         print("⚠️ sector mapping 資料缺失，回傳空字典")
         return {}
+
+def load_stock_sector_csv(filename="stocks_with_sector.csv"):
+    try:
+        base_path = os.path.dirname(__file__)
+        file_path = os.path.join(base_path, filename)
+        df = pd.read_csv(file_path)
+
+        if "symbol" not in df.columns:
+            raise ValueError("❌ 檔案缺少 'symbol' 欄位")
+
+        return df
+    except Exception as e:
+        print(f"❌ 無法讀取股票分類檔案：{e}")
+        return pd.DataFrame()
+
