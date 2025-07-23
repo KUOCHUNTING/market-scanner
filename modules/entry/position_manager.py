@@ -5,30 +5,37 @@ from modules.notify.discord_push import send_discord_message
 from modules.notify.build_discord_message import build_entry_message_from_position
 from modules.utils.gsheet_writer import write_entry_to_sheet
 
-# ✅ 載入 .env（強制指定位置）
+# ✅ 載入環境變數
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", ".env")
 load_dotenv(dotenv_path)
 
 DEFAULT_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 DEFAULT_CAPITAL = float(os.getenv("CAPITAL_LEFT", "100000"))
+MIN_REQUIRED_CAPITAL = 3000  # ✅ 設定最低建倉門檻
 
 class PositionManager:
-    def __init__(self, initial_capital=DEFAULT_CAPITAL, webhook_url=DEFAULT_WEBHOOK_URL):
+    def __init__(self, initial_capital=DEFAULT_CAPITAL, webhook_url=DEFAULT_WEBHOOK_URL, auto_reset=True):
+        self.initial_capital = initial_capital
         self.capital_left = initial_capital
         self.positions = {}
         self.webhook_url = webhook_url
+        self.auto_reset = auto_reset
 
         print(f"✅ PositionManager 初始化 ➜ 資金：${self.capital_left:.2f}")
 
     def get_capital_left(self):
+        # ✅ 若資金不足，自動重置（僅測試階段用）
+        if self.capital_left < MIN_REQUIRED_CAPITAL and self.auto_reset:
+            print(f"[🔁 自動重置資金] ➜ 原資金 ${self.capital_left:.2f} → ${self.initial_capital:.2f}")
+            self.capital_left = self.initial_capital
         return self.capital_left
 
     def get_positions(self):
         return self.positions
 
-    def reset_capital(self, amount):
-        self.capital_left = amount
-        print(f"🔁 資金已重設為：${self.capital_left:.2f}")
+    def reset_capital(self, amount=None):
+        self.capital_left = amount if amount else self.initial_capital
+        print(f"🔁 手動重置資金 ➜ 資金：${self.capital_left:.2f}")
 
     def has_position(self, symbol):
         return symbol in self.positions
