@@ -32,22 +32,18 @@ def fetch_stock_data(symbol, api_key, multiplier=15, timespan="minute", limit=10
         return pd.DataFrame()
 
 # ✅ 載入股票清單（symbol list）
-def load_stock_list(filepath="stocks_with_sector.csv"):
-    base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, filepath)  # ✅ 改這行
+def load_stock_sector_csv():
+    base_path = os.path.dirname(os.path.dirname(__file__))  # 取得模組上層資料夾
+    file_path = os.path.join(base_path, "data", "stocks_with_sector.csv")
 
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"❌ 找不到檔案：{file_path}")
-
-    df = pd.read_csv(file_path)
-    if "symbol" not in df.columns:
-        raise ValueError("❌ 檔案中缺少 'symbol' 欄位")
-
-    symbols = df["symbol"].dropna().tolist()
-    if len(symbols) == 0:
-        raise ValueError("❌ 股票清單為空")
-
-    return symbols
+    try:
+        df = pd.read_csv(file_path)
+        if "symbol" not in df.columns:
+            raise ValueError("❌ 缺少 symbol 欄位")
+        return df
+    except Exception as e:
+        print(f"❌ 無法讀取股票分類檔案：{e}")
+        return pd.DataFrame()
 
 # ✅ 載入股票分類表（完整 DataFrame）
 def load_sector_file(filename="stocks_with_sector.csv"):
