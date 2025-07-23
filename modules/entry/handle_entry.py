@@ -30,7 +30,7 @@ def enter_position(symbol, price, direction, signal_note,
                    ema5=None, ema20=None, bb_upper=None, bb_lower=None,
                    obv=None, vwap=None,
                    strategy_type=None, signal_type=None, score=None, confidence_score=None,
-                   trend_score=None, rrov_score=None, mean_score=None):
+                   trend_score=None, rrov_score=None, mean_score=None, sheet=None):
     global capital_left, entered_positions, positions
 
     # ⛔ 防呆：避免重複建倉
@@ -124,27 +124,30 @@ def enter_position(symbol, price, direction, signal_note,
     send_discord_message(WEBHOOK_URL, msg)
 
     # ✅ 寫入 Google Sheets
-    write_entry_to_sheet({
-        "symbol": symbol,
-        "entry_time": entry_time,
-        "price": price,
-        "direction": direction,
-        "strategy_name": strategy_name,
-        "signal_note": signal_note,
-        "shares": shares,
-        "capital_used": capital_used,
-        "rsi": rsi,
-        "zscore": zscore,
-        "obv": obv,
-        "vwap": vwap,
-        "ema5": ema5,
-        "ema20": ema20,
-        "bb_upper": bb_upper,
-        "bb_lower": bb_lower,
-        "trend_score": trend_score,
-        "rrov_score": rrov_score,
-        "mean_score": mean_score,
-        "confidence_score": confidence_score
-    })
+    if sheet:
+        write_entry_to_sheet({
+            "symbol": symbol,
+            "entry_time": entry_time,
+            "price": price,
+            "direction": direction,
+            "strategy_name": strategy_name,
+            "signal_note": signal_note,
+            "shares": shares,
+            "capital_used": capital_used,
+            "rsi": rsi,
+            "zscore": zscore,
+            "obv": obv,
+            "vwap": vwap,
+            "ema5": ema5,
+            "ema20": ema20,
+            "bb_upper": bb_upper,
+            "bb_lower": bb_lower,
+            "trend_score": trend_score,
+            "rrov_score": rrov_score,
+            "mean_score": mean_score,
+            "confidence_score": confidence_score
+        }, sheet=sheet, shares=shares)
+    else:
+        print("⚠️ 未提供 sheet ➜ 跳過寫入 Google Sheet")
 
     return symbol, capital_used, shares
