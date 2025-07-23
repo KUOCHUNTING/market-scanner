@@ -3,6 +3,7 @@ import requests
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
+from modules.utils.format import safe_index
 import os
 
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY") or "your-api-key"
