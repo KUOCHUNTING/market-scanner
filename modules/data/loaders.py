@@ -66,3 +66,32 @@ def load_sector_mapping(filepath="sector_mapping.csv"):
     except Exception as e:
         print(f"❌ 讀取 sector_mapping.csv 錯誤：{e}")
         return {}
+
+def fetch_stock_data(symbol, api_key, multiplier=15, timespan="minute", limit=1000):
+    """
+    從 Polygon API 抓取個股 15 分鐘線資料（或自訂區間）
+    """
+    url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/range/{multiplier}/{timespan}/2023-01-01/2025-12-31"
+    params = {
+        "adjusted": "true",
+        "sort": "desc",
+        "limit": limit,
+        "apiKey": api_key
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if "results" not in data:
+            print(f"[❌] 沒有結果：{symbol}")
+            return pd.DataFrame()
+
+        df = pd.DataFrame(data["results"])
+        df["timestamp"] = pd.to_datetime(df["t"], unit="ms")
+        df.rename(columns={"c": "close", "o": "open", "h": "high", "l": "low", "v": "volume"}, inplace=True)
+        return df[["timestamp", "open", "high", "low", "close", "volume"]]
+    except Exception as e:
+        print(f"[錯誤] 抓取 {symbol} 時出錯：{e}")
+        return pd.DataFrame()
