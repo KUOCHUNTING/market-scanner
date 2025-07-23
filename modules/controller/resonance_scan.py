@@ -31,14 +31,18 @@ def send_discord_message(content: str):
         print(f"❌ Discord 發送錯誤：{e}")
 
 # ✅ 主執行函數（每 interval 秒掃描一次）
-def run_sector_resonance(interval=30, csv_path="data/stocks_with_sector.csv"):
-    try:
-        df = pd.read_csv(csv_path)
-    except Exception as e:
-        print(f"❌ 無法讀取股票分類檔案：{e}")
+from modules.data.loaders import load_stock_list, merge_stock_with_sector  # ✅ 加上這行
+
+def run_sector_resonance(interval=30):
+    # ✅ 自動載入股票清單與分類
+    stock_list = load_stock_list()
+    df = merge_stock_with_sector(stock_list)
+
+    if df.empty:
+        print("❌ 股票分類資料為空，無法進行共振掃描")
         return
 
-    # 建立板塊成分股對應表
+    # ✅ 建立板塊成分股對應表
     sector_stocks = {}
     for _, row in df.iterrows():
         sector = row.get("Standard_Sector")
