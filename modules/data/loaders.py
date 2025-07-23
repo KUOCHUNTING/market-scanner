@@ -49,3 +49,18 @@ def merge_stock_with_sector(stock_list):
     df = pd.DataFrame({"symbol": stock_list})
     merged = pd.merge(df, df_sector, on="symbol", how="left")
     return merged
+
+def load_sector_mapping(filepath="sector_mapping.csv"):
+    import pandas as pd
+    import os
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, filepath)
+
+    try:
+        df = pd.read_csv(file_path)
+        if "symbol" not in df.columns or "sector" not in df.columns:
+            raise ValueError("❌ sector_mapping.csv 缺少必要欄位（symbol / sector）")
+        return dict(zip(df["symbol"], df["sector"]))
+    except Exception as e:
+        print(f"❌ 讀取 sector_mapping.csv 錯誤：{e}")
+        return {}
