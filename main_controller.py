@@ -1,30 +1,35 @@
 # main_controller.py
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import time
-import traceback
+
+# ✅ 先載入 .env 與 Webhook
 from dotenv import load_dotenv
-from modules.utils.connect_to_gsheet import connect_to_gsheet
-# === 設定與功能模組 ===
-from modules.scan_market import scan_market
-from modules.notify.check_exit_and_notify import schedule_exit_check
-from modules.utils.market_time import get_market_phase  # ⏰ 盤前/盤中/盤後 判斷
-from modules.data.loaders import load_stock_list  # ✅ 改用載入函數
-from modules.entry.position_manager import PositionManager
+import os
+dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(dotenv_path)
 
-# ✅ 建立 PositionManager 實例（全域可共用）
-pm = PositionManager(initial_capital=100000)
-# ✅ 載入 .env 環境變數
-load_dotenv()
-
-sheet_url = os.getenv("GSHEET_URL")
-key_base64 = os.getenv("GCP_KEY_BASE64")
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
-
 if not WEBHOOK_URL or "discord.com" not in WEBHOOK_URL:
     print("❌ Webhook URL 無效或未載入，請確認 .env 檔與 load_dotenv() 是否正確！")
     exit(1)
+
+# ✅ 再 import 其他模組（要用到 webhook）
+import sys
+import time
+import traceback
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from modules.utils.connect_to_gsheet import connect_to_gsheet
+from modules.scan_market import scan_market
+from modules.notify.check_exit_and_notify import schedule_exit_check
+from modules.utils.market_time import get_market_phase
+from modules.data.loaders import load_stock_list
+from modules.entry.position_manager import PositionManager
+
+# ✅ 正確時機再初始化（此時 .env 已就緒）
+pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL)
+
+sheet_url = os.getenv("GSHEET_URL")
+key_base64 = os.getenv("GCP_KEY_BASE64")
+
 # ✅ 初始化 Google Sheets 工作表
 sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
 
@@ -43,9 +48,8 @@ def main():
     import threading
     threading.Thread(target=run_sector_resonance, kwargs={"interval": 30}, daemon=True).start()
 
-    # ✅ 修正這行
     try:
-        scan_market(stock_list, sheet_entry, position_manager=pm)  # ✅ 加上 pm
+        scan_market(stock_list, sheet_entry, position_manager=pm)
     except Exception as e:
         print(f"[錯誤] scan_market 失敗：{e}")
         traceback.print_exc()
