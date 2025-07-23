@@ -61,20 +61,23 @@ def load_sector_file(filename="stocks_with_sector.csv"):
         return pd.DataFrame()
 
 # ✅ 建立 symbol ➜ sector 對應表（dict）
-def load_sector_mapping(filename="stocks_with_sector.csv"):
+def load_stock_list(filepath="data/filtered_us_stocks_common_only.csv"):
+    """
+    從 CSV 檔讀取股票代碼清單，預設檔案為 data/filtered_us_stocks_common_only.csv
+    """
     try:
-        base_path = os.path.dirname(__file__)
-        file_path = os.path.join(base_path, filename)
+        base_path = os.path.dirname(os.path.dirname(__file__))
+        file_path = os.path.join(base_path, filepath)
         df = pd.read_csv(file_path)
 
-        if "symbol" not in df.columns or "Standard_Sector" not in df.columns:
-            raise ValueError("❌ 檔案缺少必要欄位（symbol 或 Standard_Sector）")
-
-        return dict(zip(df["symbol"], df["Standard_Sector"]))
+        if "symbol" not in df.columns:
+            raise ValueError("❌ CSV 檔案缺少 symbol 欄位")
+        
+        return df["symbol"].dropna().tolist()
     except Exception as e:
-        print(f"❌ 無法讀取股票分類檔案：{e}")
-        print("⚠️ sector mapping 資料缺失，回傳空字典")
-        return {}
+        print(f"❌ 股票清單讀取失敗：{e}")
+        print("✅ 改用預設測試股票清單")
+        return ["AAPL", "MSFT", "GOOGL", "NVDA", "TSLA"]
 
 def load_stock_sector_csv(filename="stocks_with_sector.csv"):
     try:
