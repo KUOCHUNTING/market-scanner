@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from modules.data.loaders import fetch_stock_data, load_sector_mapping
 
 def load_stock_list(filepath="data/filtered_us_stocks_common_only.csv"):
     """
