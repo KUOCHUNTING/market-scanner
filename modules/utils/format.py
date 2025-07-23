@@ -84,3 +84,13 @@ def safe_symbol(symbol):
         return s if s else "未知代號"
     except Exception:
         return "未知代號"
+
+def safe_index(array_like, target):
+    import numpy as np
+    if isinstance(array_like, np.ndarray):
+        result = np.where(array_like == target)[0]
+        return result[0] if len(result) > 0 else -1
+    elif isinstance(array_like, list):
+        return array_like.index(target) if target in array_like else -1
+    else:
+        return -1
