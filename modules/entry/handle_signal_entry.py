@@ -52,4 +52,10 @@ def handle_signal_entry(symbol, direction, score, strategy_name,
         return None
 
     position, message, updated_capital_left = result
+
+    # ✅ 加入建倉完成提示
+    shares = position["shares"]
+    capital_used = position["capital_used"]
+    print(f"✅ 建倉完成 ➜ {symbol}｜{shares} 股｜資金 ${capital_used:,.2f}")
+                          
     return position["shares"], position["capital_used"]
