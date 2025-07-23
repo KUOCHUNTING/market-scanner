@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import requests
+from datetime import datetime
 
 def load_stock_list(filepath="data/filtered_us_stocks_common_only.csv"):
     """
