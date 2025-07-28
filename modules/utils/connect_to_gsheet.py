@@ -4,6 +4,12 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 
+def connect_with_base64_key(sheet_url, gcp_key_base64):
+    key_dict = json.loads(base64.b64decode(gcp_key_base64).decode("utf-8"))
+    creds = Credentials.from_service_account_info(key_dict, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    client = gspread.authorize(creds)
+    return client.open_by_url(sheet_url)
+
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
     key_dict = json.loads(decoded.decode("utf-8"))
