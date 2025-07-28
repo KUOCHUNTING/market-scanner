@@ -72,7 +72,7 @@ def write_exit_to_sheet(exit_info: dict, sheet):
 
 
 # ✅ 共振掃描資料寫入
-def write_resonance_to_sheet(resonance_data: list, sheet):
+def write_resonance_to_sheet(resonance_data: list, sheet, timestamp=None):
     if not resonance_data:
         print("⚠️ 無共振資料可寫入")
         return
@@ -84,5 +84,7 @@ def write_resonance_to_sheet(resonance_data: list, sheet):
 
     for item in resonance_data:
         row = [to_serializable(item.get(col, "")) for col in headers]
+        if timestamp:
+            row.append(to_serializable(timestamp))  # ✅ 加上時間欄
         sheet.append_row(row, value_input_option="USER_ENTERED")
         print(f"[✅] 寫入共振 row：{row}")
