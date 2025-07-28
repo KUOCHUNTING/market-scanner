@@ -16,8 +16,6 @@ import sys
 import time
 import traceback
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import get_market_phase
@@ -32,8 +30,8 @@ sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
 
 # ✅ 初始化 Google Sheets 工作表
-sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
-
+sheet = connect_with_base64_key(sheet_url, key_base64)
+sheet_entry = sheet.worksheet("建倉記錄")
 # ✅ 載入股票清單
 stock_list = load_stock_list()
 
