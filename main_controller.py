@@ -31,7 +31,7 @@ key_base64 = os.getenv("GCP_KEY_BASE64")
 
 # ✅ 初始化 Google Sheets 工作表
 sheet = connect_with_base64_key(sheet_url, key_base64)
-sheet_entry = sheet.worksheet("建倉記錄")
+sheet_entry = connect_with_base64_key(sheet_url, "建倉記錄", key_base64)
 # ✅ 載入股票清單
 stock_list = load_stock_list()
 
