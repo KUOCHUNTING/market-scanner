@@ -11,6 +11,7 @@ load_dotenv(dotenv_path)
 
 DEFAULT_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 DEFAULT_CAPITAL = float(os.getenv("CAPITAL_LEFT", "100000"))
+MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", "0.2"))  # ✅ 單筆資金比例上限（預設 20%
 MIN_REQUIRED_CAPITAL = 3000  # ✅ 設定最低建倉門檻
 
 class PositionManager:
