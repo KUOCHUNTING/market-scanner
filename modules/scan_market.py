@@ -17,7 +17,6 @@ from modules.filter_fundamentals import filter_fundamentals
 from modules.indicators.calculate_indicators import calculate_indicators
 from modules.utils.validate_indicators import is_invalid
 from modules.config.config import POLYGON_API_KEY, capital_left
-from modules.utils.connect_to_gsheet import connect_to_gsheet
 from modules.utils.gsheet_writer import write_entry_to_sheet
 from modules.strategy import (
     detect_trading_signal,
