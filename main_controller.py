@@ -25,7 +25,7 @@ from modules.data.loaders import load_stock_list
 from modules.entry.position_manager import PositionManager
 
 # ✅ 正確時機再初始化（此時 .env 已就緒）
-pm = PositionManager(initial_capital=100000, auto_reset=True)
+pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL, auto_reset=True)
 
 sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
