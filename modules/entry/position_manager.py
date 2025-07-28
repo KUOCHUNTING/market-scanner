@@ -16,10 +16,14 @@ MIN_REQUIRED_CAPITAL = 3000  # ✅ 設定最低建倉門檻
 class PositionManager:
     def __init__(self, initial_capital=DEFAULT_CAPITAL, webhook_url=DEFAULT_WEBHOOK_URL, auto_reset=True):
         self.initial_capital = initial_capital
-        self.capital_left = initial_capital
-        self.positions = {}
         self.webhook_url = webhook_url
         self.auto_reset = auto_reset
+
+        if auto_reset:
+            self.capital_left = initial_capital
+            self.positions = {}  # ✅ 強制清空持倉
+        else:
+            self.capital_left = self.load_previous_state()
 
         print(f"✅ PositionManager 初始化 ➜ 資金：${self.capital_left:.2f}")
 
