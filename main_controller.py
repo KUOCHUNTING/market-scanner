@@ -1,3 +1,5 @@
+# main_controller.py
+
 # ✅ 載入 .env 與 Webhook 設定
 from dotenv import load_dotenv
 import os
@@ -5,14 +7,30 @@ import os
 dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path)
 
+# ✅ 讀取環境變數
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
-print(f"[DEBUG] 載入的 Webhook：{WEBHOOK_URL}")
+GSHEET_URL = os.getenv("GSHEET_URL")
+GSHEET_TAB = os.getenv("GSHEET_TAB") or "建倉記錄"
+GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
+POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
+CAPITAL_LEFT = float(os.getenv("CAPITAL_LEFT", 100000))
+MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", 0.2))
 
+# ✅ DEBUG 檢查
+print(f"[DEBUG] Webhook URL：{WEBHOOK_URL}")
+print(f"[DEBUG] Google Sheet URL：{GSHEET_URL}")
+print(f"[DEBUG] Sheet Tab：{GSHEET_TAB}")
+print(f"[DEBUG] 資金參數：資金={CAPITAL_LEFT}，單筆上限={MAX_POSITION_PCT * 100:.1f}%")
+
+# ❌ 檢查必要變數
 if not WEBHOOK_URL or "discord.com" not in WEBHOOK_URL:
-    print("❌ Webhook URL 無效或未載入，請確認 .env 檔與 load_dotenv() 是否正確！")
+    print("❌ Webhook URL 無效或未載入，請確認 .env 設定")
+    exit(1)
+if not GSHEET_URL or not GCP_KEY_BASE64:
+    print("❌ GSHEET_URL 或 GCP_KEY_BASE64 未正確載入，請確認 .env 設定")
     exit(1)
 
-# ✅ 再 import 其他模組（需先載入 webhook）
+# ✅ 再 import 其他模組
 import sys
 import time
 import traceback
@@ -25,25 +43,22 @@ from modules.data.loaders import load_stock_list
 from modules.entry.position_manager import PositionManager
 from modules.utils.connect_to_gsheet import connect_with_base64_key
 
-# ✅ 初始化資金與推播
-pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL, auto_reset=True)
+# ✅ 初始化資金與推播模組
+pm = PositionManager(
+    initial_capital=CAPITAL_LEFT,
+    max_position_pct=MAX_POSITION_PCT,
+    webhook_url=WEBHOOK_URL,
+    auto_reset=True
+)
 
-# ✅ 讀取 Google Sheets 連線資訊
-sheet_url = os.getenv("GSHEET_URL")
-key_base64 = os.getenv("GCP_KEY_BASE64")
-
-if not sheet_url or not key_base64:
-    print("❌ GSHEET_URL 或 GCP_KEY_BASE64 未正確載入，請確認 .env 檔")
-    exit(1)
-
-# ✅ 初始化建倉紀錄工作表（sheet_name = 建倉記錄）
-sheet_entry = connect_with_base64_key(sheet_url, "建倉記錄", key_base64)
+# ✅ 連接 Google Sheets
+sheet_entry = connect_with_base64_key(GSHEET_URL, GSHEET_TAB, GCP_KEY_BASE64)
 
 if not sheet_entry:
     print("❌ 無法取得 Google Sheet 分頁，請檢查金鑰與網址是否正確！")
     exit(1)
 else:
-    print("✅ 成功連接 Google Sheet ➜ 建倉記錄")
+    print(f"✅ 成功連接 Google Sheet ➜ {GSHEET_TAB}")
 
 # ✅ 載入股票清單
 stock_list = load_stock_list()
