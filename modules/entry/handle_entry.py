@@ -11,7 +11,12 @@ from modules.notify.build_discord_message import (
     build_breakout_message
 )
 from modules.config.config import WEBHOOK_URL  
+import os
+from dotenv import load_dotenv
+load_dotenv()
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
+from modules.notify.discord_push import send_discord_message  # ✅ 正確版本
 # === 📦 全域變數（資金與持倉）===
 entered_positions = set()
 capital_left = 100000  # 可改由 config 載入
