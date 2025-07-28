@@ -3,7 +3,7 @@ import pandas as pd
 import traceback
 import random
 from dotenv import load_dotenv
-
+from modules.utils.connect_to_gsheet import connect_with_base64_key
 # ✅ 載入環境變數
 load_dotenv()
 sheet_url = os.getenv("GSHEET_URL")
