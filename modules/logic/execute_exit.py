@@ -3,7 +3,11 @@ from modules.notify.discord_push import send_discord_message
 from modules.config import WEBHOOK_URL
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.indicator_cache import get_cached_indicators
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK"
+                        
 def execute_exit(symbol, position, current_price, reason):
     entry_price = position["entry_price"]
     entry_time = position["entry_time"]
