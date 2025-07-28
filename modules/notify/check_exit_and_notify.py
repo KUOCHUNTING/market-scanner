@@ -10,6 +10,10 @@ from modules.config import (
 )
 from modules.repair_position import repair_position
 from modules.indicator_cache import get_cached_indicators
+import os
+from dotenv import load_dotenv
+load_dotenv()
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
 # 全域管理（建議由主控傳入）
 positions = {}
