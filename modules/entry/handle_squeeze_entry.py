@@ -36,7 +36,7 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet=None):
         bb_upper=squeeze_result.get("bb_upper"),
         bb_lower=squeeze_result.get("bb_lower"),
     )
-    send_discord_message(msg, WEBHOOK_URL)
+    send_discord_message(WEBHOOK_URL, msg)
     
     # ✅ 進行建倉
     result = enter_position(
