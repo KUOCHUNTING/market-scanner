@@ -15,14 +15,16 @@ MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", "0.2"))  # ✅ 單筆資�
 MIN_REQUIRED_CAPITAL = 3000  # ✅ 設定最低建倉門檻
 
 class PositionManager:
-    def __init__(self, initial_capital=DEFAULT_CAPITAL, webhook_url=DEFAULT_WEBHOOK_URL, auto_reset=True):
+    def __init__(self, initial_capital=DEFAULT_CAPITAL, max_position_pct=MAX_POSITION_PCT,
+                 webhook_url=DEFAULT_WEBHOOK_URL, auto_reset=True):
         self.initial_capital = initial_capital
+        self.max_position_pct = max_position_pct
         self.webhook_url = webhook_url
         self.auto_reset = auto_reset
 
         if auto_reset:
             self.capital_left = initial_capital
-            self.positions = {}  # ✅ 強制清空持倉
+            self.positions = {}
         else:
             self.capital_left = self.load_previous_state()
 
