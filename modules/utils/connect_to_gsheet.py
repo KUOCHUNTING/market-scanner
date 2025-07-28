@@ -1,21 +1,28 @@
-import difflib
 import base64
 import json
 import gspread
 from google.oauth2.service_account import Credentials
 
-def connect_with_base64_key(sheet_url, sheet_name, key_base64):
-    # 解碼 base64 並轉為 JSON 字典
-    key_dict = json.loads(base64.b64decode(key_base64).decode("utf-8"))
+def connect_with_base64_key(sheet_url: str, sheet_name: str, key_base64: str):
+    try:
+        # ✅ 解碼 Base64 字串 → JSON 金鑰
+        key_json = base64.b64decode(key_base64).decode("utf-8")
+        key_dict = json.loads(key_json)
 
-    # 建立憑證並連接 Google Sheets
-    credentials = Credentials.from_service_account_info(key_dict)
-    gc = gspread.authorize(credentials)
+        # ✅ 指定正確的 OAuth Scope
+        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+        credentials = Credentials.from_service_account_info(key_dict, scopes=scopes)
 
-    # 開啟指定工作表
-    sheet = gc.open_by_url(sheet_url)
-    worksheet = sheet.worksheet(sheet_name)
-    return worksheet
+        # ✅ 授權 Gspread 並連接 Google Sheet
+        gc = gspread.authorize(credentials)
+        sheet = gc.open_by_url(sheet_url)
+        worksheet = sheet.worksheet(sheet_name)
+
+        return worksheet
+
+    except Exception as e:
+        print(f"❌ Google Sheets 連線失敗：{e}")
+        return None
 
 def get_credentials_from_base64(base64_key: str):
     decoded = base64.b64decode(base64_key)
