@@ -1,10 +1,13 @@
 # modules/exit/execute_exit.py
-
 from datetime import datetime
 from modules.utils.gsheet_writer import write_exit_to_sheet
 from modules.notify.discord_push import send_discord_message
 from modules.config.config import WEBHOOK_URL
 from modules.notify.build_discord_message import build_exit_message  # ✅ 使用格式化訊息
+import os
+from dotenv import load_dotenv
+load_dotenv()
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
 def execute_exit(symbol, entry_time, exit_price, entry_price,
                  rsi=None, zscore=None, roc=None, obv=None,
