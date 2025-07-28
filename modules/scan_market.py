@@ -33,7 +33,7 @@ from modules.data.loaders import load_stock_sector_csv
 
 df_sector = load_stock_sector_csv()
 # ✅ 初始化共用 Google Sheet 分頁
-sheet_entry = connect_to_gsheet(sheet_url, "建倉記錄", key_base64)
+sheet_entry = connect_with_base64_key(sheet_url, "建倉記錄", key_base64)
 
 print(f"[DEBUG] ✅ 已建立 sheet_entry: {sheet_entry}")
 # ✅ 股票清單
