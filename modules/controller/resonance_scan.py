@@ -1,40 +1,29 @@
-import sys
+ import sys
 import os
+import time
+import pandas as pd
+from datetime import datetime
+from dotenv import load_dotenv
 
 # ✅ 加入上層目錄到系統路徑
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-import time
-import pandas as pd
-import requests
-from datetime import datetime
-
-from modules.data.sector_etf_map import sector_etf_map, get_etf_by_sector, get_chinese_by_sector
-from modules.strategy.resonance_polygon import detect_sector_resonance
-from modules.utils.gsheet_writer import write_resonance_to_sheet
-
+# ✅ 載入 .env 環境變數
+load_dotenv()
 GSHEET_URL = os.getenv("GSHEET_URL")
 GSHEET_TAB = os.getenv("GSHEET_TAB") or "共振紀錄"
 GCP_KEY = os.getenv("GCP_KEY_BASE64")
+WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
-# ✅ 讀取 Discord Webhook
-WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK") or "https://your-webhook-url"
-
-# ✅ Discord 推播函數
-def send_discord_message(content: str):
-    try:
-        payload = {"content": content}
-        response = requests.post(WEBHOOK_URL, json=payload)
-        if response.status_code != 204:
-            print(f"⚠️ Discord 推播失敗：{response.text}")
-    except Exception as e:
-        print(f"❌ Discord 發送錯誤：{e}")
+# ✅ 模組匯入
+from modules.data.sector_etf_map import sector_etf_map, get_etf_by_sector, get_chinese_by_sector
+from modules.strategy.resonance_polygon import detect_sector_resonance
+from modules.utils.gsheet_writer import write_resonance_to_sheet
+from modules.data.loaders import load_stock_list, merge_stock_with_sector
+from modules.notify.discord_push import send_discord_message  # ✅ 改為正確的模組
 
 # ✅ 主執行函數（每 interval 秒掃描一次）
-from modules.data.loaders import load_stock_list, merge_stock_with_sector  # ✅ 加上這行
-
 def run_sector_resonance(interval=30):
-    # ✅ 自動載入股票清單與分類
     stock_list = load_stock_list()
     df = merge_stock_with_sector(stock_list)
 
@@ -71,10 +60,9 @@ def run_sector_resonance(interval=30):
                         f"🕒 {timestamp}"
                     )
 
-                    # ✅ 推播到 Discord
-                    send_discord_message(content)
+                    # ✅ 改為傳入 webhook
+                    send_discord_message(WEBHOOK_URL, content)
 
-                    # ✅ 寫入 Google Sheets
                     write_resonance_to_sheet(
                         timestamp=timestamp,
                         etf=etf,
@@ -84,7 +72,6 @@ def run_sector_resonance(interval=30):
                         sheet_name=GSHEET_TAB,
                         base64_key=GCP_KEY
                     )
-                    
                 else:
                     print(f"❌ [無共振] {chinese}（{etf}）")
             except Exception as e:
