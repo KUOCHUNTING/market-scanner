@@ -1,5 +1,3 @@
- # main_controller.py
-
 # ✅ 載入 .env 與 Webhook 設定
 from dotenv import load_dotenv
 import os
@@ -8,8 +6,6 @@ dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path)
 
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
-
-# ✅ DEBUG：印出 webhook 是否正確載入
 print(f"[DEBUG] 載入的 Webhook：{WEBHOOK_URL}")
 
 if not WEBHOOK_URL or "discord.com" not in WEBHOOK_URL:
