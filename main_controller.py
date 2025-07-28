@@ -22,6 +22,7 @@ from modules.utils.market_time import get_market_phase
 from modules.data.loaders import load_stock_list
 from modules.entry.position_manager import PositionManager
 from modules.utils.connect_to_gsheet import connect_with_base64_key
+
 # ✅ 正確時機再初始化（此時 .env 已就緒）
 print(f"✅ DEBUG：使用的 webhook = {WEBHOOK_URL}")
 pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL, auto_reset=True)
@@ -29,9 +30,13 @@ pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL, auto_reset
 sheet_url = os.getenv("GSHEET_URL")
 key_base64 = os.getenv("GCP_KEY_BASE64")
 
-# ✅ 初始化 Google Sheets 工作表
-sheet = connect_with_base64_key(sheet_url, key_base64)
+if not sheet_url or not key_base64:
+    print("❌ GSHEET_URL 或 GCP_KEY_BASE64 未正確載入，請確認 .env 檔")
+    exit(1)
+
+# ✅ 初始化 Google Sheets 工作表（需傳入分頁名稱）
 sheet_entry = connect_with_base64_key(sheet_url, "建倉記錄", key_base64)
+
 # ✅ 載入股票清單
 stock_list = load_stock_list()
 
@@ -43,22 +48,26 @@ def main():
         print(f"⏰ 當前市場為 {phase} ➜ 暫停掃描與建倉")
         return
 
+    # ✅ 啟動類股共振掃描（背景執行）
     from modules.controller.resonance_scan import run_sector_resonance
     import threading
     threading.Thread(target=run_sector_resonance, kwargs={"interval": 30}, daemon=True).start()
 
+    # ✅ 執行建倉邏輯
     try:
         scan_market(stock_list, sheet_entry, position_manager=pm)
     except Exception as e:
         print(f"[錯誤] scan_market 失敗：{e}")
         traceback.print_exc()
 
+    # ✅ 啟動出場排程
     try:
         schedule_exit_check()
     except Exception as e:
         print(f"[錯誤] schedule_exit_check 啟動失敗：{e}")
         traceback.print_exc()
 
+    # ✅ 主迴圈持續運作
     while True:
         time.sleep(60)
 
