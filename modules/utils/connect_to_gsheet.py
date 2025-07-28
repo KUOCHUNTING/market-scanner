@@ -5,7 +5,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 def connect_with_base64_key(sheet_url, sheet_name, key_base64):
-    key_dict = json.loads(base64.b64decode(gcp_key_base64).decode("utf-8"))
+    key_dict = json.loads(base64.b64decode(key_base64).decode("utf-8"))
     creds = Credentials.from_service_account_info(key_dict, scopes=["https://www.googleapis.com/auth/spreadsheets"])
     client = gspread.authorize(creds)
     return client.open_by_url(sheet_url)
