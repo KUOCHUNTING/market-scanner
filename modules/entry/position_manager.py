@@ -45,16 +45,16 @@ class PositionManager:
         return symbol in self.positions
 
     def add_position(self,
-                     symbol, price, direction, score, strategy_name,
-                     rsi=None, zscore=None, roc=None, obv=None,
-                     vwap=None, ema5=None, ema20=None,
-                     bb_upper=None, bb_lower=None,
-                     signal_note=None, trend_score=None,
-                     rrov_score=None, mean_score=None,
-                     trend_dir=None, rrov_dir=None, mean_dir=None,
-                     signal_type=None, strategy_type=None,
-                     take_profit_pct=0.08, stop_loss_pct=0.03,
-                     sheet=None, sector=None):
+                 symbol, price, direction, score, strategy_name,
+                 rsi=None, zscore=None, roc=None, obv=None,
+                 vwap=None, ema5=None, ema20=None,
+                 bb_upper=None, bb_lower=None,
+                 signal_note=None, trend_score=None,
+                 rrov_score=None, mean_score=None,
+                 trend_dir=None, rrov_dir=None, mean_dir=None,
+                 signal_type=None, strategy_type=None,
+                 take_profit_pct=0.08, stop_loss_pct=0.03,
+                 sheet=None, sector=None):
 
         if self.has_position(symbol):
             msg = f"[略過] {symbol} 已持有倉位"
@@ -71,6 +71,16 @@ class PositionManager:
             msg = f"[略過] 單價過高，無法進場 ➜ {symbol} at ${price:.2f}"
             print(msg)
             return None, msg, self.capital_left
+
+        # ✅ 限制單筆建倉資金不得超過初始資金的 20%
+        max_allocation_pct = 0.2
+        max_allowed_capital = self.initial_capital * max_allocation_pct
+        if quantity * price > max_allowed_capital:
+            quantity = int(max_allowed_capital // price)
+            if quantity == 0:
+                msg = f"[略過] 單價過高且超過配置上限 ➜ {symbol} at ${price:.2f}"
+                print(msg)
+                return None, msg, self.capital_left
 
         capital_used = quantity * price
         entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
