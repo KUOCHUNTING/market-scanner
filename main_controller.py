@@ -23,7 +23,7 @@ from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import get_market_phase
 from modules.data.loaders import load_stock_list
 from modules.entry.position_manager import PositionManager
-
+from modules.utils.connect_to_gsheet import connect_with_base64_key
 # ✅ 正確時機再初始化（此時 .env 已就緒）
 print(f"✅ DEBUG：使用的 webhook = {WEBHOOK_URL}")
 pm = PositionManager(initial_capital=100000, webhook_url=WEBHOOK_URL, auto_reset=True)
