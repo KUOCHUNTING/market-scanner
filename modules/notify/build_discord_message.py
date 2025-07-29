@@ -135,14 +135,14 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
     return message
 # === Position dict 自動轉訊息 ===
 
-def build_entry_message_from_position(position: dict):
+def build_entry_message_from_position(position: dict, capital_left=None):
     return build_entry_message(
         symbol=position["symbol"],
         price=position["entry_price"],
         strategy_type=position.get("strategy_type", "技術策略"),
         signal_type=position.get("signal_type", "技術信號"),
         strategy_name=position["strategy_name"],
-        signal_note=position["signal_note"],
+        signal_note=position.get("signal_note"),
         direction=position["direction"],
         score=position.get("score"),
         confidence_score=position.get("confidence_score"),
@@ -158,7 +158,7 @@ def build_entry_message_from_position(position: dict):
         mean_score=position.get("mean_score"),
         shares=position.get("shares"),
         capital_used=position.get("capital_used"),
-        capital_left=capital_left,
+        capital_left=capital_left,  # ✅ 用外部傳入的值
     )
 
 # === 出場推播訊息 ===
