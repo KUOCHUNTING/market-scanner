@@ -78,10 +78,10 @@ class PositionManager:
         max_allowed_capital = self.initial_capital * self.max_position_pct
         if quantity * price > max_allowed_capital:
            quantity = int(max_allowed_capital // price)
-            if quantity == 0:
-                msg = f"[略過] 單價過高且超過配置上限 ➜ {symbol} at ${price:.2f}"
-                print(msg)
-                return None, msg, self.capital_left
+           if quantity == 0:
+               msg = f"[略過] 單價過高且超過配置上限 ➜ {symbol} at ${price:.2f}"
+               print(msg)
+               return None, msg, self.capital_left
 
         capital_used = quantity * price
         entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
