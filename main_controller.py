@@ -49,7 +49,7 @@ pm = PositionManager(
     initial_capital=CAPITAL_LEFT,
     max_position_pct=MAX_POSITION_PCT,
     webhook_url=WEBHOOK_URL,
-    auto_reset=True
+    auto_reset=False
 )
 
 # ✅ 連接 Google Sheets
