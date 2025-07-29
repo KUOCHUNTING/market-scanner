@@ -140,8 +140,3 @@ class PositionManager:
 
     print(f"✅ 建倉成功：{symbol}｜方向：{direction}｜股數：{quantity}｜價格：${price:.2f}｜策略：{strategy_name}")
     return position, message, self.capital_left
-        if sheet:
-            write_entry_to_sheet(entry=position, sheet=sheet, shares=quantity)
-
-        print(f"✅ 建倉成功：{symbol}｜方向：{direction}｜股數：{quantity}｜價格：${price:.2f}｜策略：{strategy_name}")
-        return position, message, self.capital_left
