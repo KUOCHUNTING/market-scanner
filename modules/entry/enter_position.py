@@ -115,7 +115,7 @@ def enter_position(
     # ✅ 推播 Discord（可傳入 webhook_url）
     webhook = webhook_url or DEFAULT_WEBHOOK_URL
     if webhook and "discord.com" in webhook:
-        send_discord_message(webhook, message)
+        send_discord_message(message, webhook_url=webhook)
     else:
         print("[⚠️ 略過推播] 未提供有效的 Discord Webhook URL")
 
