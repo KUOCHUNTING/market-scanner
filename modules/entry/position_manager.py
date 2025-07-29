@@ -128,7 +128,7 @@ class PositionManager:
         # 推播訊息
         message = build_entry_message_from_position(position)
         if self.webhook_url and "discord.com" in self.webhook_url:
-            send_discord_message(self.webhook_url, message)
+            send_discord_message(message, webhook_url=self.webhook_url)  # ✅ 正確傳參
         else:
             print("[⚠️ 略過推播] Webhook URL 無效或未設定")
 
