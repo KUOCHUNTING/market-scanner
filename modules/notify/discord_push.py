@@ -3,8 +3,6 @@
 import os
 import requests
 
-DEFAULT_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
-
 def send_discord_message(message, webhook_url=None):
     """
     傳送訊息至 Discord Webhook。
