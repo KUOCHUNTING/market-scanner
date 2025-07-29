@@ -44,6 +44,10 @@ class PositionManager:
         self.capital_left = amount if amount else self.initial_capital
         print(f"🔁 手動重置資金 ➜ 資金：${self.capital_left:.2f}")
 
+    def load_previous_state(self):
+        print("⚠️ 尚未實作 load_previous_state()，預設使用 initial_capital")
+        return self.initial_capital
+
     def has_position(self, symbol):
         return symbol in self.positions
 
