@@ -132,7 +132,7 @@ class PositionManager:
         self.positions[symbol] = position
 
         # ✅ 推播訊息
-        message = build_entry_message_from_position(position)
+        message = build_entry_message_from_position(position, capital_left=self.capital_left)
         if self.webhook_url and "discord.com" in self.webhook_url:
             send_discord_message(message, webhook_url=self.webhook_url)
         else:
