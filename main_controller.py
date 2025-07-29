@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path)
 
-print(f"[DEBUG] DISCORD_WEBHOOK = {os.getenv('DISCORD_WEBHOOK')}")
+print(f"[DEBUG] ✅ DISCORD_WEBHOOK from .env = '{os.getenv('DISCORD_WEBHOOK')}'")
 # ✅ 讀取環境變數
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 GSHEET_URL = os.getenv("GSHEET_URL")
