@@ -48,7 +48,7 @@ class PositionManager:
         return symbol in self.positions
 
     def add_position(self,
-                 symbol, price, direction, score, strategy_name,
+                 symbol, price, direction, score, confidence_score, strategy_name,
                  rsi=None, zscore=None, roc=None, obv=None,
                  vwap=None, ema5=None, ema20=None,
                  bb_upper=None, bb_lower=None,
@@ -99,7 +99,8 @@ class PositionManager:
             "strategy_name": strategy_name,
             "strategy_type": strategy_type,
             "signal_type": signal_type,
-            "confidence_score": score,
+            "score": score,
+            "confidence_score": confidence_score,  # ✅ 放在 score 後面最直觀
             "take_profit_pct": take_profit_pct,
             "stop_loss_pct": stop_loss_pct,
             "rsi": rsi,
