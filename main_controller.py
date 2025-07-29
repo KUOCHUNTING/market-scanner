@@ -13,7 +13,11 @@ GSHEET_URL = os.getenv("GSHEET_URL")
 GSHEET_TAB = os.getenv("GSHEET_TAB") or "建倉記錄"
 GCP_KEY_BASE64 = os.getenv("GCP_KEY_BASE64")
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
-CAPITAL_LEFT = float(os.getenv("CAPITAL_LEFT", 100000))
+try:
+    CAPITAL_LEFT = float(os.getenv("CAPITAL_LEFT", 100000))
+except ValueError:
+    print("❌ CAPITAL_LEFT 環境變數無法轉為 float，請檢查 Secrets 設定")
+    exit(1)
 MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", 0.2))
 
 # ✅ DEBUG 檢查
