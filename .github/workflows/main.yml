@@ -1,1 +1,32 @@
+name: 執行市場掃描器
 
+on:
+  workflow_dispatch:  # 允許手動執行
+
+jobs:
+  run-scan:
+    runs-on: ubuntu-latest
+
+    env:  # ✅ 將 GitHub Secrets 傳入 Python 程式
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      GSHEET_URL: ${{ secrets.GSHEET_URL }}
+      GCP_KEY_BASE64: ${{ secrets.GCP_KEY_BASE64 }}
+      CAPITAL_LEFT: ${{ secrets.CAPITAL_LEFT }}
+      MAX_POSITION_PCT: ${{ secrets.MAX_POSITION_PCT }}
+
+    steps:
+      - name: 🔽 下載原始碼
+        uses: actions/checkout@v3
+
+      - name: 🔧 安裝 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: 📦 安裝依賴套件
+        run: |
+          pip install -r requirements.txt
+
+      - name: 🚀 執行主程式
+        run: |
+          python main_controller.py
