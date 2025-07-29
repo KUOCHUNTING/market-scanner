@@ -1,9 +1,3 @@
-# main_controller.py
-
-# ✅ 載入 .env 與 Webhook 設定
-from dotenv import load_dotenv
-import os
-
 dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path)
 
@@ -36,11 +30,12 @@ if not GSHEET_URL or not GCP_KEY_BASE64:
     exit(1)
 
 # ✅ 再 import 其他模組
+import os
 import sys
 import time
 import traceback
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
+from dotenv import load_dotenv
 from modules.scan_market import scan_market
 from modules.notify.check_exit_and_notify import schedule_exit_check
 from modules.utils.market_time import get_market_phase
