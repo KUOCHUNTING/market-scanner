@@ -69,19 +69,18 @@ class PositionManager:
             print(msg)
             return None, msg, self.capital_left
 
-        quantity = int(self.capital_left // price)
+        # ✅ 每筆最多分配的資金
+        max_allowed_capital = self.initial_capital * self.max_position_pct
+
+        # ✅ 真正可用資金
+        allocatable_capital = min(self.capital_left, max_allowed_capital)
+
+        # ✅ 計算張數
+        quantity = int(allocatable_capital // price)
         if quantity == 0:
             msg = f"[略過] 單價過高，無法進場 ➜ {symbol} at ${price:.2f}"
             print(msg)
             return None, msg, self.capital_left
-
-        max_allowed_capital = self.initial_capital * self.max_position_pct
-        if quantity * price > max_allowed_capital:
-           quantity = int(max_allowed_capital // price)
-           if quantity == 0:
-               msg = f"[略過] 單價過高且超過配置上限 ➜ {symbol} at ${price:.2f}"
-               print(msg)
-               return None, msg, self.capital_left
 
         capital_used = quantity * price
         entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
