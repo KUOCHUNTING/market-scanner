@@ -11,8 +11,8 @@ load_dotenv(dotenv_path)
 
 DEFAULT_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 DEFAULT_CAPITAL = float(os.getenv("CAPITAL_LEFT", "100000"))
-MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", "0.2"))  # ✅ 單筆資金比例上限（預設 20%
-MIN_REQUIRED_CAPITAL = 3000  # ✅ 設定最低建倉門檻
+MAX_POSITION_PCT = float(os.getenv("MAX_POSITION_PCT", "0.2"))  # 單筆資金比例上限（預設 20%）
+MIN_REQUIRED_CAPITAL = 3000  # 最低建倉門檻
 
 class PositionManager:
     def __init__(self, initial_capital=DEFAULT_CAPITAL, max_position_pct=MAX_POSITION_PCT,
@@ -22,16 +22,23 @@ class PositionManager:
         self.webhook_url = webhook_url
         self.auto_reset = auto_reset
 
+        # ✅ 資金初始化
         if auto_reset:
             self.capital_left = initial_capital
-            self.positions = {}
         else:
             self.capital_left = self.load_previous_state()
 
+        # ✅ 無論 auto_reset 與否，一律初始化 positions
+        self.positions = {}
+
         print(f"✅ PositionManager 初始化 ➜ 資金：${self.capital_left:.2f}")
 
+    def load_previous_state(self):
+        print("⚠️ 尚未實作 load_previous_state()，預設使用 initial_capital")
+        return self.initial_capital
+
     def get_capital_left(self):
-        # ✅ 若資金不足，自動重置（僅測試階段用）
+        # ✅ 測試用：自動重置資金
         if self.capital_left < MIN_REQUIRED_CAPITAL and self.auto_reset:
             print(f"[🔁 自動重置資金] ➜ 原資金 ${self.capital_left:.2f} → ${self.initial_capital:.2f}")
             self.capital_left = self.initial_capital
@@ -43,10 +50,6 @@ class PositionManager:
     def reset_capital(self, amount=None):
         self.capital_left = amount if amount else self.initial_capital
         print(f"🔁 手動重置資金 ➜ 資金：${self.capital_left:.2f}")
-
-    def load_previous_state(self):
-        print("⚠️ 尚未實作 load_previous_state()，預設使用 initial_capital")
-        return self.initial_capital
 
     def has_position(self, symbol):
         return symbol in self.positions
@@ -73,10 +76,8 @@ class PositionManager:
             print(msg)
             return None, msg, self.capital_left
 
-        # ✅ 每筆最多分配的資金
+        # ✅ 每筆最多可用資金
         max_allowed_capital = self.initial_capital * self.max_position_pct
-
-        # ✅ 真正可用資金
         allocatable_capital = min(self.capital_left, max_allowed_capital)
 
         # ✅ 計算張數
@@ -123,7 +124,7 @@ class PositionManager:
             "sector": sector
         }
 
-        # ✅ 正確位置：計算完 capital_used 後再扣資金
+        # ✅ 扣除資金並記錄持倉
         self.capital_left -= capital_used
         if self.capital_left < 0:
             self.capital_left = 0
