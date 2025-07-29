@@ -10,7 +10,7 @@ def send_discord_message(message, webhook_url=None):
     - 自動處理錯誤訊息與回應解析
     """
     if webhook_url is None:
-        webhook_url = os.getenv("WEBHOOK_URL")
+        webhook_url = os.getenv("DISCORD_WEBHOOK")  # ✅ 修正這行！
 
     # ✅ 安全性檢查
     if not webhook_url or "discord.com/api/webhooks" not in webhook_url:
