@@ -1,20 +1,18 @@
-from modules.entry.enter_position import enter_position
-from modules.notify.build_discord_message import build_breakout_message
-from modules.notify.discord_push import send_discord_message
-from modules.config.config import WEBHOOK_URL
 import os
 from dotenv import load_dotenv
+from modules.notify.build_discord_message import build_breakout_message
+from modules.notify.discord_push import send_discord_message
+
 load_dotenv()
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
-def handle_squeeze_entry(symbol, squeeze_result, sheet=None):
+def handle_squeeze_entry(symbol, squeeze_result, sheet=None, position_manager=None):
     """
     擠壓突破策略建倉流程：
-    - 觸發條件：進入擠壓區後突破且符合技術指標
     - 推播：格式化訊息推送至 Discord
-    - 建倉：調用 enter_position() 並寫入 Google Sheets
+    - 建倉：透過 position_manager.add_position()
     """
-    if not squeeze_result:
+    if not squeeze_result or not position_manager:
         return None
 
     print(f"📣 [{symbol}] 擠壓突破策略觸發！")
@@ -35,16 +33,24 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet=None):
         ema20=squeeze_result.get("ema20"),
         bb_upper=squeeze_result.get("bb_upper"),
         bb_lower=squeeze_result.get("bb_lower"),
+        confidence_score=squeeze_result.get("confidence_score"),
+        shares=None,
+        capital_used=None,
+        capital_left=position_manager.capital_left
     )
-    send_discord_message(WEBHOOK_URL, msg)
-    
-    # ✅ 進行建倉
-    result = enter_position(
+    send_discord_message(msg, webhook_url=WEBHOOK_URL)
+
+    # ✅ 透過 PositionManager 建倉
+    result = position_manager.add_position(
         symbol=symbol,
         price=squeeze_result.get("close"),
         direction=squeeze_result.get("direction"),
-        strategy_name=squeeze_result.get("strategy_name"),
         score=squeeze_result.get("score"),
+        confidence_score=squeeze_result.get("confidence_score"),
+        strategy_name=squeeze_result.get("strategy_name"),
+        strategy_type="squeeze",
+        signal_type="breakout",
+        signal_note="擠壓突破",
         rsi=squeeze_result.get("rsi"),
         zscore=squeeze_result.get("zscore"),
         roc=squeeze_result.get("roc"),
@@ -54,10 +60,7 @@ def handle_squeeze_entry(symbol, squeeze_result, sheet=None):
         ema20=squeeze_result.get("ema20"),
         bb_upper=squeeze_result.get("bb_upper"),
         bb_lower=squeeze_result.get("bb_lower"),
-        signal_note="擠壓突破",
-        signal_type="breakout",
-        strategy_type="squeeze",
-        sheet=sheet  # ✅ 傳入 Google Sheets 物件
+        sheet=sheet
     )
 
     return result
