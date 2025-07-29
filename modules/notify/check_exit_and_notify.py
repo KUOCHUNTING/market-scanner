@@ -95,7 +95,7 @@ def check_exit_and_notify(symbol, latest_price):
                 f"進場價：{entry_price:.2f}｜目前價：{latest_price:.2f}\n"
                 f"策略：{strategy}｜持倉時間：{holding_minutes} 分鐘"
             )
-            send_discord_message(WEBHOOK_URL, message)
+            send_discord_message(message, webhook_url=WEBHOOK_URL)  # ✅ 正確順序
             print(message)
             last_tracking_push_time[symbol] = now
         return
