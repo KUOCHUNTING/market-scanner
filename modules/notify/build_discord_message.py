@@ -158,7 +158,7 @@ def build_entry_message_from_position(position: dict):
         mean_score=position.get("mean_score"),
         shares=position.get("shares"),
         capital_used=position.get("capital_used"),
-        capital_left=position.get("capital_left"),
+        capital_left=capital_left,
     )
 
 # === 出場推播訊息 ===
