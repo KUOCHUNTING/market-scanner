@@ -32,7 +32,7 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
     pnl = (exit_price - entry_price) * shares if direction == "做多" else (entry_price - exit_price) * shares
 
     # ✅ 寫入出場紀錄
-     try:
+    try:
         write_exit_to_sheet({
             "symbol": symbol,
             "entry_time": entry_time,
