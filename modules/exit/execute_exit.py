@@ -32,26 +32,29 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
     pnl = (exit_price - entry_price) * shares if direction == "做多" else (entry_price - exit_price) * shares
 
     # ✅ 寫入出場紀錄
-    write_exit_to_sheet({
-        "symbol": symbol,
-        "entry_time": entry_time,
-        "exit_time": now_dt,
-        "return_rate": f"{round(return_pct * 100, 2)}%" if isinstance(return_pct, (int, float)) else ""
-        "pnl": pnl,
-        "holding_minutes": holding_minutes,
-        "exit_price": exit_price,
-        "rsi": rsi,
-        "zscore": zscore,
-        "roc": roc,
-        "obv": obv,
-        "vwap": vwap,
-        "ema5": ema5,
-        "ema20": ema20,
-        "strategy_name": strategy_name,
-        "shares": shares,
-        "reason": reason,
-        "direction": direction
-    })
+     try:
+        write_exit_to_sheet({
+            "symbol": symbol,
+            "entry_time": entry_time,
+            "exit_time": now_dt,
+            "return_rate": f"{round(return_pct * 100, 2)}%" if isinstance(return_pct, (int, float)) else "",
+            "pnl": pnl,
+            "holding_minutes": holding_minutes,
+            "exit_price": exit_price,
+            "rsi": rsi,
+            "zscore": zscore,
+            "roc": roc,
+            "obv": obv,
+            "vwap": vwap,
+            "ema5": ema5,
+            "ema20": ema20,
+            "strategy_name": strategy_name,
+            "shares": shares,
+            "reason": reason,
+            "direction": direction  # ✅ 建議補上
+        })
+    except Exception as e:
+        print(f"[❌ 寫入 Google Sheets 失敗] {symbol} ➜ {e}")
 
     # ✅ Discord 推播
     message = build_exit_message(
