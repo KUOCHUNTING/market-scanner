@@ -4,32 +4,41 @@ import os
 import requests
 from datetime import datetime
 
+# modules/utils/price_fetcher.py
+
+import os
+import requests
+from datetime import datetime
+import yfinance as yf
+
 def get_latest_price(symbol: str):
     api_key = os.getenv("POLYGON_API_KEY")
-    if not api_key:
-        print("❌ POLYGON_API_KEY 未設定")
-        return None, "N/A"
-
     url = f"https://api.polygon.io/v2/last/trade/{symbol}?apiKey={api_key}"
 
     try:
         response = requests.get(url)
         data = response.json()
-        print(f"[DEBUG] {symbol} 回傳資料：{data}")
 
         if "results" not in data:
-            print(f"❌ Symbol {symbol} 回傳結果無 'results' 欄位：{data}")
-            return None, "N/A"
+            print(f"⚠️ Polygon 無法取得 {symbol}：{data.get('message', '未知錯誤')} ➜ 改用 yfinance")
+            raise Exception("Polygon 降級")
 
         price = data["results"]["p"]
         ts_ms = data["results"]["t"]
         ts_str = datetime.fromtimestamp(ts_ms / 1000).strftime("%H:%M:%S")
-
         return price, ts_str
 
     except Exception as e:
-        print(f"❌ 抓取 {symbol} 價格錯誤：{e}")
-        return None, "N/A"
+        # 🟡 改用 yfinance 延遲價格
+        try:
+            ticker = yf.Ticker(symbol)
+            price = ticker.info.get("regularMarketPrice")
+            ts_str = "延遲"
+            print(f"✅ yfinance 補上 {symbol} 價格：{price}")
+            return price, ts_str
+        except Exception as e2:
+            print(f"❌ yfinance 抓不到 {symbol} 價格：{e2}")
+            return None, "N/A"
 
 def get_latest_price_with_time(symbol: str):
     """
