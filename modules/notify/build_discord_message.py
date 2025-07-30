@@ -137,9 +137,14 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict, capital_left=None):
+    # ✅ 抓取即時價格（若無則 fallback 用收盤價）
+    live_price = get_latest_price(position["symbol"])
+    entry_price = position.get("entry_price")
+    price = live_price or entry_price
+
     return build_entry_message(
         symbol=position["symbol"],
-        price=position["entry_price"],
+        price=price,  # ✅ 傳入即時成交價
         strategy_type=position.get("strategy_type", "技術策略"),
         signal_type=position.get("signal_type", "技術信號"),
         strategy_name=position["strategy_name"],
@@ -159,7 +164,7 @@ def build_entry_message_from_position(position: dict, capital_left=None):
         mean_score=position.get("mean_score"),
         shares=position.get("shares"),
         capital_used=position.get("capital_used"),
-        capital_left=capital_left,  # ✅ 用外部傳入的值
+        capital_left=capital_left
     )
 
 # === 出場推播訊息 ===
