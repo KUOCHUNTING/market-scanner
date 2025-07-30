@@ -146,23 +146,26 @@ def set_positions_ref(pos_dict):
     _positions_ref = pos_dict
 
 def schedule_exit_check(interval: int = 10):
-    """
-    定期掃描所有持倉，呼叫 check_exit_and_notify()
-    """
+    print("🟡 [DEBUG] ✅ schedule_exit_check() 被呼叫了")
+
     if not _positions_ref:
-        print("[排程] 無持倉，跳過出場掃描")
+        print("🟥 [排程] 無持倉 ➜ 跳過出場掃描 (_positions_ref is None or empty)")
         _reschedule(interval)
         return
 
-    print(f"[排程] 出場掃描開始 ({datetime.now().strftime('%H:%M:%S')})")
+    print(f"🟢 [排程] 出場掃描開始 ➜ 總共 {len(_positions_ref)} 檔持倉")
 
-    for symbol, pos in list(_positions_ref.items()):
+    for pos in _positions_ref:
+        symbol = pos.get("symbol")
+        print(f"🟡 [DEBUG] 檢查：{symbol}")
+        if not symbol:
+            continue
         price, ts_str = get_latest_price(symbol)
         if price is not None:
-            print(f"[DEBUG] {symbol} 價格：{price}（{ts_str}）")
+            print(f"🟢 [DEBUG] {symbol} 最新價格：{price}（{ts_str}）")
             check_exit_and_notify(symbol, price)
         else:
-            print(f"[跳過] 無法取得 {symbol} 價格 ➜ 不執行出場判斷")
+            print(f"🟠 [跳過] 無法取得 {symbol} 價格 ➜ 不執行出場判斷")
 
     _reschedule(interval)
 
