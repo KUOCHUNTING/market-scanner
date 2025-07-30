@@ -151,13 +151,13 @@ def schedule_exit_check(interval: int = 10):
 
     print(f"[排程] 出場掃描開始 ({datetime.now().strftime('%H:%M:%S')})")
 
-    # 避免循環匯入：動態載入
-    from modules.market_data import get_latest_price
-
     for symbol, pos in list(_positions_ref.items()):
-        latest_price = get_latest_price(symbol)
-        if latest_price is not None:
-            check_exit_and_notify(symbol, latest_price)
+        price, ts_str = get_latest_price(symbol)
+        if price is not None:
+            print(f"[DEBUG] {symbol} 價格：{price}（{ts_str}）")
+            check_exit_and_notify(symbol, price)
+        else:
+            print(f"[跳過] 無法取得 {symbol} 價格 ➜ 不執行出場判斷")
 
     _reschedule(interval)
 
