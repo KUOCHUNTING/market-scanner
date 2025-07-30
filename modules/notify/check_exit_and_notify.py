@@ -131,17 +131,16 @@ def schedule_exit_check(interval: int = 10):
 
     print(f"🟢 [排程] 出場掃描開始 ➜ 共 {len(_positions_ref)} 檔")
 
-    for pos in _positions_ref:
-        symbol = pos.get("symbol")
-        if not symbol:
-            continue
+    # ✅ 根據你傳入 dict 結構（symbol: pos）進行掃描
+    for symbol, pos in _positions_ref.items():
+        print(f"🟡 掃描 {symbol} ...")
         price, ts_str = get_latest_price(symbol)
         if price is not None:
             print(f"🟢 [DEBUG] {symbol} 最新價格：{price}（{ts_str}）")
             check_exit_and_notify(symbol, price, pos)
         else:
-            print(f"🟠 [跳過] 無法取得 {symbol} 價格 ➜ 不執行出場判斷")
-
+            print(f"🟠 無法取得 {symbol} 價格 ➜ 略過")
+    
     _reschedule(interval)
 
 def _reschedule(interval: int):
