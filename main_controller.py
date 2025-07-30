@@ -58,7 +58,7 @@ def main():
 
     # ✅ 測試持倉直接插入（避免 scan_market 沒建倉你無法測）
     from datetime import datetime, timedelta
-    pm.positions.append({
+    pm.positions["AAPL"] = {
         "symbol": "AAPL",
         "entry_time": datetime.now() - timedelta(minutes=5),
         "entry_price": 100.0,
@@ -77,7 +77,7 @@ def main():
         "vwap": 105,
         "ema5": 107,
         "ema20": 104
-    })
+    }
     print("✅ [測試] AAPL 持倉已加入")
 
     # ✅ 連接 Google Sheet
