@@ -91,6 +91,7 @@ def main():
 
     # ✅ 啟動出場排程
     try:
+        print(f"[DEBUG] 持倉掃描啟動 ➜ 當前持倉數：{len(pm.positions)}")
         schedule_exit_check(pm)
     except Exception as e:
         print(f"[錯誤] schedule_exit_check 啟動失敗：{e}")
