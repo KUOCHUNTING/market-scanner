@@ -137,18 +137,37 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position, capital_left):
+    from modules.utils.price_fetcher import get_latest_price
+    from modules.utils.format import safe_float
 
-    symbol = position["symbol"]
+    symbol = position.get("symbol", "N/A")
+    strategy_name = position.get("strategy_name", "N/A")
+    strategy_type = position.get("strategy_type", "N/A")
+    signal_type = position.get("signal_type", "N/A")
+    direction = position.get("direction", "N/A")
+    confidence = position.get("confidence_score", 0)
+    signal_note = position.get("signal_note", "N/A")
+
+    # ⏱ 即時價格與時間
     live_price, ts = get_latest_price(symbol)
+    live_price_disp = f"${safe_float(live_price)}（時間：{ts}）" if live_price else "$--（時間：N/A）"
 
-    message = f"""📈【策略觸發】{symbol}
+    # ✅ 做多/做空 emoji
+    emoji = "🟢" if direction == "做多" else "🔴"
 
-即時價：${safe_float(live_price)}（時間：{ts}）｜收盤價：${safe_float(position['price'])}
-方向：{position['direction']}｜信心：{position['confidence_score']} 分
-策略：{position['strategy_name']}｜資金投入：${safe_float(position['capital_used'])}
-可用資金剩餘：${safe_float(capital_left)}
+    message = f"""
+{emoji} **{direction} 技術策略** ➤ **{symbol}**
+
+📄 類型：{strategy_type}｜訊號：{signal_type}
+🧠 信心分數：{confidence} / 7
+📌 策略名稱：{strategy_name}
+📈 訊號摘要：{signal_note}
+
+💰 即時價：{live_price_disp}｜收盤價：${safe_float(position.get('price'))}
+📦 股數：{position.get('shares', '?')}｜進場資金：${safe_float(position.get('capital_used'))}
+💼 剩餘資金：${safe_float(capital_left)}
 """
-    return message
+    return message.strip()
 
 # === 出場推播訊息 ===
 
