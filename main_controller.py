@@ -1,5 +1,9 @@
 import os
 from dotenv import load_dotenv
+from modules.notify.check_exit_and_notify import schedule_exit_check
+
+# 呼叫持倉掃描
+schedule_exit_check(position_manager)
 
 dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path)
