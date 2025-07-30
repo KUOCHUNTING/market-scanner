@@ -5,9 +5,6 @@ import requests
 from datetime import datetime
 
 def get_latest_price(symbol: str):
-    """
-    回傳 (價格, 時間字串)，即使錯誤也會回傳 (None, "N/A")
-    """
     api_key = os.getenv("POLYGON_API_KEY")
     if not api_key:
         print("❌ POLYGON_API_KEY 未設定")
@@ -18,14 +15,20 @@ def get_latest_price(symbol: str):
     try:
         response = requests.get(url)
         data = response.json()
+        print(f"[DEBUG] {symbol} 回傳資料：{data}")
+
+        if "results" not in data:
+            print(f"❌ Symbol {symbol} 回傳結果無 'results' 欄位：{data}")
+            return None, "N/A"
 
         price = data["results"]["p"]
         ts_ms = data["results"]["t"]
         ts_str = datetime.fromtimestamp(ts_ms / 1000).strftime("%H:%M:%S")
 
         return price, ts_str
+
     except Exception as e:
-        print(f"❌ get_latest_price() 抓取失敗：{symbol} ➜ {e}")
+        print(f"❌ 抓取 {symbol} 價格錯誤：{e}")
         return None, "N/A"
 
 def get_latest_price_with_time(symbol: str):
