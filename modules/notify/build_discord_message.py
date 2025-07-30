@@ -137,35 +137,34 @@ def build_entry_message(symbol, price, strategy_type, signal_type, strategy_name
 # === Position dict 自動轉訊息 ===
 
 def build_entry_message_from_position(position: dict, capital_left=None):
-    # ✅ 抓取即時價格（若無則 fallback 用收盤價）
-    live_price = get_latest_price(position["symbol"])
-    entry_price = position.get("entry_price")
-    price = live_price or entry_price
+    """
+    組裝建倉推播訊息，顯示即時成交價、成交時間與收盤價
+    """
+    # ✅ 抓即時成交價與時間戳記
+    live_price, ts = get_latest_price(position["symbol"])
+    entry_price = safe_float(position.get("entry_price"))
+    price_used = live_price or entry_price
 
-    return build_entry_message(
-        symbol=position["symbol"],
-        price=price,  # ✅ 傳入即時成交價
-        strategy_type=position.get("strategy_type", "技術策略"),
-        signal_type=position.get("signal_type", "技術信號"),
-        strategy_name=position["strategy_name"],
-        signal_note=position.get("signal_note"),
-        direction=position["direction"],
-        score=position.get("score"),
-        confidence_score=position.get("confidence_score"),
-        rsi=position.get("rsi"),
-        zscore=position.get("zscore"),
-        ema5=position.get("ema5"),
-        ema20=position.get("ema20"),
-        bb_upper=position.get("bb_upper"),
-        bb_lower=position.get("bb_lower"),
-        obv=position.get("obv"),
-        trend_score=position.get("trend_score"),
-        rrov_score=position.get("rrov_score"),
-        mean_score=position.get("mean_score"),
-        shares=position.get("shares"),
-        capital_used=position.get("capital_used"),
-        capital_left=capital_left
-    )
+    # ✅ 成交時間字串
+    time_str = ts.strftime("%H:%M:%S") if ts else "N/A"
+
+    # ✅ 價格顯示行
+    price_line = f"📈 即時價：${safe_float(live_price)}（時間：{time_str}）｜收盤價：${entry_price}"
+
+    # ✅ 推播訊息組裝（你可改為簡化版或豐富版）
+    lines = []
+    lines.append("```")
+    lines.append(f"📌 🟢 **{position['direction']} 技術策略** ➤ **{position['symbol']}**")
+    lines.append(f"📋 類型：{position.get('strategy_type', '技術策略')}｜訊號：{position.get('signal_type', '技術')}")
+    lines.append(f"🔖 策略名稱：{position['strategy_name']}")
+    lines.append(f"🧠 信心分數：{position.get('confidence_score', 'N/A')} / 7")
+    if position.get("signal_note"):
+        lines.append(f"📝 訊號摘要：{position['signal_note']}")
+    lines.append(price_line)
+    lines.append(f"📌 股數：{position.get('shares', '--')}｜進場資金：${safe_float(position.get('capital_used'))}｜剩餘資金：${safe_float(capital_left)}")
+    lines.append("```")
+
+    return "\n".join(lines)
 
 # === 出場推播訊息 ===
 
