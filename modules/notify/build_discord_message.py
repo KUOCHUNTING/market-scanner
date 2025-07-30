@@ -1,3 +1,4 @@
+from modules.utils.price_fetcher import get_latest_price
 from datetime import datetime
 from modules.utils.format import safe_float
 
