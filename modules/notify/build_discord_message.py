@@ -140,33 +140,35 @@ def build_entry_message_from_position(position: dict, capital_left=None):
     """
     組裝建倉推播訊息，顯示即時成交價、成交時間與收盤價
     """
-    # ✅ 抓即時成交價與時間戳記
-    live_price, ts = get_latest_price(position["symbol"])
+    from modules.utils.price_fetcher import get_latest_price
+    from modules.utils.format import safe_float
+
+    # ✅ 抓 symbol 與即時價格
+    symbol = position["symbol"]
+    live_price, ts = get_latest_price(symbol)
     entry_price = safe_float(position.get("entry_price"))
     price_used = live_price or entry_price
-
-    # ✅ 成交時間字串
-    live_price, ts = get_latest_price(symbol)
     time_str = ts if ts else "N/A"
 
     # ✅ 價格顯示行
-    price_line = f"📈 即時價：${safe_float(live_price)}（時間：{time_str}）｜收盤價：${entry_price}"
+    price_line = f"💰 即時價：${safe_float(live_price)}（時間：{time_str}）｜收盤價：${entry_price}"
 
-    # ✅ 推播訊息組裝（你可改為簡化版或豐富版）
+    # ✅ 推播訊息組裝
     lines = []
     lines.append("```")
-    lines.append(f"📌 🟢 **{position['direction']} 技術策略** ➤ **{position['symbol']}**")
+    lines.append(f"📌 {'🟢' if position['direction'] == '做多' else '🔴'} **{position['direction']} 技術策略** ➤ **{symbol}**")
     lines.append(f"📋 類型：{position.get('strategy_type', '技術策略')}｜訊號：{position.get('signal_type', '技術')}")
-    lines.append(f"🔖 策略名稱：{position['strategy_name']}")
+    lines.append(f"🔖 策略名稱：{position.get('strategy_name', '--')}")
     lines.append(f"🧠 信心分數：{position.get('confidence_score', 'N/A')} / 7")
+    
     if position.get("signal_note"):
         lines.append(f"📝 訊號摘要：{position['signal_note']}")
+    
     lines.append(price_line)
     lines.append(f"📌 股數：{position.get('shares', '--')}｜進場資金：${safe_float(position.get('capital_used'))}｜剩餘資金：${safe_float(capital_left)}")
     lines.append("```")
 
     return "\n".join(lines)
-
 # === 出場推播訊息 ===
 
 def build_exit_message(symbol, direction, entry_price, exit_price, return_rate, shares, reason, strategy_name):
