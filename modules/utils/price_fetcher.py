@@ -2,24 +2,31 @@
 
 import os
 import requests
+from datetime import datetime
 
-def get_latest_price(symbol: str) -> float:
+def get_latest_price(symbol: str):
     """
-    從 Polygon API 取得即時價格
+    回傳 (價格, 時間字串)，即使錯誤也會回傳 (None, "N/A")
     """
     api_key = os.getenv("POLYGON_API_KEY")
     if not api_key:
         print("❌ POLYGON_API_KEY 未設定")
-        return None
+        return None, "N/A"
 
     url = f"https://api.polygon.io/v2/last/trade/{symbol}?apiKey={api_key}"
+
     try:
         response = requests.get(url)
         data = response.json()
-        return data["results"]["p"]
+
+        price = data["results"]["p"]
+        ts_ms = data["results"]["t"]
+        ts_str = datetime.fromtimestamp(ts_ms / 1000).strftime("%H:%M:%S")
+
+        return price, ts_str
     except Exception as e:
-        print(f"[❌] 抓取 {symbol} 即時價錯誤：{e}")
-        return None
+        print(f"❌ get_latest_price() 抓取失敗：{symbol} ➜ {e}")
+        return None, "N/A"
 
 def get_latest_price_with_time(symbol: str):
     """
