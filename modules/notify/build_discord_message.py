@@ -146,7 +146,8 @@ def build_entry_message_from_position(position: dict, capital_left=None):
     price_used = live_price or entry_price
 
     # ✅ 成交時間字串
-    time_str = ts.strftime("%H:%M:%S") if ts else "N/A"
+    live_price, ts = get_latest_price(symbol)
+    time_str = ts if ts else "N/A"
 
     # ✅ 價格顯示行
     price_line = f"📈 即時價：${safe_float(live_price)}（時間：{time_str}）｜收盤價：${entry_price}"
