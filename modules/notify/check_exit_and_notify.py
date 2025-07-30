@@ -3,7 +3,6 @@ import threading
 import os
 from dotenv import load_dotenv
 
-# ✅ 匯入工具與模組
 from modules.utils.price_fetcher import get_latest_price
 from modules.notify.discord_push import send_discord_message
 from modules.exit.execute_exit import execute_exit as core_exit
@@ -19,36 +18,17 @@ from modules.indicator_cache import get_cached_indicators
 
 load_dotenv()
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
-
-# 全域管理（建議由主控傳入）
-positions = {}
-capital_left = 0
 last_tracking_push_time = {}
 
-def check_exit_and_notify(symbol, latest_price):
-    global capital_left
-
-    if symbol not in positions:
-        return
-
-    # ✅ 修補缺失欄位
-    repair_position(symbol)
-    pos = positions[symbol]
-
-    # ✅ 防呆檢查
-    required_keys = ["entry_price", "direction", "quantity", "capital_used", "sell_stage", "max_gain", "strategy"]
-    for key in required_keys:
-        if key not in pos:
-            print(f"[錯誤] {symbol} ➜ 缺少欄位：{key} ➜ {pos}")
-            return
-
+# ✅ 出場與追蹤通知主邏輯（傳入單筆持倉 pos）
+def check_exit_and_notify(symbol, latest_price, pos):
     entry_price = pos["entry_price"]
     direction = pos["direction"]
     capital_used = pos["capital_used"]
     quantity = pos["quantity"]
-    sell_stage = pos["sell_stage"]
-    max_gain = pos["max_gain"]
-    strategy = pos["strategy"]
+    sell_stage = pos.get("sell_stage", 0)
+    max_gain = pos.get("max_gain", 0.0)
+    strategy = pos.get("strategy_name", "未命名")
     entry_time = pos.get("entry_time")
 
     # ✅ 計算報酬率
@@ -58,7 +38,7 @@ def check_exit_and_notify(symbol, latest_price):
         return_rate = (entry_price - latest_price) / entry_price
     else:
         print(f"[⚠️方向異常] direction={direction!r}")
-        return_rate = 0.0
+        return
 
     return_rate_pct = round(return_rate * 100, 2)
 
@@ -87,7 +67,7 @@ def check_exit_and_notify(symbol, latest_price):
         exit_ratio = 1.0
         sell_stage = 3
 
-    # ✅ 追蹤推播（每 3 分鐘一次）
+    # ✅ 尚未出場 → 每 3 分鐘推播一次追蹤
     now = datetime.now()
     if reason is None or exit_ratio <= 0:
         last_push = last_tracking_push_time.get(symbol)
@@ -100,18 +80,17 @@ def check_exit_and_notify(symbol, latest_price):
                 f"進場價：{entry_price:.2f}｜目前價：{latest_price:.2f}\n"
                 f"策略：{strategy}｜持倉時間：{holding_minutes} 分鐘"
             )
-            send_discord_message(message, webhook_url=WEBHOOK_URL)  # ✅ 正確順序
+            send_discord_message(message, webhook_url=WEBHOOK_URL)
             print(message)
             last_tracking_push_time[symbol] = now
         return
 
-    # ✅ 出場處理（交由核心模組處理寫入與推播）
+    # ✅ 出場處理
     exit_qty = int(quantity * exit_ratio)
     if exit_qty <= 0:
         print(f"[略過] {symbol} ➜ 出場數量為 0")
         return
 
-    # ✅ 呼叫核心出場流程
     core_exit(
         symbol=symbol,
         entry_time=entry_time,
@@ -125,45 +104,41 @@ def check_exit_and_notify(symbol, latest_price):
         ema5=pos.get("ema5"),
         ema20=pos.get("ema20"),
         strategy_name=strategy,
-        shares=exit_qty,               # ✅ 傳入數量
+        shares=exit_qty,
         reason=reason
     )
 
-    # ✅ 更新剩餘持倉與資金
-    capital_left += latest_price * exit_qty
+    # ✅ 更新持倉狀態（主控程式可選擇是否刪除）
     pos["quantity"] -= exit_qty
     pos["sell_stage"] = sell_stage
 
-    if pos["quantity"] <= 0:
-        del positions[symbol]
-import threading
-from datetime import datetime
-from modules.notify.check_exit_and_notify import check_exit_and_notify
 
-_positions_ref = None  # 要從主程式注入
-def set_positions_ref(pos_dict):
+# === 出場排程 ===
+
+_positions_ref = None
+
+def set_positions_ref(pos_list):
     global _positions_ref
-    _positions_ref = pos_dict
+    _positions_ref = pos_list
 
 def schedule_exit_check(interval: int = 10):
     print("🟡 [DEBUG] ✅ schedule_exit_check() 被呼叫了")
 
     if not _positions_ref:
-        print("🟥 [排程] 無持倉 ➜ 跳過出場掃描 (_positions_ref is None or empty)")
+        print("🟥 [排程] 無持倉 ➜ 跳過出場掃描")
         _reschedule(interval)
         return
 
-    print(f"🟢 [排程] 出場掃描開始 ➜ 總共 {len(_positions_ref)} 檔持倉")
+    print(f"🟢 [排程] 出場掃描開始 ➜ 共 {len(_positions_ref)} 檔")
 
     for pos in _positions_ref:
         symbol = pos.get("symbol")
-        print(f"🟡 [DEBUG] 檢查：{symbol}")
         if not symbol:
             continue
         price, ts_str = get_latest_price(symbol)
         if price is not None:
             print(f"🟢 [DEBUG] {symbol} 最新價格：{price}（{ts_str}）")
-            check_exit_and_notify(symbol, price)
+            check_exit_and_notify(symbol, price, pos)
         else:
             print(f"🟠 [跳過] 無法取得 {symbol} 價格 ➜ 不執行出場判斷")
 
@@ -171,4 +146,3 @@ def schedule_exit_check(interval: int = 10):
 
 def _reschedule(interval: int):
     threading.Timer(interval, schedule_exit_check, kwargs={"interval": interval}).start()
-
