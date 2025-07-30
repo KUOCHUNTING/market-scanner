@@ -49,7 +49,8 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
         "ema20": ema20,
         "strategy_name": strategy_name,
         "shares": shares,
-        "reason": reason
+        "reason": reason,
+        "direction": direction
     })
 
     # ✅ Discord 推播
