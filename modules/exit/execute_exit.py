@@ -36,7 +36,7 @@ def execute_exit(symbol, entry_time, exit_price, entry_price,
         "symbol": symbol,
         "entry_time": entry_time,
         "exit_time": now_dt,
-        "return_rate": f"{round(return_pct * 100, 2)}%" if return_pct is not None else "",
+        "return_rate": f"{round(return_pct * 100, 2)}%" if isinstance(return_pct, (int, float)) else ""
         "pnl": pnl,
         "holding_minutes": holding_minutes,
         "exit_price": exit_price,
