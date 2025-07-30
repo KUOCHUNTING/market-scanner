@@ -1,4 +1,10 @@
 from datetime import datetime, timedelta
+import threading
+import os
+from dotenv import load_dotenv
+
+# ✅ 匯入工具與模組
+from modules.utils.price_fetcher import get_latest_price
 from modules.notify.discord_push import send_discord_message
 from modules.exit.execute_exit import execute_exit as core_exit
 from modules.config import (
@@ -10,8 +16,7 @@ from modules.config import (
 )
 from modules.repair_position import repair_position
 from modules.indicator_cache import get_cached_indicators
-import os
-from dotenv import load_dotenv
+
 load_dotenv()
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK")
 
