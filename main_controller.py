@@ -87,7 +87,6 @@ def main():
         traceback.print_exc()
         
     from modules.notify.check_exit_and_notify import set_positions_ref, schedule_exit_check
-    from modules.notify.check_exit_and_notify import set_positions_ref
     set_positions_ref(pm.positions)  # ⬅️ 就放這裡！
 
     # ✅ 啟動出場排程
